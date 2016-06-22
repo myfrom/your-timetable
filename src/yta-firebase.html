@@ -1,0 +1,172 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
+
+<dom-module id="yta-firebase">
+  <template>
+    <style>
+      :host { display: none; }
+    </style>
+    
+    <app-pouchdb-document id="pouchdbDocument"
+                          db-name="your-timetable"
+                          doc-id="data"
+                          data="{{cachedData}}"></app-pouchdb-document>
+  </template>
+  
+  <script>
+    var databaseConfigured = false;
+  
+    Polymer({
+      is: 'yta-firebase',
+      
+      properties: {
+        
+        uid: String,
+        
+        configured: {
+          type: String,
+          notify: true
+        },
+        
+        data: {
+          type: Object,
+          notify: true
+        },
+        
+        cachedData: {
+          type: Object,
+          notify: true,
+          reflectToAttribute: true,
+          value: function() { return {
+            lastEdit: 0
+          } }
+        },
+        
+        fData: {
+          type: Object,
+          notify: true,
+          value: function() { return {} }
+        }
+        
+      },
+      
+      observers: [
+        'newInput(data, data.timetable, data.settings)'
+      ],
+      
+      attached: function() {
+        firebaseControl = this;
+        
+        var config = {
+          apiKey: "AIzaSyDaMune3u4WZMti3aB66FWjX9aA_lWTLkQ",
+          authDomain: "your-timetable.firebaseapp.com",
+          databaseURL: "https://your-timetable.firebaseio.com",
+          storageBucket: "your-timetable.appspot.com",
+        };
+        firebase.initializeApp(config);
+        
+        this.async(function() {
+          if(!firebase.auth().currentUser) {
+            onboarding.open()
+          }
+        }, 1000)
+        
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+            firebaseControl.set('uid', user.uid);
+            firebaseControl.load()
+          }
+        });
+      },
+      
+      signIn: function() {
+        firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+          .then(function(result) {
+            var user = result.user;
+            firebaseControl.set('uid', user.uid);
+            firebaseControl.fire('signed-in', user);
+          });
+      },
+      
+      signOut: function() {
+        firebase.auth().signOut()
+          .then(function() {
+            location.reload();
+          });
+      },
+      
+      load: function() {
+        firebase.database().ref(['users', firebaseControl.uid].join('/')).once('value')
+          .then(function(snapshot) {
+            if(snapshot.val()) {
+              firebaseControl.set('configured', true);
+              
+              firebase.database().ref(['users', firebaseControl.uid, 'settings'].join('/'))
+                .on('value', function(snapshot){
+                  firebaseControl.set('fData.settings', snapshot.val());
+                  if(databaseConfigured) {
+                    firebaseControl.saveToCache()
+                  }
+                });
+              firebase.database().ref(['users', firebaseControl.uid, 'timetable'].join('/'))
+                .on('value', function(snapshot){
+                  firebaseControl.set('fData.timetable', snapshot.val());
+                  if(databaseConfigured) {
+                    firebaseControl.saveToCache()
+                  }
+                });
+              
+              firebase.database().ref(['users', firebaseControl.uid, 'lastEdit'].join('/'))
+                .once('value')
+                .then(function(snapshot) {
+                  firebaseControl.fData.lastEdit = snapshot.val();
+                });
+              
+              var lastEdit = {
+                cloud: firebaseControl.fData.lastEdit,
+                local: firebaseControl.cachedData.lastEdit
+              };
+              
+              if(lastEdit.local > lastEdit.cloud) {
+                firebaseControl.set('fData', firebaseControl.cachedData);
+                firebaseControl.set('data', firebaseControl.cachedData);
+                firebaseControl.saveToCloud({fromCache: true});
+              } else {
+                firebaseControl.saveToCache();
+              };
+              
+              databaseConfigured = true;
+            } else {
+              firebaseControl.set('configured', false)
+            }
+          });
+      },
+      
+      saveToCache: function() {
+        this.set('data', this.fData);
+        var date = new Date().getTime();
+        this.data.lastEdit = date;
+        this.set('cachedData', this.data);
+        this.fire('data-changed');
+      },
+      
+      saveToCloud: function(config = {fromCache: false}) {
+        if(config.fromCache) {
+          firebase.database().ref(['users', this.uid].join('/'))
+            .set(this.cachedData)
+        } else {
+          var date = new Date().getTime();
+          this.data.lastEdit = date;
+          firebase.database().ref(['users', this.uid].join('/'))
+            .set(this.data);
+          this.saveToCache()
+        }
+      },
+      
+      newInput: function() {
+        this.saveToCloud()
+      }
+    });
+  </script>
+</dom-module>
