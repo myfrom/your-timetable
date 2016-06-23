@@ -1,4 +1,5 @@
 # Your Timetable
 Repository for Your Timetable app.  
-  
-This will be updated on 23 June 2016
+# Other links
+[Updates (on Google+)](https://plus.google.com/collection/E--NsB)  
+[Official site](https://your-timetable.firebaseapp.com/)
