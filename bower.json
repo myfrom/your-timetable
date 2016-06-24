@@ -1,23 +1,19 @@
 {
   "name": "your-timetable",
+  "description": "Your Timetable app",
+  "main": "index.html",
   "authors": [
-    "Wiktor Olejniczak <myfrom.13th@gmail.com>"
+    "Witus13 <myfrom.13th@gmail.com>"
   ],
-  "description": "The Your Timetable app",
-  "main": "app",
+  "license": "GNU v3",
   "keywords": [
-    "timetable"
+    "timetable",
+    "school",
+    "time-menagment",
+    "student",
+    "students"
   ],
-  "license": "MIT",
-  "homepage": "your-timetable.firebaseapp.com/#/help/about",
   "private": true,
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
     "iron-elements": "PolymerElements/iron-elements#^1.0.10",
@@ -27,5 +23,9 @@
     "google-web-components": "GoogleWebComponents/google-web-components#^1.0.1",
     "iron-swipeable-pages": "^1.2.3",
     "app-elements": "PolymerElements/app-elements#^0.9.0",
+    "vaadin-combo-box": "^1.0.1"
+  },
+  "resolutions": {
+    "firebase": "^3.0"
   }
 }
