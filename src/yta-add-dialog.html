@@ -3,27 +3,26 @@
 <!-- <link rel="import" href="../bower_components/app-layout/app-layout.html"> # Lazy loaded -->
 
 <!--<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">-->
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
 
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
-<link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html"
 
 <link rel="import" href="../bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
 <link rel="import" href="../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+
+<link rel="import" href="../bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
 <link rel="import" href="yta-common-styles.html">
 
 <dom-module id="yta-add-dialog">
   <template>
     <style include="yta-common-styles">
-      
-      :host {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
-      }
-      
       @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait), (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
         
         
@@ -79,7 +78,27 @@
     <paper-dialog id="dialog" with-backdrop>
       <h2>Add to calendar</h2>
       <paper-dialog-scrollable>
-         Lorem ipsum...
+        <template is="dom-repeat" items="{{data}}">
+          <div>
+            <paper-dropdown-menu label="What would you like to add?">
+              <paper-listbox attr-for-selected="key" selected="{{item.type}}" class="dropdown-content">
+                <paper-item key="change">Change in plan</paper-item>
+                <paper-item key="test">Test</paper-item>
+                <paper-item key="reminder">Reminder</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+            <br>
+            <template is="dom-if" if="{{isChangeSelected(item.type)}}">
+              <paper-checkbox checked="{{item.pernament}}">Pernament change</paper-checkbox><br>
+              <p on-tap="collapseFrom">Change from</p>
+              <iron-collapse class="from"></iron-collapse>
+                <div>
+                  <vaadin-combo-box label="Day"></vaadin-combo-box>
+                </div>
+              </iron-collapse>
+            </template>
+          </div>
+        </template>
       </paper-dialog-scrollable>
       <div class="buttons">
         <paper-button dialog-dismiss>Discard</paper-button>
@@ -106,6 +125,20 @@
       ],
       
       properties: {
+        
+        data: {
+          type: Object,
+          notify: true,
+          reflectToAttribute: true,
+          value: function() { return [ {
+            type: 'change',
+            name: null,
+            lesson: { day: null, number: null },
+            reminder: false,
+            subject: null,
+            pernament: false,
+          } ] }
+        },
         
         phoneLayout: {
           type: Boolean,
@@ -178,6 +211,17 @@
             }
           ],
         };
+      },
+      
+      isChangeSelected: function(selected) {
+        if(selected == 'change') {
+          return true
+        }
+      },
+      
+      collapseFrom: function() {
+        console.log('Tried to open iron-collapse.from')
+        this.$$('iron-collapse.from').show();
       },
       
       _onDialogCanceled: function(e) {
