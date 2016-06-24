@@ -91,9 +91,31 @@
             <template is="dom-if" if="{{isChangeSelected(item.type)}}">
               <paper-checkbox checked="{{item.pernament}}">Pernament change</paper-checkbox><br>
               <p on-tap="collapseFrom">Change from</p>
-              <iron-collapse class="from"></iron-collapse>
+              <iron-collapse class="from">
                 <div>
-                  <vaadin-combo-box label="Day"></vaadin-combo-box>
+                  <vaadin-combo-box>
+                    <!-- Notice the class="input" -->
+                    <paper-input label="Day" no-label-float class="input">
+                      <!-- Notice the class="selected-items" (selected Items/chips/tokens will be rendered here) -->
+                      <div class="selected-items" prefix></div>
+                      <!-- Notice the class="toggle-button" -->
+                      <!--<paper-icon-button icon="clear" suffix class="toggle-button"></paper-icon-button>-->
+                    </paper-input>
+                    <!-- Notice the class="overlay-item" -->
+                    <!--<template class="overlay-item">
+                      <paper-icon-item>
+                        <div class="avatar blue" item-icon></div>
+                        <paper-item-body two-line>
+                          <div>[[item.name]]</div>
+                          <div secondary>[[item.email]]</div>
+                        </paper-item-body>
+                      </paper-icon-item>
+                    </template>-->
+                    <!-- Notice the class="selected-item" -->
+                    <!--<template class="selected-item">
+                      <paper-chip>[[item.name]]</paper-chip>
+                    </template>-->
+                  </vaadin-combo-box>
                 </div>
               </iron-collapse>
             </template>
@@ -220,14 +242,15 @@
       },
       
       collapseFrom: function() {
-        console.log('Tried to open iron-collapse.from')
-        this.$$('iron-collapse.from').show();
+        this.$$('iron-collapse.from').toggle();
       },
       
       _onDialogCanceled: function(e) {
-        e.preventDefault();
-        this.$.cancel.open();
-        this.listen(this.$.cancel, 'iron-overlay-closed', '_onCancelClosed');
+        if(e.target == this.$.dialog) {
+          e.preventDefault();
+          this.$.cancel.open();
+          this.listen(this.$.cancel, 'iron-overlay-closed', '_onCancelClosed');
+        }
       },
       
       _onCancelClosed: function(e) {
