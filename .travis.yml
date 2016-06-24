@@ -5,7 +5,7 @@ sudo: required
 before_script:
 - npm install -g bower polylint web-component-tester
 - bower install
-- polylint
+- polylint --entrypoint src/yta-shell.html
 script:
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct --skip-plugin local; fi
 env:
