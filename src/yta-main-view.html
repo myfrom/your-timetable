@@ -33,49 +33,13 @@
   <template>
     <style include="yta-common-styles">
     
-      /* Bold text on buttons when focus fix */
-      paper-button.keyboard-focus {
-        font-weight: normal !important;
-      }
-      
-      
-      
       @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
         
       /*
        * Phone styles
        */
-      
-        #fab {
-          position: fixed;
-          bottom: 16px;
-          right: 16px;
-        }
+       
         
-      }
-      
-      @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
-      
-        
-      /*
-       * Phone portrait styles
-       */
-        
-        app-toolbar {
-          height: 56px !important;
-        }
-        
-      }
-      
-      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
-        
-      /*
-       * Phone landscape styles
-       */
-        
-        app-toolbar {
-          height: 48px !important;
-        }
         
       }
       
@@ -455,9 +419,9 @@
         this.importHref('src/yta-add-dialog.html', function() {
           /*// Define shared elents
           if(!shell.desktopLayout) {
-            appmain.set('sharedElements', {
+            appmain.sharedElements = {
               'hero': appmain.$.fab
-            });
+            };
           };
         
           // Set to-dialog transition

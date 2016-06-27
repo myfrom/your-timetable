@@ -1,6 +1,106 @@
 <dom-module id="yta-common-styles">
   <template>
     <style>
+    
+      /***********************************
+       *                                 *
+       * Moar Material for core elements *
+       *                                 *
+       ***********************************/
+    
+      /* Useful value for Material theming */
+      :host {
+        --primary-body-color: #fafafa;
+      }
+      
+      /* Bold text when focus fixes */
+      paper-button.keyboard-focus {
+        font-weight: normal !important;
+      }
+      
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        
+      /*
+       * Phone styles
+       */
+       
+        app-toolbar {
+          padding-left: 8px;
+        }
+        
+        app-toolbar::shadow [title] {
+          margin-left: 24px;
+        }
+      
+        #fab {
+          position: fixed;
+          bottom: 16px;
+          right: 16px;
+        }
+        
+      }
+      
+      @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+      
+        
+      /*
+       * Phone portrait styles
+       */
+        
+        app-toolbar {
+          height: 56px !important;
+        }
+        
+      }
+      
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
+        
+      /*
+       * Phone landscape styles
+       */
+        
+        app-toolbar {
+          height: 48px !important;
+        }
+        
+      }
+      
+      @media (min-width: 960px) and (orientation: landscape), (min-width: 600px) and (orientation: portrait) {
+        
+      /*
+       * Tablet/Desktop styles
+       */
+       
+        app-toolbar {
+          /*height: 64px; # Not nescessary since this is the default*/
+          padding: 0 8px 0 60px;
+        }
+        
+      }
+      
+      /*
+       * Cross-device styles
+       */
+       
+      paper-tab {
+        @apply(--paper-font-button);
+        font-weight: 500 !important;
+      }
+      
+      paper-tabs {
+        padding: 0 60px;
+      }
+    
+    
+    
+    
+    /***************************************************************
+     *                                                             *
+     * Content below copied from iron-flex-layout and paper-styles *
+     *                                                             *
+     ***************************************************************/
+    
+    
       /*
       @license
       Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
@@ -854,14 +954,6 @@
           left: 0;
         }
         ;
-        /*
-         * Something from me
-         */
-        --primary-body-color: #fafafa;
-      }
-      /* Bold text on buttons when focus fix */
-      paper-button.keyboard-focus {
-        font-weight: normal !important;
       }
     </style>
   </template>

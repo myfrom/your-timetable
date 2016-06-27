@@ -54,7 +54,9 @@
       <yta-common-dialogs key="dialogs"></yta-common-dialogs>
       <yta-settings key="settings"></yta-settings>
       <yta-onboarding key="onboarding"></yta-onboarding>
-      <yta-add-dialog key="add" phone-layout="[[phoneLayout]]"></yta-add-dialog>
+      <yta-add-dialog key="add"
+                      app-data="{{appData}}"
+                      phone-layout="[[phoneLayout]]"></yta-add-dialog>
       <yta-feedback-dialog key="feedback"></yta-feedback-dialog>
     </neon-animated-pages>
   </template>
@@ -130,12 +132,12 @@
           case 'openAddDialog':
             addDialog.isActive = true;
             addDialog.$.dialog.open();
-            this.set('selected', 'add');
+            this.selected = 'add';
             this.set('routeData.page', 'add');
             break;
           case 'closeAddDialog':
             addDialog.$.dialog.close();
-            this.set('selected', 'main');
+            this.selected = 'main';
             this.set('routeData.page', 'app');
         }
       },
