@@ -6,7 +6,7 @@ before_script:
 - npm install -g bower polylint web-component-tester
 - bower install
 script:
-- polylint --entrypoint src/yta-shell.html
+- polylint -i src/yta-shell.html
 - wct --skip-plugin local
 env:
   global:
