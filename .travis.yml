@@ -5,8 +5,8 @@ sudo: required
 before_script:
 - npm install -g bower polylint web-component-tester
 - bower install
-- polylint
 script:
+- polylint --entrypoint src/yta-shell.html
 - wct --skip-plugin local
 env:
   global:
