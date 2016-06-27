@@ -1,6 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<!-- <link rel="import" href="../bower_components/app-layout/app-layout.html"> # Lazy loaded -->
+<link rel="import" href="../bower_components/app-datepicker/app-datepicker-dialog.html">
 
 <!--<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">-->
 <link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
@@ -38,31 +38,6 @@
         
       }
       
-      @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
-      
-        
-      /*
-       * Phone portrait styles
-       */
-        
-        app-toolbar {
-          height: 56px !important;
-        }
-        
-      }
-      
-      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
-        
-      /*
-       * Phone landscape styles
-       */
-        
-        app-toolbar {
-          height: 48px !important;
-        }
-        
-      }
-      
       #content {
         /*@apply(--layout-fit);*/
         background-color: white;
@@ -88,14 +63,15 @@
               </paper-listbox>
             </paper-dropdown-menu>
             <br>
-            <template is="dom-if" if="{{isChangeSelected(item.type)}}">
+            <template is="dom-if" if="{{_isChangeSelected(item.type)}}">
               <paper-checkbox checked="{{item.pernament}}">Pernament change</paper-checkbox><br>
               <p on-tap="collapseFrom">Change from</p>
               <iron-collapse class="from">
                 <div>
+                  
                   <vaadin-combo-box>
                     <!-- Notice the class="input" -->
-                    <paper-input label="Day" no-label-float class="input">
+                    <paper-input label="Lesson" no-label-float class="input">
                       <!-- Notice the class="selected-items" (selected Items/chips/tokens will be rendered here) -->
                       <div class="selected-items" prefix></div>
                       <!-- Notice the class="toggle-button" -->
@@ -127,6 +103,10 @@
         <paper-button dialog-confirm>Save</paper-button>
       </div>
     </paper-dialog>
+    
+    <app-datepicker-dialog id="datepicker"
+                           show-long-date
+                           disable-days="{{_computeIgnoredDays(appData.timetable)}}"></app-datepicker-dialog>
     
     <paper-dialog id="cancel">
       <p>Discard edits?</p>
@@ -160,6 +140,11 @@
             subject: null,
             pernament: false,
           } ] }
+        },
+        
+        appData: {
+          type: Object,
+          notify: true
         },
         
         phoneLayout: {
@@ -235,7 +220,7 @@
         };
       },
       
-      isChangeSelected: function(selected) {
+      _isChangeSelected: function(selected) {
         if(selected == 'change') {
           return true
         }
@@ -243,6 +228,18 @@
       
       collapseFrom: function() {
         this.$$('iron-collapse.from').toggle();
+      },
+      
+      _computeIgnoredDays: function(timetable) {
+        var output = [0,1,2,3,4,5,6];
+        for(var i = 0; i < timetable.length; i++) {
+          if(i == 6) {
+            output.splice(0, 1)
+          } else {
+            output.splice(1, 1)
+          }
+        };
+        return output
       },
       
       _onDialogCanceled: function(e) {
@@ -267,4 +264,3 @@
       }
     })
   </script>
-</dom-module>

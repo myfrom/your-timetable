@@ -23,7 +23,8 @@
     "google-web-components": "GoogleWebComponents/google-web-components#^1.0.1",
     "iron-swipeable-pages": "^1.2.3",
     "app-elements": "PolymerElements/app-elements#^0.9.0",
-    "vaadin-combo-box": "^1.0.1"
+    "vaadin-combo-box": "^1.0.1",
+    "app-datepicker": "^2.7.0"
   },
   "resolutions": {
     "firebase": "^3.0"
