@@ -188,7 +188,7 @@
       
     </style>
     
-    <yta-firebase data="{{data}}"></yta-firebase>
+    <yta-firebase data="{{data}}" user="{{user}}"></yta-firebase>
     
     <app-drawer-layout force-narrow fullbleed>
       <app-drawer id="drawer" swipe-open="[[phoneLayout]]">
@@ -197,8 +197,8 @@
           <div scrim></div>
           <div>
             <div>
-              <div>{{user.name}}</div>
-              <div secondary>{{user.email}}</div>
+              <div>[[user.displayName]]</div>
+              <div secondary>[[user.email]]</div>
             </div>
             <paper-menu-button horizontal-align="right">
               <paper-icon-button icon="arrow-drop-down" class="dropdown-trigger"></paper-icon-button>
@@ -320,10 +320,10 @@
           notify: true,
           reflectToAttribute: true,
           value: function() { return {
-            signedIn: false,
-            name: 'Your name',
+            displayName: 'Your name',
             email: 'you@example.com',
-            imageUrl: 'https://placehold.it/64?text=You'
+            photoURL: 'https://placehold.it/64?text=You',
+            isDefault: true
           } }
           
         },

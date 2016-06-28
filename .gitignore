@@ -2,3 +2,4 @@ node_modules
 old_src
 bower_components
 package.json
+build
