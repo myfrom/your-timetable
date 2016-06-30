@@ -4,6 +4,7 @@ dist: trusty
 sudo: required
 before_script:
 - npm install -g bower polylint web-component-tester
+- cd app
 - bower install
 script:
 - polylint -i src/yta-shell.html
