@@ -304,21 +304,18 @@
         selected: {
           type: String,
           notify: true,
-          reflectToAttribute: true,
           value: 'overview',
           observer: 'resolveSelected'
         },
         
         data: {
           type: Object,
-          notify: true,
-          reflectToAttribute: true
+          notify: true
         },
         
         user: {
           type: Object,
           notify: true,
-          reflectToAttribute: true,
           value: function() { return {
             displayName: 'Your name',
             email: 'you@example.com',
