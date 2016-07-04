@@ -1,6 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<!--<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">-->
+<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
 <link rel="import" href="../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html"><!-- Change for smaller package -->
@@ -39,14 +39,6 @@
        */
         
         
-        div[images] {
-          @apply(--layout-flex-2);
-        }
-        
-        div[text] {
-          @apply(--layout-flex);
-        }
-        
         div[index] {
           @apply(--layout-vertical);
         }
@@ -68,34 +60,63 @@
       }
       
       div[images] {
+        @apply(--layout-flex-3);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
         position: relative;
       }
       
-      div[index="1"] > div > .first-img {
-        width: 100px;
-        height: 100px;
+      div[index="1"] > div[images] > .first-img {
+        width: 150px;
+        height: 150px;
         position: absolute;
-        bottom: 50px;
+        bottom: 0;
         z-index: 1;
-        transform: translateX(calc(50% - 50px));
       }
       
-      div[index="1"] > div > .second-img.left {
+      div[index="1"] > div[images] > .second-img.left {
         width: 90px;
         height: 150px;
         position: absolute;
-        bottom: 50px;
+        bottom: 0;
         z-index: 0;
-        transform: translateX(calc(50% - 45px)) translate3d(-90px,-90px,0) rotate(-15deg);
+        transform: translate3d(-90px,-90px,0) rotate(-15deg);
       }
       
-      div[index="1"] > div > .second-img.right {
+      div[index="1"] > div[images] > .second-img.right {
         width: 200px;
         height: 175px;
         position: absolute;
-        bottom: 50px;
+        bottom: 0;
         z-index: 0;
-        transform: translateX(calc(50% - 100px)) translate3d(90px,-90px,0) rotate(15deg);
+        transform: translate3d(90px,-90px,0) rotate(15deg);
+      }
+      
+      div[text] {
+        @apply(--layout-flex-2);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        padding: 24px 24px 20px 24px;
+      }
+      
+      div[text] > h2 {
+        @apply(--paper-font-headline);
+      }
+      
+      div[text] > p {
+        @apply(--paper-font-subhead);
+      }
+      
+      div[index="1"] > div[text] {
+        padding-bottom: 12px;
+      }
+      
+      div[index="1"] > div[text] > paper-button[google-signin] {
+        margin-bottom: 24px;
+      }
+      
+      div[index="1"] > div[text] > div > paper-button.small {
+        @apply(--paper-font-caption);
       }
       
       paper-button[google-signin] {
@@ -106,7 +127,6 @@
           height: 40px;
           background-color: #4285F4;
       }
-      
       paper-button[google-signin]::shadow img {
           height: 18px;
           width: 18px;
@@ -116,10 +136,14 @@
           border-radius: 5px;
       }
       
+      paper-button.blue, paper-icon-button.blue {
+        color: var(--google-blue-500);
+      }
+      
     </style>
     
     <div id="main">
-      <iron-swipeable-pages selected="{{selected}}">
+      <iron-swipeable-pages id="carousel" selected="{{selected}}">
         <div index="1">
           <div images>
             <iron-image class="second-img left" preload fade
@@ -140,14 +164,15 @@
           </div>
           <div text>
             <h2>Sign-in with Google</h2>
-            <p main>This allows Your Timetable to work on all of your devices</p>
+            <p>This allows Your Timetable to work on all of your devices</p>
             <paper-button raised google-signin on-tap="signIn">
               <img src="../images/googlelogo-big.png">Sign in with Google
             </paper-button>
-            <br>
-            <paper-button class="small blue" on-tap="testDrive">Test drive</paper-button>
-            <paper-icon-button icon="help" id="helpButtonTooltipTarget" on-tap="showHelpTooltip"></paper-icon-button>
-            <paper-tooltip fit-to-visible-bounds manual-mode for="helpButtonTooltipTarget">Browse anonymously for 30 minutes</paper-tooltip>
+            <div style="display:inline-block">
+              <paper-button class="small blue" on-tap="testDrive">Test drive</paper-button>
+              <paper-icon-button class="blue" icon="help-outline" id="helpButtonTooltipTarget" on-tap="showHelpTooltip"></paper-icon-button>
+              <paper-tooltip fit-to-visible-bounds manual-mode for="helpButtonTooltipTarget">Browse anonymously for 30 minutes</paper-tooltip>
+            </div>
           </div>
         </div>
         <div index="2">
@@ -163,7 +188,7 @@
       
       behaviors: [
         Polymer.NeonAnimationRunnerBehavior,
-        // Polymer.IronResizableBehavior
+        Polymer.IronResizableBehavior
       ],
       
       properties: {
@@ -202,7 +227,7 @@
       },
       
       listeners: {
-        //'iron-resize': 'setLayout' // To set the layout when screen size changes
+        'iron-resize': 'setLayout' // To set the layout when screen size changes
       },
       
       attached: function() {
@@ -214,10 +239,21 @@
       },
       
       showHelpTooltip: function() {
-        this.querySelector('div[index] > div[text] > paper-tooltip').show()
+        this.querySelector('div[index] > div[text] > div > paper-tooltip').show()
         this.async(function() {
-          this.querySelector('div[index] > div[text] > paper-tooltip').hide()
+          this.querySelector('div[index] > div[text] > div > paper-tooltip').hide()
         }, 5000)
+      },
+      
+      setLayout: function() {
+        /*var imagesNL = this.$.carousel.querySelectorAll('div[images] > *');
+        var images = Array.prototype.slice.call(imagesNL);
+        images.forEach(function(item) {
+          var parentHalfWidth = item.parentElement.offsetWidth / 2;
+          var thisHalfWidth = item.offsetWidth / 2;
+          var output = parentHalfWidth - thisHalfWidth;
+          item.style.transform = [ 'translateX(', output, 'px', ')'].join('');
+        });*/
       }
     })
   </script>
