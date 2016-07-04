@@ -41,9 +41,6 @@
         
         div[images] {
           @apply(--layout-flex-2);
-          @apply(--layout-vertical);
-          @apply(--layout-center);
-          position: relative;
         }
         
         div[text] {
@@ -75,11 +72,12 @@
       }
       
       div[index="1"] > div > .first-img {
-        width: 150px;
-        height: 150px;
+        width: 100px;
+        height: 100px;
         position: absolute;
         bottom: 50px;
         z-index: 1;
+        transform: translateX(calc(50% - 50px));
       }
       
       div[index="1"] > div > .second-img.left {
@@ -88,7 +86,7 @@
         position: absolute;
         bottom: 50px;
         z-index: 0;
-        transform: translate3d(-90px,-90px,0) rotate(-15deg);
+        transform: translateX(calc(50% - 45px)) translate3d(-90px,-90px,0) rotate(-15deg);
       }
       
       div[index="1"] > div > .second-img.right {
@@ -97,7 +95,7 @@
         position: absolute;
         bottom: 50px;
         z-index: 0;
-        transform: translate3d(90px,-90px,0) rotate(15deg);
+        transform: translateX(calc(50% - 100px)) translate3d(90px,-90px,0) rotate(15deg);
       }
       
       paper-button[google-signin] {
