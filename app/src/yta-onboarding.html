@@ -1,8 +1,13 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
 <!--<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">-->
+<link rel="import" href="../bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html"><!-- Change for smaller package -->
 
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 
 <link rel="import" href="../bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
 <link rel="import" href="../bower_components/neon-animation/neon-animation-runner-behavior.html">
@@ -12,16 +17,41 @@
 <dom-module id="yta-onboarding">
   <template>
     <style include="yta-common-styles">
-      @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait), (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
-        
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+      
         
       /*
-       * Phone styles
+       * Phone portrait styles
        */
         
         
-        #main {
+        #main { /* Move to phone-styles */
           @apply(--layout-fit);
+        }
+        
+      }
+      
+      @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        
+        
+      /*
+       * Phone portrait styles
+       */
+        
+        
+        div[images] {
+          @apply(--layout-flex-2);
+          @apply(--layout-vertical);
+          @apply(--layout-center);
+          position: relative;
+        }
+        
+        div[text] {
+          @apply(--layout-flex);
+        }
+        
+        div[index] {
+          @apply(--layout-vertical);
         }
         
       }
@@ -32,11 +62,101 @@
        */
       
       
-      /*..*/
+      #main {
+        background-color: white;
+      }
+      
+      iron-swipeable-pages {
+        @apply(--layout-fit);
+      }
+      
+      div[images] {
+        position: relative;
+      }
+      
+      div[index="1"] > div > .first-img {
+        width: 150px;
+        height: 150px;
+        position: absolute;
+        bottom: 50px;
+        z-index: 1;
+      }
+      
+      div[index="1"] > div > .second-img.left {
+        width: 90px;
+        height: 150px;
+        position: absolute;
+        bottom: 50px;
+        z-index: 0;
+        transform: translate3d(-90px,-90px,0) rotate(-15deg);
+      }
+      
+      div[index="1"] > div > .second-img.right {
+        width: 200px;
+        height: 175px;
+        position: absolute;
+        bottom: 50px;
+        z-index: 0;
+        transform: translate3d(90px,-90px,0) rotate(15deg);
+      }
+      
+      paper-button[google-signin] {
+          padding: 0 12px 0 0;
+          font-weight: 500;
+          font-size: 14px;
+          color: white;
+          height: 40px;
+          background-color: #4285F4;
+      }
+      
+      paper-button[google-signin]::shadow img {
+          height: 18px;
+          width: 18px;
+          padding: 8px;
+          background-color: white;
+          margin: 0 16px 0 4px;
+          border-radius: 5px;
+      }
       
     </style>
     
-    
+    <div id="main">
+      <iron-swipeable-pages selected="{{selected}}">
+        <div index="1">
+          <div images>
+            <iron-image class="second-img left" preload fade
+                        src="../images/phone-sync.png"
+                        sizing="contain"
+                        placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABL1BMVEXx19Xy6Ofz7evx8PDr7unq7fDP4tTP3efz7u7y5OPz8PDz+/vz+/vz8fHy7+7y8fHz7u3z9/by4N/y4N/z9PTx8PDz5+Pz9vfueG7rTkDoRzvrfHTy8vLz7u7z7/HviGjz29j+08f+/fby8vLz9f79thP45MqGuf2au/P09PLy9f7svxPr68xrm/hChfT29PLt8fGDv3TW59vk89F2pPbt7/Ll7OP29PZnvH03qVY0qFJftIr29PHh5+3s7uv38/Td6uDb6eD29PLr7vDt8O3f6eLu8O769fn69fnv8PHf5u3s7vHz+vvz+Pny5+rw8vT0/frrYFf/yLvz8vH079rq+v+Nu/nt7/L37dn28v+Yt/fq7fL/9/hOsmxlo9X8+PHj7uvm6vX69fn59vT///9Am+niAAAATHRSTlMAAAAAAAAAAAITeLa2eBMCMeL+/uIxE9v7/Pz72xN3+///+3ez/f///bOz/f///bN3+///+3cT2/v8/PvbEzHi/v7iMQITeLa2eBMC6cq1jgAAAAFiS0dEZMLauAkAAAAHdElNRQfgBwEJNSKojLKKAAAAdklEQVQI12PgYODk4ubh5WPkZ2ASEPQREvYVEWVmEBP3k5CUkvaXkWWQC5APVFAMUgpWZlAJUVULDVPXCNdk0IrQ1omM0tWL1mcwiDGMNTKOM4k3ZTAzT7CwtLJOtLFlYLGzT3JwTHZyZmVwYXN1c/fw9GL3BgBr7BNXx13zOQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxNi0wNy0wMVQwOTo1MzozNC0wNDowMNLQVYYAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTYtMDctMDFUMDk6NTM6MzQtMDQ6MDCjje06AAAAAElFTkSuQmCC">
+            </iron-image>
+            <iron-image class="first-img" preload fade
+                        src="../images/googlelogo-withbackground.png"
+                        sizing="contain"
+                        placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABL1BMVEXx19Xy6Ofz7evx8PDr7unq7fDP4tTP3efz7u7y5OPz8PDz+/vz+/vz8fHy7+7y8fHz7u3z9/by4N/y4N/z9PTx8PDz5+Pz9vfueG7rTkDoRzvrfHTy8vLz7u7z7/HviGjz29j+08f+/fby8vLz9f79thP45MqGuf2au/P09PLy9f7svxPr68xrm/hChfT29PLt8fGDv3TW59vk89F2pPbt7/Ll7OP29PZnvH03qVY0qFJftIr29PHh5+3s7uv38/Td6uDb6eD29PLr7vDt8O3f6eLu8O769fn69fnv8PHf5u3s7vHz+vvz+Pny5+rw8vT0/frrYFf/yLvz8vH079rq+v+Nu/nt7/L37dn28v+Yt/fq7fL/9/hOsmxlo9X8+PHj7uvm6vX69fn59vT///9Am+niAAAATHRSTlMAAAAAAAAAAAITeLa2eBMCMeL+/uIxE9v7/Pz72xN3+///+3ez/f///bOz/f///bN3+///+3cT2/v8/PvbEzHi/v7iMQITeLa2eBMC6cq1jgAAAAFiS0dEZMLauAkAAAAHdElNRQfgBwEJNSKojLKKAAAAdklEQVQI12PgYODk4ubh5WPkZ2ASEPQREvYVEWVmEBP3k5CUkvaXkWWQC5APVFAMUgpWZlAJUVULDVPXCNdk0IrQ1omM0tWL1mcwiDGMNTKOM4k3ZTAzT7CwtLJOtLFlYLGzT3JwTHZyZmVwYXN1c/fw9GL3BgBr7BNXx13zOQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxNi0wNy0wMVQwOTo1MzozNC0wNDowMNLQVYYAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTYtMDctMDFUMDk6NTM6MzQtMDQ6MDCjje06AAAAAElFTkSuQmCC">
+            </iron-image>
+            <iron-image class="second-img right" preload fade
+                        src="../images/tablet-sync.png"
+                        sizing="contain"
+                        placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABL1BMVEXx19Xy6Ofz7evx8PDr7unq7fDP4tTP3efz7u7y5OPz8PDz+/vz+/vz8fHy7+7y8fHz7u3z9/by4N/y4N/z9PTx8PDz5+Pz9vfueG7rTkDoRzvrfHTy8vLz7u7z7/HviGjz29j+08f+/fby8vLz9f79thP45MqGuf2au/P09PLy9f7svxPr68xrm/hChfT29PLt8fGDv3TW59vk89F2pPbt7/Ll7OP29PZnvH03qVY0qFJftIr29PHh5+3s7uv38/Td6uDb6eD29PLr7vDt8O3f6eLu8O769fn69fnv8PHf5u3s7vHz+vvz+Pny5+rw8vT0/frrYFf/yLvz8vH079rq+v+Nu/nt7/L37dn28v+Yt/fq7fL/9/hOsmxlo9X8+PHj7uvm6vX69fn59vT///9Am+niAAAATHRSTlMAAAAAAAAAAAITeLa2eBMCMeL+/uIxE9v7/Pz72xN3+///+3ez/f///bOz/f///bN3+///+3cT2/v8/PvbEzHi/v7iMQITeLa2eBMC6cq1jgAAAAFiS0dEZMLauAkAAAAHdElNRQfgBwEJNSKojLKKAAAAdklEQVQI12PgYODk4ubh5WPkZ2ASEPQREvYVEWVmEBP3k5CUkvaXkWWQC5APVFAMUgpWZlAJUVULDVPXCNdk0IrQ1omM0tWL1mcwiDGMNTKOM4k3ZTAzT7CwtLJOtLFlYLGzT3JwTHZyZmVwYXN1c/fw9GL3BgBr7BNXx13zOQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxNi0wNy0wMVQwOTo1MzozNC0wNDowMNLQVYYAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTYtMDctMDFUMDk6NTM6MzQtMDQ6MDCjje06AAAAAElFTkSuQmCC">
+            </iron-image>
+          </div>
+          <div text>
+            <h2>Sign-in with Google</h2>
+            <p main>This allows Your Timetable to work on all of your devices</p>
+            <paper-button raised google-signin on-tap="signIn">
+              <img src="../images/googlelogo-big.png">Sign in with Google
+            </paper-button>
+            <br>
+            <paper-button class="small blue" on-tap="testDrive">Test drive</paper-button>
+            <paper-icon-button icon="help" id="helpButtonTooltipTarget" on-tap="showHelpTooltip"></paper-icon-button>
+            <paper-tooltip fit-to-visible-bounds manual-mode for="helpButtonTooltipTarget">Browse anonymously for 30 minutes</paper-tooltip>
+          </div>
+        </div>
+        <div index="2">
+          2
+        </div>
+      </iron-swipeable-pages>
+    </div>
   </template>
   
   <script>
@@ -58,14 +178,28 @@
         isActive: {
           type: Boolean,
           value: false
-        }
+        },
         
-        /*animationConfig: {
+        selected: {
+          type: Number,
+          notify: true,
+          value: 0
+        },
+        
+        animationConfig: {
           value: function() { return {
-            'entry': null,
-            'exit': null
+            'entry': {
+              name: 'slide-from-bottom-animation',
+              node: this,
+              /*timing: { duration: 300, easing: }*/
+            },
+            'exit':{
+              name: 'slide-down-animation',
+              node: this,
+              /*timing: { duration: 300, easing: }*/
+            }
           } }
-        },*/
+        }
         
       },
       
@@ -75,6 +209,17 @@
       
       attached: function() {
         onboarding = this;
+      },
+      
+      open: function() {
+        //..
+      },
+      
+      showHelpTooltip: function() {
+        this.querySelector('div[index] > div[text] > paper-tooltip').show()
+        this.async(function() {
+          this.querySelector('div[index] > div[text] > paper-tooltip').hide()
+        }, 5000)
       }
     })
   </script>
