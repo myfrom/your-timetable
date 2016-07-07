@@ -4,7 +4,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" sizes="32x32" href="/images/icon-32.png">
-    <meta name="theme-color" content="#673ab7">
+    <meta id="themeColour" name="theme-color" content="#673ab7">
     <link rel="manifest" href="/manifest.json">
     
     <title>Your Timetable</title>
@@ -38,6 +38,8 @@
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
       ga('create', 'UA-74403254-2', 'auto');
       ga('send', 'pageview');
+      // Required to run
+      var shell, appmain, dialogs, addDialog, firebaseControl, onboarding;
     </script>
     
     <link rel="import" href="src/yta-shell.html">
@@ -49,10 +51,6 @@
     
     <yta-shell></yta-shell>
     
-    <script>
-      // Required to run
-      var shell, appmain, dialogs, addDialog, firebaseControl, onboarding;
-    </script>
   </body>
   
 </html>

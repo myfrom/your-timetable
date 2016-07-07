@@ -139,11 +139,10 @@
             break;
           case 'openOnboarding':
             this.importHref('src/yta-onboarding.html', function() {
-              onboarding.open();
+              onboarding.open()
               this.selected = 'onboarding';
               this.set('routeData.page', 'welcome');
             }, null, true);
-            //.. Show a cool spinner
             break;
           default:
             throw('"switch-page" event fired without specyfied action!')

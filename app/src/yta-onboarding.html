@@ -21,11 +21,11 @@
       
         
       /*
-       * Phone portrait styles
+       * Phone styles
        */
         
         
-        #main { /* Move to phone-styles */
+        #main {
           @apply(--layout-fit);
         }
         
@@ -52,6 +52,7 @@
       
       
       #main {
+        @apply(--shadow-elevation-24dp);
         background-color: white;
       }
       
@@ -59,10 +60,12 @@
         @apply(--layout-fit);
       }
       
+      div[index="1"] {
+        background-color: #FFFFFF;
+      }
+      
       div[images] {
         @apply(--layout-flex-3);
-        @apply(--layout-vertical);
-        @apply(--layout-center);
         position: relative;
       }
       
@@ -101,14 +104,17 @@
       
       div[text] > h2 {
         @apply(--paper-font-headline);
+        margin: 0 0 18px 0;
       }
       
       div[text] > p {
         @apply(--paper-font-subhead);
+        text-align: center;
+        margin: 0 40px 0 40px;
       }
       
       div[index="1"] > div[text] {
-        padding-bottom: 12px;
+        padding-bottom: 0;
       }
       
       div[index="1"] > div[text] > paper-button[google-signin] {
@@ -124,7 +130,7 @@
           font-weight: 500;
           font-size: 14px;
           color: white;
-          height: 40px;
+          min-height: 40px;
           background-color: #4285F4;
       }
       paper-button[google-signin]::shadow img {
@@ -143,13 +149,13 @@
     </style>
     
     <div id="main">
-      <iron-swipeable-pages id="carousel" selected="{{selected}}">
-        <div index="1">
+      <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle threshold="0.2" selectable='[index="1"]'>
+        <div index="1" color="#FFFFFF">
           <div images>
             <iron-image class="second-img left" preload fade
                         src="../images/phone-sync.png"
                         sizing="contain"
-                        placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABL1BMVEXx19Xy6Ofz7evx8PDr7unq7fDP4tTP3efz7u7y5OPz8PDz+/vz+/vz8fHy7+7y8fHz7u3z9/by4N/y4N/z9PTx8PDz5+Pz9vfueG7rTkDoRzvrfHTy8vLz7u7z7/HviGjz29j+08f+/fby8vLz9f79thP45MqGuf2au/P09PLy9f7svxPr68xrm/hChfT29PLt8fGDv3TW59vk89F2pPbt7/Ll7OP29PZnvH03qVY0qFJftIr29PHh5+3s7uv38/Td6uDb6eD29PLr7vDt8O3f6eLu8O769fn69fnv8PHf5u3s7vHz+vvz+Pny5+rw8vT0/frrYFf/yLvz8vH079rq+v+Nu/nt7/L37dn28v+Yt/fq7fL/9/hOsmxlo9X8+PHj7uvm6vX69fn59vT///9Am+niAAAATHRSTlMAAAAAAAAAAAITeLa2eBMCMeL+/uIxE9v7/Pz72xN3+///+3ez/f///bOz/f///bN3+///+3cT2/v8/PvbEzHi/v7iMQITeLa2eBMC6cq1jgAAAAFiS0dEZMLauAkAAAAHdElNRQfgBwEJNSKojLKKAAAAdklEQVQI12PgYODk4ubh5WPkZ2ASEPQREvYVEWVmEBP3k5CUkvaXkWWQC5APVFAMUgpWZlAJUVULDVPXCNdk0IrQ1omM0tWL1mcwiDGMNTKOM4k3ZTAzT7CwtLJOtLFlYLGzT3JwTHZyZmVwYXN1c/fw9GL3BgBr7BNXx13zOQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxNi0wNy0wMVQwOTo1MzozNC0wNDowMNLQVYYAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTYtMDctMDFUMDk6NTM6MzQtMDQ6MDCjje06AAAAAElFTkSuQmCC">
+                        placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAPCAQAAACCCB01AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAHdElNRQfgBwcFJAF1Q0ZQAAAApElEQVQI1yXDsU3DQBQA0PfvDstCwgEJCaoMkJoJKFmHzdIyAmGIpEkBCJkUhDi+o+BJL1bbz6U2R2kprnfx3G6dQfHBprY2t/9vtYzx7Qh6Y5Qsu9A7ypLUdEYvTrImJT8Oio1fSersHTxZeNdJkztf1m7cO0mz3oNs0KlKmHUeHU1CqarJhKIqQ7uKS0mVDa2s49UkUOwjVttxObdzlJZjsfsDJU1DluhS9LkAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTYtMDctMDdUMDU6MzY6MDEtMDQ6MDDJ0KzaAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE2LTA3LTA3VDA1OjM2OjAxLTA0OjAwuI0UZgAAAABJRU5ErkJggg==">
             </iron-image>
             <iron-image class="first-img" preload fade
                         src="../images/googlelogo-withbackground.png"
@@ -159,7 +165,7 @@
             <iron-image class="second-img right" preload fade
                         src="../images/tablet-sync.png"
                         sizing="contain"
-                        placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABL1BMVEXx19Xy6Ofz7evx8PDr7unq7fDP4tTP3efz7u7y5OPz8PDz+/vz+/vz8fHy7+7y8fHz7u3z9/by4N/y4N/z9PTx8PDz5+Pz9vfueG7rTkDoRzvrfHTy8vLz7u7z7/HviGjz29j+08f+/fby8vLz9f79thP45MqGuf2au/P09PLy9f7svxPr68xrm/hChfT29PLt8fGDv3TW59vk89F2pPbt7/Ll7OP29PZnvH03qVY0qFJftIr29PHh5+3s7uv38/Td6uDb6eD29PLr7vDt8O3f6eLu8O769fn69fnv8PHf5u3s7vHz+vvz+Pny5+rw8vT0/frrYFf/yLvz8vH079rq+v+Nu/nt7/L37dn28v+Yt/fq7fL/9/hOsmxlo9X8+PHj7uvm6vX69fn59vT///9Am+niAAAATHRSTlMAAAAAAAAAAAITeLa2eBMCMeL+/uIxE9v7/Pz72xN3+///+3ez/f///bOz/f///bN3+///+3cT2/v8/PvbEzHi/v7iMQITeLa2eBMC6cq1jgAAAAFiS0dEZMLauAkAAAAHdElNRQfgBwEJNSKojLKKAAAAdklEQVQI12PgYODk4ubh5WPkZ2ASEPQREvYVEWVmEBP3k5CUkvaXkWWQC5APVFAMUgpWZlAJUVULDVPXCNdk0IrQ1omM0tWL1mcwiDGMNTKOM4k3ZTAzT7CwtLJOtLFlYLGzT3JwTHZyZmVwYXN1c/fw9GL3BgBr7BNXx13zOQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxNi0wNy0wMVQwOTo1MzozNC0wNDowMNLQVYYAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTYtMDctMDFUMDk6NTM6MzQtMDQ6MDCjje06AAAAAElFTkSuQmCC">
+                        placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAKCAMAAABcxfTLAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABwlBMVEVTbXlifYpjfYpjfYpjfYpjfYpifIlgeodifYpifYpifYpifYpjfYphfYpTbHhlfYnP1tn69/bw8PDy8fHy8fHy8fH39vby8fHy8fHy8fHw8PD69/bN1NhfeIRheob18/L18/NddoJQanf19PP29PNOaXZPaXb19PNNaHVPanf18/L18/NOaHVPanbQ1tr59vXw7+/x8PDx8PDx8PD29fXx8PDx8PDx8PDv7+/59vXM1NdNaHRSa3dkfotmgIxmf4xmf4xmf4xmf4xmgIxmgIxmgIxmgIxmgIxngIxkf4tRanZieobBy9Dl5+jd4ePf4uTf4uTe4uPd4ePe4uTe4uTe4uTd4ePl5+i/yc9ddoLL09fs7Ozt7e3u7u7t7u7W1tbu7u7t7u7t7e3s7OzJ0dXN1djs7e3u7u7w8PDb29vJycnR0dHy8vLt7e3s7e3K0tbN1djs7e3t7e3x8fHQ0NDJycnc3Nzw8PDu7u7s7e3K0tbN1Njs7Ozt7e3u7u7u7u7Y2Nju7u7u7u7t7e7s7OzK0tZQanfFztPp6uvh5OXi5ebi5efi5efi5ebi5efj5efj5efh5Obq6+vCzNFOaXX////y9QFuAAAAS3RSTlPV//7///////7+/v79/tX9//////////////////7////////////////////+//////////////////3V/v3+/v7+///////+/9XKlwO7AAAAAWJLR0SVCGB6gwAAAAd0SU1FB+AHBwUfNvFMDGcAAACoSURBVAjXY2BgZGJmYWVj5+Dk4ubh5WPw9vH18w8IDAoOCQ0Lj4hk4BcQFBIWERUTl5CUkpaRZZCLko+OiY2LT0hMSlZIUWRQSlVOS8/IzMrOyc1TyVdlUCtQLywqLiktK6+oVKnSYNCs1qqpratvaGxqbtFu1WHQ1dM3MDQyNjE1M7ewtLJmaGvv6Ozq7unt658wcdLkKQw2tnb2Do5Ozi6ubu4enl4AShgrN3ujXVEAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTYtMDctMDdUMDU6MzE6NTQtMDQ6MDAx1JZgAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE2LTA3LTA3VDA1OjMxOjU0LTA0OjAwQIku3AAAAABJRU5ErkJggg==">
             </iron-image>
           </div>
           <div text>
@@ -209,6 +215,14 @@
           value: 0
         },
         
+        color: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+          value: '#FFFFFF',
+          observer: '_colorChanged'
+        },
+        
         animationConfig: {
           value: function() { return {
             'entry': {
@@ -246,14 +260,25 @@
       },
       
       setLayout: function() {
-        /*var imagesNL = this.$.carousel.querySelectorAll('div[images] > *');
+        var imagesNL = this.$.carousel.querySelectorAll('div[images] > *');
         var images = Array.prototype.slice.call(imagesNL);
         images.forEach(function(item) {
           var parentHalfWidth = item.parentElement.offsetWidth / 2;
           var thisHalfWidth = item.offsetWidth / 2;
           var output = parentHalfWidth - thisHalfWidth;
-          item.style.transform = [ 'translateX(', output, 'px', ')'].join('');
-        });*/
+          item.style.marginLeft = output + 'px';
+        });
+        var textsNL = this.$.carousel.querySelectorAll('div[text] > p');
+        var texts = Array.prototype.slice.call(textsNL);
+        texts.forEach(function(item) {
+          var output = 56;
+          output -= item.offsetHeight - 24;
+          item.style.marginBottom = output + 'px'
+        });
+      },
+      
+      _colorChanged: function(colour) {
+        document.querySelector('#themeColour').setAttribute('content', colour);
       }
     })
   </script>

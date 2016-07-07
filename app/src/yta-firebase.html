@@ -27,6 +27,7 @@
       attached: function() {
         firebaseControl = this;
         worker = new Worker('src/yta-data-control.js');
+        firebaseControl.fire('switch-page', { action: 'openOnboarding' }); // Open onboarding - for testing
       },
       
       signIn: function() {
