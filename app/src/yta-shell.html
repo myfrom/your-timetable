@@ -51,7 +51,6 @@
                      phone-layout="[[phoneLayout]]"
                      data="{{appData}}"
                      style="display:block!important"></yta-main-view>
-      <yta-common-dialogs key="dialogs"></yta-common-dialogs>
       <yta-settings key="settings"></yta-settings>
       <yta-onboarding key="onboarding" phone-layout="[[phoneLayout]]"></yta-onboarding>
       <yta-add-dialog key="add"
@@ -120,8 +119,6 @@
         if(!this.route.path) {
           this.set('route.path', '/app')
         };
-        this.importHref('src/yta-add-dialog.html', null, null, true);
-        this.importHref('src/yta-common-dialogs.html', null, null, true);
       },
       
       switchRoute: function(e) {
@@ -144,8 +141,13 @@
               this.set('routeData.page', 'welcome');
             }, null, true);
             break;
+          case 'closeOnboarding':
+            onboarding.close();
+            this.selected = 'main';
+            this.set('routeData.page', 'app');
+            break;
           default:
-            throw('"switch-page" event fired without specyfied action!')
+            throw('`switch-page` event fired without or with unknown action!')
         }
       },
       
@@ -154,8 +156,20 @@
           if(addDialog.isActive) {
             this.set('routeData.page', 'add');
             addDialog.$.dialog.fire('iron-overlay-canceled', 'page redirect', { cancelable: true });
+          } else if(onboarding.isActive) {
+            this.set('routeData.page', 'welcome');
           }
-        }
+        };
+        /*if(toPage != 'app') {
+          if(toPage == 'calendar') {
+            console.log('Open calendar')
+            //Open calendar tab of main-view                                    // Important!!!
+          } else if(!(addDialog || onboarding) || (!addDialog.isActive && !onboarding.isActive)) {
+            console.log('Navigate to /app')
+            this.set('routeData.page', 'app')
+          }
+          console.log('Function executed')
+        }*/
       },
       
       // To bo moved to behavior

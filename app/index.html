@@ -4,14 +4,14 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" sizes="32x32" href="/images/icon-32.png">
-    <meta id="themeColour" name="theme-color" content="#673ab7">
+    <meta id="themeColor" name="theme-color" content="#673ab7">
     <link rel="manifest" href="/manifest.json">
     
     <title>Your Timetable</title>
     
     <script>
       // setup Polymer options
-      window.Polymer = {lazyRegister: false, dom: 'shady'}; // Should be 'shadow'
+      window.Polymer = {lazyRegister: false, dom: 'shadow', useNativeCSSProperties: true}; // Should be 'shadow'
       // load webcomponents polyfills
       (function() {
         if ('registerElement' in document
@@ -44,7 +44,11 @@
     
     <link rel="import" href="src/yta-shell.html">
     
-    <!--<script src="https://apis.google.com/js/platform.js" async defer></script> # What is that??? -->
+    <style>                                                                     /*This is a nescessary workaround until things get fixed*/
+      body /deep/ [hidden] {
+        display: none!important;
+      }
+    </style>
   </head>
   
   <body>

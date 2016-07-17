@@ -25,5 +25,8 @@
     "vaadin-combo-box": "^1.0.1",
     "app-datepicker": "^2.7.0",
     "pouchdb": "^5.4.4"
+  },
+  "resolutions": {
+    "firebase": "^3.1.0"
   }
 }

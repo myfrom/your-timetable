@@ -3,12 +3,12 @@ node_js: stable
 dist: trusty
 sudo: required
 before_script:
-- npm install -g bower polymer-cli web-component-tester
+- npm install -g bower polymer-cli
 - cd app
 - bower install
 script:
 - polymer lint
-- wct --skip-plugin local
+- polymer test
 env:
   global:
   - secure: zIXhxRE7L2SMOxUJQr3TjRYFp+/Z9Jz2+7AodbDx3376UEFg4Aw6xLLfVveBIOkS4tBe49gicRBjRJ625BW5sBrs30BJxK1Htiyxda5Pdk3iwWF0kDJ4eO+7bxNzOw+bfRPopPb4tL7Z4FLazrrX6xOj+rYb9K9MT+k56NjHsHtXRyZNwsUrLyCfMCkv5GAXjTwt1k/bvgRLoD7TKxBJiXYpFe9TESZEFYMU13fFqoUFbhGxWobnuYq1MRnESOAmHftVRhl4rRvVIaj9oEz24gOuMmjQKWespqt0O733Mobodl47udEUEfV+uRoJTrPAwIbe9Ans4xAdPvmd3F0RBQIUCaCna+dqER7FYcXdSlDU5Z8Xe3e6bao/6UvagS6S5aIuyKm7Geg4XMXa9Y+lSbggw9Kx8X3BReskZBHt/BuKCaY2q66iDZKlOoKXAcrk2T5pe/PD9YK/2ue8VF+eS2czY6ToTGwslntgosOJBJskMNZMOrUyvTnZK77L3yEotUPswwe4FMK9mr8S3cf/6PkuWb4KLg88qOCrlj0aOMuPfIm6104ruD9z7WBJUm3IPFZNhJ6IHj/mafag2rAZSdl+U6SYwTvNl1rnVqWcqsnGzA+Eip7VWb7V2iJS1rYrvTA+ejC9Zo7Xw23UMOHrYr4qlfaKDmUjcU7NH6cq/vo=

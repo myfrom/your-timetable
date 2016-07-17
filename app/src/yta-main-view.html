@@ -78,13 +78,13 @@
         @apply(--paper-font-title);
       }
       
-      paper-menu::shadow paper-item {
+      paper-menu > paper-item {
         --paper-item-selected-weight: 400 !important;
         --paper-item-focused-before: {
           background: var(--light-theme-secondary-color) !important;
         };
       }
-      paper-menu::shadow paper-item:focus:after {
+      paper-menu > paper-item:focus:after {
         background: none !important;
       }
       
@@ -139,23 +139,31 @@
         @apply(--layout-fit);
         /* Genrated using http://www.cssmatic.com/gradient-generator */
         background: rgba(0,0,0,0);
-        background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 70%, rgba(0,0,0,0.2) 100%);
-        background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(0,0,0,0)), color-stop(70%, rgba(0,0,0,0.1)), color-stop(100%, rgba(0,0,0,0.2)));
-        background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 70%, rgba(0,0,0,0.2) 100%);
-        background: -o-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 70%, rgba(0,0,0,0.2) 100%);
-        background: -ms-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 70%, rgba(0,0,0,0.2) 100%);
-        background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 70%, rgba(0,0,0,0.2) 100%);
+        background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.4) 100%);
+        background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(0,0,0,0)), color-stop(70%, rgba(0,0,0,0.2)), color-stop(100%, rgba(0,0,0,0.4)));
+        background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.4) 100%);
+        background: -o-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.4) 100%);
+        background: -ms-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.4) 100%);
+        background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.4) 100%);
+      }
+      #ratioContainer > iron-image.avatar {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        height: 64px;
+        width: 64px;
+        border-radius: 50%;
       }
       
-      #drawerMenusContainer::shadow paper-menu::shadow paper-item::shadow iron-icon {
+      #drawerMenusContainer > paper-menu > paper-item > iron-icon {
         padding-right: 32px;
         vertical-align: middle;
       }
-      #drawerMenusContainer::shadow paper-menu::shadow paper-item:not(.iron-selected)::shadow iron-icon {
+      #drawerMenusContainer > paper-menu > paper-item:not(.iron-selected) > iron-icon {
         color: var(--secondary-text-color);
       }
       
-      #drawerMenusContainer::shadow paper-menu::shadow paper-item {
+      #drawerMenusContainer > paper-menu > paper-item {
         font-weight: 500 !important;
         color: var(--primary-text-color);
         --paper-item-selected-weight: 500 !important;
@@ -164,21 +172,21 @@
         };
       }
       
-      iron-swipeable-pages::shadow div {
+      iron-swipeable-pages > div {
         background-color: var(--primary-body-color);
       }
       
-      iron-swipeable-pages::shadow div > * {
+      iron-swipeable-pages > div > * {
         @apply(--layout-fit);
       }
       
-      iron-swipeable-pages::shadow div > .waiter {
+      iron-swipeable-pages > div > .waiter {
         @apply(--layout-horizontal);
         @apply(--layout-center);
         @apply(--layout-center-justified);
       }
       
-      iron-swipeable-pages::shadow div > .waiter > paper-spinner {
+      iron-swipeable-pages > div > .waiter > paper-spinner {
         --paper-spinner-stroke-width: 4px;
         position: relative;
         width: 44px;
@@ -192,8 +200,9 @@
     <app-drawer-layout force-narrow fullbleed>
       <app-drawer id="drawer" swipe-open="[[phoneLayout]]">
         <div id="ratioContainer">
-          <iron-image src="../images/paper-cover-photo.png" fade preload></iron-image>
+          <iron-image src="../images/paper-backdrop.png" fade preload sizing="contain"></iron-image>
           <div scrim></div>
+          <iron-image fade preload src="[[user.photoURL]]" sizing="contain" class="avatar"></iron-image>
           <div>
             <div>
               <div>[[user.displayName]]</div>
@@ -226,9 +235,9 @@
       <app-header-layout> 
         <app-header id="header" fixed shadow>
           <app-toolbar>
-            <paper-icon-button icon="menu" hidden$="[[!phoneLayout]]" drawer-toggle></paper-icon-button>
+            <paper-icon-button icon="menu" hidden="[[!phoneLayout]]" drawer-toggle></paper-icon-button>
             <div title>Your Timetable</div>
-            <paper-menu-button hidden$="[[phoneLayout]]" horizontal-align="right">
+            <paper-menu-button hidden="[[phoneLayout]]" horizontal-align="right">
               <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
               <paper-menu class="dropdown-content">
                 <paper-item on-tap="_openSettings">Settings</paper-item>
@@ -237,7 +246,7 @@
               </paper-menu>
             </paper-menu-button>
           </app-toolbar>
-          <app-toolbar hidden$="[[phoneLayout]]">
+          <app-toolbar hidden="[[phoneLayout]]">
             <paper-tabs selected="{{selected}}" attr-for-selected="key" bottom-item>
               <paper-tab key="overview">overview</paper-tab>
               <paper-tab key="timetable">timetable</paper-tab>
@@ -374,7 +383,7 @@
       setLayout: function() {
         // Fix app-layout
         var screenSpace = this.offsetHeight - this.$.header.offsetHeight + 'px';
-        this.querySelector('div[content]').style.height = screenSpace;
+        this.$$('div[content]').style.height = screenSpace;
         this.$.pages.style.height = screenSpace;
         this.$.pages.style.paddingTop = this.$.header.offsetHeight + 'px';
         // Set addDialog animation timing

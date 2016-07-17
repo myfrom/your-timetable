@@ -1,13 +1,13 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
 <link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
-<link rel="import" href="../bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
 <link rel="import" href="../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html"><!-- Change for smaller package -->
 
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner-lite.html">
 
 <link rel="import" href="../bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
 <link rel="import" href="../bower_components/neon-animation/neon-animation-runner-behavior.html">
@@ -17,6 +17,7 @@
 <dom-module id="yta-onboarding">
   <template>
     <style include="yta-common-styles">
+    
       @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
       
         
@@ -31,16 +32,34 @@
         
       }
       
-      @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+      @media (min-width: 0px) and (max-width: 840px) and (orientation: portrait) {
         
         
       /*
-       * Phone portrait styles
+       * Phone & tablet portrait styles
        */
         
         
-        div[index] {
+        div[index], #loginPage {
           @apply(--layout-vertical);
+        }
+        
+      }
+      
+      @media (min-width: 480px) and (max-width: 1280px) and (orientation: landscape) {
+        
+        
+      /*
+       * Phone & tablet landscape styles
+       */
+        
+        
+        div[index], #loginPage {
+          @apply(--layout-horizontal);
+        }
+        
+        div[text] {
+          @apply(--layout-center-justified);
         }
         
       }
@@ -60,8 +79,19 @@
         @apply(--layout-fit);
       }
       
-      div[index="1"] {
-        background-color: #FFFFFF;
+      iron-swipeable-pages, iron-swipeable-pages > * {
+        overflow-x: hidden;
+      }
+      
+      #loginPage {
+        @apply(--layout-fit);
+        background-color: white;
+      }
+      #loginPage h2 {
+        opacity: 0.87;
+      }
+      #loginPage p {
+        opacity: 0.54;
       }
       
       div[images] {
@@ -69,30 +99,8 @@
         position: relative;
       }
       
-      div[index="1"] > div[images] > .first-img {
-        width: 150px;
-        height: 150px;
-        position: absolute;
-        bottom: 0;
-        z-index: 1;
-      }
-      
-      div[index="1"] > div[images] > .second-img.left {
-        width: 90px;
-        height: 150px;
-        position: absolute;
-        bottom: 0;
-        z-index: 0;
-        transform: translate3d(-90px,-90px,0) rotate(-15deg);
-      }
-      
-      div[index="1"] > div[images] > .second-img.right {
-        width: 200px;
-        height: 175px;
-        position: absolute;
-        bottom: 0;
-        z-index: 0;
-        transform: translate3d(90px,-90px,0) rotate(15deg);
+      div[images] > iron-image {
+        @apply(--layout-fit);
       }
       
       div[text] {
@@ -113,15 +121,15 @@
         margin: 0 40px 0 40px;
       }
       
-      div[index="1"] > div[text] {
+      #loginPage > div[text] {
         padding-bottom: 0;
       }
       
-      div[index="1"] > div[text] > paper-button[google-signin] {
+      #loginPage > div[text] > paper-button[google-signin] {
         margin-bottom: 24px;
       }
       
-      div[index="1"] > div[text] > div > paper-button.small {
+      #loginPage > div[text] > div > paper-button.small {
         @apply(--paper-font-caption);
       }
       
@@ -132,8 +140,9 @@
           color: white;
           min-height: 40px;
           background-color: #4285F4;
+          transition: background-color 200ms cubic-bezier(0.4, 0.0, 0.2, 1);
       }
-      paper-button[google-signin]::shadow img {
+      paper-button[google-signin] > img {
           height: 18px;
           width: 18px;
           padding: 8px;
@@ -141,50 +150,76 @@
           margin: 0 16px 0 4px;
           border-radius: 5px;
       }
+      paper-button[google-signin].keyboard-focus {
+        font-weight: 500 !important;
+      }
+      /* Not nesscessary to style the spinner couse it is cool by default ;) */
       
       paper-button.blue, paper-icon-button.blue {
         color: var(--google-blue-500);
       }
       
+      /* Styling individual slides */
+      
+      div[index="0"] {
+        background-color: #9575cd;
+        color: white;
+      }
+      div[index="0"] h2 {
+        opacity: 1;
+      }
+      div[index="0"] p {
+        opacity: 0.7;
+      }
+      
+      div[index="1"] {
+        background-color: #ef5350;
+      }
+      
     </style>
     
     <div id="main">
-      <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle threshold="0.2" selectable='[index="1"]'>
-        <div index="1" color="#FFFFFF">
-          <div images>
-            <iron-image class="second-img left" preload fade
-                        src="../images/phone-sync.png"
-                        sizing="contain"
-                        placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAPCAQAAACCCB01AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAHdElNRQfgBwcFJAF1Q0ZQAAAApElEQVQI1yXDsU3DQBQA0PfvDstCwgEJCaoMkJoJKFmHzdIyAmGIpEkBCJkUhDi+o+BJL1bbz6U2R2kprnfx3G6dQfHBprY2t/9vtYzx7Qh6Y5Qsu9A7ypLUdEYvTrImJT8Oio1fSersHTxZeNdJkztf1m7cO0mz3oNs0KlKmHUeHU1CqarJhKIqQ7uKS0mVDa2s49UkUOwjVttxObdzlJZjsfsDJU1DluhS9LkAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTYtMDctMDdUMDU6MzY6MDEtMDQ6MDDJ0KzaAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE2LTA3LTA3VDA1OjM2OjAxLTA0OjAwuI0UZgAAAABJRU5ErkJggg==">
-            </iron-image>
-            <iron-image class="first-img" preload fade
-                        src="../images/googlelogo-withbackground.png"
-                        sizing="contain"
-                        placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABL1BMVEXx19Xy6Ofz7evx8PDr7unq7fDP4tTP3efz7u7y5OPz8PDz+/vz+/vz8fHy7+7y8fHz7u3z9/by4N/y4N/z9PTx8PDz5+Pz9vfueG7rTkDoRzvrfHTy8vLz7u7z7/HviGjz29j+08f+/fby8vLz9f79thP45MqGuf2au/P09PLy9f7svxPr68xrm/hChfT29PLt8fGDv3TW59vk89F2pPbt7/Ll7OP29PZnvH03qVY0qFJftIr29PHh5+3s7uv38/Td6uDb6eD29PLr7vDt8O3f6eLu8O769fn69fnv8PHf5u3s7vHz+vvz+Pny5+rw8vT0/frrYFf/yLvz8vH079rq+v+Nu/nt7/L37dn28v+Yt/fq7fL/9/hOsmxlo9X8+PHj7uvm6vX69fn59vT///9Am+niAAAATHRSTlMAAAAAAAAAAAITeLa2eBMCMeL+/uIxE9v7/Pz72xN3+///+3ez/f///bOz/f///bN3+///+3cT2/v8/PvbEzHi/v7iMQITeLa2eBMC6cq1jgAAAAFiS0dEZMLauAkAAAAHdElNRQfgBwEJNSKojLKKAAAAdklEQVQI12PgYODk4ubh5WPkZ2ASEPQREvYVEWVmEBP3k5CUkvaXkWWQC5APVFAMUgpWZlAJUVULDVPXCNdk0IrQ1omM0tWL1mcwiDGMNTKOM4k3ZTAzT7CwtLJOtLFlYLGzT3JwTHZyZmVwYXN1c/fw9GL3BgBr7BNXx13zOQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxNi0wNy0wMVQwOTo1MzozNC0wNDowMNLQVYYAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTYtMDctMDFUMDk6NTM6MzQtMDQ6MDCjje06AAAAAElFTkSuQmCC">
-            </iron-image>
-            <iron-image class="second-img right" preload fade
-                        src="../images/tablet-sync.png"
-                        sizing="contain"
-                        placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAKCAMAAABcxfTLAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABwlBMVEVTbXlifYpjfYpjfYpjfYpjfYpifIlgeodifYpifYpifYpifYpjfYphfYpTbHhlfYnP1tn69/bw8PDy8fHy8fHy8fH39vby8fHy8fHy8fHw8PD69/bN1NhfeIRheob18/L18/NddoJQanf19PP29PNOaXZPaXb19PNNaHVPanf18/L18/NOaHVPanbQ1tr59vXw7+/x8PDx8PDx8PD29fXx8PDx8PDx8PDv7+/59vXM1NdNaHRSa3dkfotmgIxmf4xmf4xmf4xmf4xmgIxmgIxmgIxmgIxmgIxngIxkf4tRanZieobBy9Dl5+jd4ePf4uTf4uTe4uPd4ePe4uTe4uTe4uTd4ePl5+i/yc9ddoLL09fs7Ozt7e3u7u7t7u7W1tbu7u7t7u7t7e3s7OzJ0dXN1djs7e3u7u7w8PDb29vJycnR0dHy8vLt7e3s7e3K0tbN1djs7e3t7e3x8fHQ0NDJycnc3Nzw8PDu7u7s7e3K0tbN1Njs7Ozt7e3u7u7u7u7Y2Nju7u7u7u7t7e7s7OzK0tZQanfFztPp6uvh5OXi5ebi5efi5efi5ebi5efj5efj5efh5Obq6+vCzNFOaXX////y9QFuAAAAS3RSTlPV//7///////7+/v79/tX9//////////////////7////////////////////+//////////////////3V/v3+/v7+///////+/9XKlwO7AAAAAWJLR0SVCGB6gwAAAAd0SU1FB+AHBwUfNvFMDGcAAACoSURBVAjXY2BgZGJmYWVj5+Dk4ubh5WPw9vH18w8IDAoOCQ0Lj4hk4BcQFBIWERUTl5CUkpaRZZCLko+OiY2LT0hMSlZIUWRQSlVOS8/IzMrOyc1TyVdlUCtQLywqLiktK6+oVKnSYNCs1qqpratvaGxqbtFu1WHQ1dM3MDQyNjE1M7ewtLJmaGvv6Ozq7unt658wcdLkKQw2tnb2Do5Ozi6ubu4enl4AShgrN3ujXVEAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTYtMDctMDdUMDU6MzE6NTQtMDQ6MDAx1JZgAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE2LTA3LTA3VDA1OjMxOjU0LTA0OjAwQIku3AAAAABJRU5ErkJggg==">
-            </iron-image>
-          </div>
-          <div text>
-            <h2>Sign-in with Google</h2>
-            <p>This allows Your Timetable to work on all of your devices</p>
-            <paper-button raised google-signin on-tap="signIn">
+      <div id="loginPage">
+        <div images>
+          <iron-image src="../images/login-image.png" preload fade sizing="contain"></iron-image>
+        </div>
+        <div text>
+          <h2>Sign-in with Google</h2>
+          <p>This allows Your Timetable to work on all of your devices</p>
+          <paper-button raised google-signin on-tap="signIn">
+            <template is="dom-if" if id="text">
               <img src="../images/googlelogo-big.png">Sign in with Google
-            </paper-button>
-            <div style="display:inline-block">
-              <paper-button class="small blue" on-tap="testDrive">Test drive</paper-button>
+            </template>
+            <template is="dom-if" id="spinner">
+              <paper-spinner-lite active></paper-spinner-lite>
+            </template>
+          </paper-button>
+          <div style="display:inline-block">
+            <paper-button class="small blue" on-tap="testDrive">Test drive</paper-button>
+            <span>
               <paper-icon-button class="blue" icon="help-outline" id="helpButtonTooltipTarget" on-tap="showHelpTooltip"></paper-icon-button>
-              <paper-tooltip fit-to-visible-bounds manual-mode for="helpButtonTooltipTarget">Browse anonymously for 30 minutes</paper-tooltip>
-            </div>
+              <paper-tooltip for="helpButtonTooltipTarget" fit-to-visible-bounds manual-mode>Browse anonymously for 30 minutes</paper-tooltip>
+            </span>
           </div>
         </div>
-        <div index="2">
-          2
-        </div>
-      </iron-swipeable-pages>
+      </div>
+      <template is="dom-if" id="intro" restamp>
+        <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle threshold="0.2" force-update>
+            <div index="0" color="#9575cd">
+              <div images>
+                <iron-image src="../images/onboarding_s1.png" preload fade sizing="contain"></iron-image>
+              </div>
+              <div text>
+                <h2>A new way to view your timetable</h2>
+                <p>Check your timetable, assigments, tests and reminders in right place, at right time.</p>
+                <paper-button on-tap="_proceed">Get started</paper-button>
+              </div>
+            </div>
+            <div index="1" color="#ef5350">
+              2
+            </div>
+        </iron-swipeable-pages>
+      </template>
     </div>
   </template>
   
@@ -212,7 +247,8 @@
         selected: {
           type: Number,
           notify: true,
-          value: 0
+          value: 0,
+          observer: '_selectedChanged'
         },
         
         color: {
@@ -228,13 +264,25 @@
             'entry': {
               name: 'slide-from-bottom-animation',
               node: this,
-              /*timing: { duration: 300, easing: }*/
+              timing: { duration: 225, easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)' }
             },
-            'exit':{
+            'exit': {
               name: 'slide-down-animation',
               node: this,
-              /*timing: { duration: 300, easing: }*/
-            }
+              timing: { duration: 195, easing: 'cubic-bezier(0.4, 0.0, 1, 1)' }
+            },
+            'closeLogin': [
+              {
+                name: 'slide-left-animation',
+                node: this.$.loginPage,
+                timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)' }
+              },
+              {
+                name: 'slide-from-right-animation',
+                node: this.$$('#carousel'),
+                timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)' }
+              }
+            ]
           } }
         }
         
@@ -249,26 +297,92 @@
       },
       
       open: function() {
-        //..
+        this.isActive = true;
+        this.selected = 0;
+      },
+      
+      close: function() {
+        this.isActive = false;
+        this.$.intro.if = false
+      },
+      
+      signIn: function(e) {
+        e.target.style.backgroundColor = '#FFF';
+        var targetWidth = e.target.offsetWidth;
+        e.target.style.minWidth = targetWidth + 'px';
+        e.target.querySelector('#text').if = false;
+        e.target.querySelector('#spinner').if = true;
+        this.fire('signing-in');
+        firebaseControl.signIn()
+          .then(() => {
+            // User signed in!
+            firebaseControl.isFirstTimeVisit().then(resp => {
+              if(resp) {
+                this.importHref('bower_components/iron-swipeable-pages/iron-swipeable-pages.html', () => {
+                  this.$.intro.if = true;
+                  this.$.intro.render();
+                  this._selectedChanged(0);
+                  this.set('animationConfig.closeLogin.1.node', this.$$('#carousel'));
+                  this.playAnimation('closeLogin');
+                });
+              } else {
+                this.fire('switch-page', { action: 'closeOnboarding' })
+              }
+            })
+          }).catch(function(err) {
+            // Sign in failed!
+            console.warn('Sign in failed', err);
+            e.target.style.backgroundColor = '#4885ed';
+            e.target.querySelector('#text').if = true;
+            e.target.querySelector('#spinner').if = false;
+          })
+      },
+      
+      testDrive: function() {
+        firebaseControl.signInAnonymously()
+          .then(() => {
+            // Signed in anonymously
+            //  Powerup the carousel
+            this.$.intro.if = true;
+            this.$.intro.render();
+            this._selectedChanged(0);
+            this.set('animationConfig.closeLogin.1.node', this.$$('#carousel'));
+            this.playAnimation('closeLogin');
+            //  Set a timeout for data
+            window.onbeforeunload = function() {
+              return "If you will leve now your data will be lost! Sign in before leaving to save it."
+            };
+            window.onunload = function() {
+              firebaseControl.signOut();
+            };
+            anonymousUser.async = onboarding.async(function() {
+              firebaseControl.signOut();
+            }, 1.8e+6)
+          }).catch(function(err) {
+            // Sign in failed!
+            console.warn('Sign in failed', err)
+          })
       },
       
       showHelpTooltip: function() {
-        this.querySelector('div[index] > div[text] > div > paper-tooltip').show()
+        var tooltip = this.$$('#loginPage paper-tooltip');
+        tooltip.show();
         this.async(function() {
-          this.querySelector('div[index] > div[text] > div > paper-tooltip').hide()
+          tooltip.hide()
         }, 5000)
       },
       
       setLayout: function() {
-        var imagesNL = this.$.carousel.querySelectorAll('div[images] > *');
-        var images = Array.prototype.slice.call(imagesNL);
-        images.forEach(function(item) {
-          var parentHalfWidth = item.parentElement.offsetWidth / 2;
-          var thisHalfWidth = item.offsetWidth / 2;
-          var output = parentHalfWidth - thisHalfWidth;
-          item.style.marginLeft = output + 'px';
-        });
-        var textsNL = this.$.carousel.querySelectorAll('div[text] > p');
+        if(this.$$('#carousel')) {
+          var textsNL = this.$$('#carousel').querySelectorAll('div[text] > p');
+          var texts = Array.prototype.slice.call(textsNL);
+          texts.forEach(function(item) {
+            var output = 56;
+            output -= item.offsetHeight - 24;
+            item.style.marginBottom = output + 'px'
+          });
+        };
+        var textsNL = this.root.querySelectorAll('#loginPage > div[text] > p');
         var texts = Array.prototype.slice.call(textsNL);
         texts.forEach(function(item) {
           var output = 56;
@@ -277,8 +391,15 @@
         });
       },
       
-      _colorChanged: function(colour) {
-        document.querySelector('#themeColour').setAttribute('content', colour);
+      _selectedChanged: function(selected) {
+        if(this.$$('#carousel')) {
+          var el = this.$$(['div[index="', selected, '"]'].join(''));
+          this.color = el.getAttribute('color');
+        }
+      },
+      
+      _colorChanged: function(color) {
+        document.head.querySelector('#themeColor').setAttribute('content', color);
       }
     })
   </script>
