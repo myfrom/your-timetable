@@ -1,6 +1,6 @@
 {
   "name": "your-timetable",
-  "description": "Your Timetable app",
+  "description": "The Your Timetable app",
   "main": "index.html",
   "authors": [
     "Witus13 <myfrom.13th@gmail.com>"
@@ -15,16 +15,16 @@
   ],
   "private": true,
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.4.0",
+    "polymer": "Polymer/polymer#^1.6.0",
     "iron-elements": "PolymerElements/iron-elements#^1.0.10",
     "paper-elements": "PolymerElements/paper-elements#^1.0.7",
     "neon-elements": "PolymerElements/neon-elements#^1.0.0",
     "platinum-elements": "PolymerElements/platinum-elements#^1.0.0",
     "app-elements": "PolymerElements/app-elements#^0.9.0",
     "iron-swipeable-pages": "^1.2.3",
-    "vaadin-combo-box": "^1.0.1",
     "app-datepicker": "^2.7.0",
-    "pouchdb": "^5.4.4"
+    "pouchdb": "^5.4.4",
+    "dom-repeat-n": "^1.0.2"
   },
   "resolutions": {
     "firebase": "^3.1.0"

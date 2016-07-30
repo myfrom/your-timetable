@@ -44,6 +44,19 @@
           @apply(--layout-vertical);
         }
         
+        div[text] {
+          @apply(--layout-center);
+        }
+        
+        div[text] > h2 {
+          text-align: center;
+        }
+        
+        div[text] > p {
+          text-align: center;
+          margin: 0 40px 0 40px;
+        }
+        
       }
       
       @media (min-width: 480px) and (max-width: 1280px) and (orientation: landscape) {
@@ -60,6 +73,18 @@
         
         div[text] {
           @apply(--layout-center-justified);
+        }
+        
+        div[text] > h2 {
+          text-align: left;
+        }
+        
+        div[text] > p {
+          text-align: left;
+        }
+        
+        div[text] paper-button, #loginPage div[text] > div {
+          @apply(--layout-self-center);
         }
         
       }
@@ -86,6 +111,7 @@
       #loginPage {
         @apply(--layout-fit);
         background-color: white;
+        color: black;
       }
       #loginPage h2 {
         opacity: 0.87;
@@ -106,7 +132,6 @@
       div[text] {
         @apply(--layout-flex-2);
         @apply(--layout-vertical);
-        @apply(--layout-center);
         padding: 24px 24px 20px 24px;
       }
       
@@ -117,8 +142,6 @@
       
       div[text] > p {
         @apply(--paper-font-subhead);
-        text-align: center;
-        margin: 0 40px 0 40px;
       }
       
       #loginPage > div[text] {
@@ -161,6 +184,16 @@
       
       /* Styling individual slides */
       
+      div[index] {
+        color: white;
+      }
+      div[index] h2 {
+        opacity: 1;
+      }
+      div[index] p {
+        opacity: 0.7;
+      }
+      
       div[index="0"] {
         background-color: #9575cd;
         color: white;
@@ -171,9 +204,35 @@
       div[index="0"] p {
         opacity: 0.7;
       }
+      div[index="0"] paper-button {
+        background-color: white;
+        color: var(--paper-deep-purple-500);
+      }
       
       div[index="1"] {
         background-color: #ef5350;
+      }
+      div[index="1"] paper-button {
+        background-color: white;
+        color: var(--paper-red-500);
+      }
+      
+      div[index="2"] {
+        background-color: var(--paper-blue-300);
+        color: black;
+      }
+      div[index="2"] h2 {
+        opacity: 0.87;
+      }
+      div[index="2"] p {
+        opacity: 0.54;
+      }
+      div[index="2"] paper-button {
+        background-color: white;
+        color: var(--paper-indigo-500);
+      }
+      div[index="2"] iron-image {
+        margin: 30px;
       }
       
     </style>
@@ -212,12 +271,31 @@
               <div text>
                 <h2>A new way to view your timetable</h2>
                 <p>Check your timetable, assigments, tests and reminders in right place, at right time.</p>
-                <paper-button on-tap="_proceed">Get started</paper-button>
+                <paper-button raised on-tap="_proceed">Get started</paper-button>
               </div>
             </div>
             <div index="1" color="#ef5350">
-              2
+              <div images>
+                <iron-image src="../images/onboarding_s2.png" preload fade sizing="contain"></iron-image>
+              </div>
+              <div text>
+                <h2>On all of your devices</h2>
+                <p>Check Your Timetable on all of your signed-in devices</p>
+                <paper-button raised on-tap="_proceed">Get started</paper-button>
+              </div>
             </div>
+            <template is="dom-if" if="[[_isOfflineReady()]]">
+              <div index="2" color="#64b5f6">
+                <div images>
+                  <iron-image src="../images/onboarding_s3.png" preload fade sizing="contain"></iron-image>
+                </div>
+                <div text>
+                  <h2>Even offline</h2>
+                  <p>Poor connection or offline? It's not a problem for Your Timetable</p>
+                  <paper-button raised on-tap="_proceed">Get started</paper-button>
+                </div>
+              </div>
+            </template>
         </iron-swipeable-pages>
       </template>
     </div>
@@ -322,6 +400,7 @@
                   this.$.intro.if = true;
                   this.$.intro.render();
                   this._selectedChanged(0);
+                  this.setLayout();
                   this.set('animationConfig.closeLogin.1.node', this.$$('#carousel'));
                   this.playAnimation('closeLogin');
                 });
@@ -346,6 +425,7 @@
             this.$.intro.if = true;
             this.$.intro.render();
             this._selectedChanged(0);
+            this.setLayout();
             this.set('animationConfig.closeLogin.1.node', this.$$('#carousel'));
             this.playAnimation('closeLogin');
             //  Set a timeout for data
@@ -400,6 +480,10 @@
       
       _colorChanged: function(color) {
         document.head.querySelector('#themeColor').setAttribute('content', color);
+      },
+      
+      _isOfflineReady: function() {
+        return 'serviceWorker' in navigator
       }
     })
   </script>

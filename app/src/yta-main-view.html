@@ -235,18 +235,19 @@
       <app-header-layout> 
         <app-header id="header" fixed shadow>
           <app-toolbar>
-            <paper-icon-button icon="menu" hidden="[[!phoneLayout]]" drawer-toggle></paper-icon-button>
+            <paper-icon-button icon="menu" hidden$="[[!phoneLayout]]" drawer-toggle></paper-icon-button>
             <div title>Your Timetable</div>
-            <paper-menu-button hidden="[[phoneLayout]]" horizontal-align="right">
+            <paper-menu-button hidden$="[[phoneLayout]]" horizontal-align="right">
               <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
               <paper-menu class="dropdown-content">
                 <paper-item on-tap="_openSettings">Settings</paper-item>
                 <paper-item on-tap="_sendFeedback">Feedback</paper-item>
+                <paper-item on-tap="signOut">Sign out</paper-item>
                 <!--<paper-item>Help</paper-item> # Think of help section -->
               </paper-menu>
             </paper-menu-button>
           </app-toolbar>
-          <app-toolbar hidden="[[phoneLayout]]">
+          <app-toolbar hidden$="[[phoneLayout]]">
             <paper-tabs selected="{{selected}}" attr-for-selected="key" bottom-item>
               <paper-tab key="overview">overview</paper-tab>
               <paper-tab key="timetable">timetable</paper-tab>
