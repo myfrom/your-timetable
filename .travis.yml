@@ -3,4 +3,8 @@ node_js: stable
 dist: trusty
 sudo: required
 before_script:
+ - npm install -g firebase-tools
 script:
+ - echo "Deploying!"
+after_success:
+ - firebase deploy --token $FIREBASE_TOKEN
