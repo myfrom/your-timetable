@@ -1,0 +1,55 @@
+<!-- There are plans to make this a public element -->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/dom-repeat-n/dom-repeat-n.html">
+
+<dom-module id="yta-pager">
+  <template>
+    <style>
+      
+    </style>
+    <iron-selector selected="[[selected]]">
+      <template is="dom-repeat-n" count="[[itemsCount]]">
+        <div index="[[index]]"></div> 
+      </template>
+    </iron-selector>
+  </template>
+  <script>
+    Polymer({
+      is: 'yta-pager',
+      
+      properties: {
+        
+        itemsCount: {
+          type: Number,
+          reflectToAttribute: true,
+          notify: true,
+          value: 0
+        },
+        
+        items: {
+          type: Array,
+          notify: true,
+          observer: '_computeItems'
+        },
+        
+        selected: {
+          type: Number,
+          notify: true,
+          reflectToAttribute: true,
+          value: 0
+        }
+        
+      },
+      
+      _onTap: function() {
+        
+      },
+      
+      _computeItems: function() {
+        
+      }
+    })
+  </script>
+</dom-module>
