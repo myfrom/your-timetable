@@ -1,0 +1,129 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<link rel="import" href="yta-common-styles.html">
+
+<dom-module id="yta-timetable-page">
+  <template>
+    <style include="yta-common-styles">
+      
+      #topPlaceholder {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+      }
+      
+      .dayPlaceholder {
+        min-width: 300px;
+      }
+      
+      .lesson {
+        @apply(--layout-vertical);
+        @apply(--layout-center-justified);
+        border-bottom: 1px solid rgba(0,0,0,0.12);
+        border-left-style: solid;
+        border-left-width: 3px;
+        height: 60px;
+        padding-left: 13px;
+      }
+      
+      .day-name {
+        @apply(--paper-font-menu);
+        color: #fbc02d;
+        margin: 8px 0 8px 16px;
+      }
+      
+      p.secondary {
+        @apply(--paper-font-body1);
+        color: var(--secondary-text-color);
+      }
+      
+      p {
+        margin: 0 2px; 
+      }
+      
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        
+        .dayPlaceholder {
+          min-width: calc(100vw - 3px);
+        }
+        
+        .lesson {
+          height: 70px;
+        }
+        
+      }
+    
+    </style>
+    
+    <div id="topPlaceholder">
+      <template is="dom-repeat" items="[[data.timetable]]">
+        <div class="dayPlaceholder">
+          <h6 class="day-name">[[_computeDayName(index)]]</h6>
+          <div class="lessonsPlaceholder">
+            <template is="dom-repeat" items="[[item]]" as="lesson">
+              <div class="lesson" style="border-left-color: [[_pickLessonColor(lesson.name)]];">
+                <p>[[lesson.name]]</p>
+                <p class="secondary">[[viewReadable(lesson.startTime)]] - [[viewReadable(lesson.endTime)]]</p>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+    <div id="spacer"></div>
+  </template>
+  
+  <script>
+    Polymer({
+      is: 'yta-timetable-page',
+      
+      properties: {
+        
+        data: {
+          type: Object,
+          notify: true
+        }
+        
+      },
+      
+      viewReadable: function(time) {
+        var input = new Date(time);
+        var output = [null, ':', null];
+        output[0] = input.getHours();
+        output[2] = input.getMinutes();
+        if(output[2].toString().length == 1) {
+          output[2] = '0' + output[2]
+        };
+        return output.join('')
+      },
+      
+      _computeDayName: function(day) {
+        var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        /*
+        var daysLocalised = [];
+        for(i=0; i>5; i++) {
+          daysLocalized[i] = this.localize(days[i])
+        };
+        days = daysLocalised;
+        */
+        return days[day]
+      },
+      
+      _pickLessonColor: function(name) {
+        var config = this.data.config;
+        return config[name].color;
+      },
+      
+      _pickClassroom: function(name) {
+        var config = this.data.config;
+        return config[name].class;
+      }
+    })
+    
+    function hoursTimer(date) {
+      var output = new Date();
+      var input = new Date(date);
+      output.setHours(input.getHours(), input.getMinutes())
+      return output.getTime()
+    }
+  </script>
+</dom-module>.

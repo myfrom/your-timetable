@@ -8,17 +8,3 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 console.info('Service worker disabled for development, will be generated at build time.');
-
-
-/*function setUpPouchDB() {
-  return new Promise(function(resolve, reject) {
-    importScripts('bower_components/pouchdb/dist/pouchdb.min.js');
-    db = new PouchDB(user.uid)
-  })
-}
-
-self.addEventListener('sync', function(e) {
-  if (e.tag == 'firstSync') {
-    e.waitUntil(setUpPouchDB())
-  }
-});*/

@@ -8,6 +8,16 @@
     "src/yta-settings.html",
     "src/yta-onboarding.html",
     "src/yta-add-dialog.html",
-    "src/yta-feedback-dialog.html"
+    "src/yta-feedback-dialog.html",
+    "src/yta-setup-dialog.html"
+  ],
+  "sourceGlobs": [
+   "src/**/*",
+   "images/**/*",
+   "bower.json"
+  ],
+  "includeDependencies": [
+    "manifest.json",
+    "bower_components/webcomponentsjs/webcomponents-lite.min.js"
   ]
 }

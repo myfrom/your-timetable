@@ -1,22 +1,82 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 
-<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
-<link rel="import" href="../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../bower_components/iron-icons/iron-icons.html"><!-- Change for smaller package -->
+<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="/bower_components/iron-image/iron-image.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html"><!-- Change for smaller package -->
 
-<link rel="import" href="../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
 
-<link rel="import" href="../bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
-<link rel="import" href="../bower_components/neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
+<link rel="import" href="/bower_components/neon-animation/neon-animation-runner-behavior.html">
 
 <link rel="import" href="yta-common-styles.html">
+
+<!-- This can get moved in future! -->
+<link rel="import" href="yta-pager.html">
 
 <dom-module id="yta-onboarding">
   <template>
     <style include="yta-common-styles">
+    
+      @media (min-width: 1280px) and (orientation: landscape) {
+      
+        
+      /*
+       * Desktop styles
+       */
+        
+        
+        :host {
+          @apply(--layout-horizontal);
+          @apply(--layout-center);
+          @apply(--layout-center-justified);
+        }
+        
+        #main::before {
+          content: "";
+          background-color: rgba(0,0,0,0.6);
+          position: fixed;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+        }
+        
+        #main {
+          @apply(--shadow-elevation-16dp);
+          height: 675px;
+          width: 675px;
+          position: relative;
+        }
+        
+        #main, #loginPage, div[index] {
+          border-radius: 16px;
+        }
+        
+        div[index], #loginPage {
+          @apply(--layout-vertical);
+        }
+        
+        div[text] {
+          @apply(--layout-center);
+        }
+        
+        div[images] {
+          /*@apply(--layout-flex-5); # Can't use due to lack of !important */
+          -ms-flex: 5 !important;
+          -webkit-flex: 5 !important;
+          flex: 5 !important;
+        }
+        
+        paper-button.blue, paper-icon-button.blue {
+          color: white !important;
+        }
+        
+      }
     
       @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
       
@@ -59,7 +119,7 @@
         
       }
       
-      @media (min-width: 480px) and (max-width: 1280px) and (orientation: landscape) {
+      @media (min-width: 480px) and (max-width: 1279px) and (orientation: landscape) {
         
         
       /*
@@ -84,7 +144,7 @@
         }
         
         div[text] paper-button, #loginPage div[text] > div {
-          @apply(--layout-self-center);
+          @apply(--layout-self-start);
         }
         
       }
@@ -96,7 +156,6 @@
       
       
       #main {
-        @apply(--shadow-elevation-24dp);
         background-color: white;
       }
       
@@ -137,11 +196,12 @@
       
       div[text] > h2 {
         @apply(--paper-font-headline);
-        margin: 0 0 18px 0;
+        margin: 0 !important;
       }
       
       div[text] > p {
         @apply(--paper-font-subhead);
+        margin-top: 12px;
       }
       
       #loginPage > div[text] {
@@ -176,10 +236,20 @@
       paper-button[google-signin].keyboard-focus {
         font-weight: 500 !important;
       }
-      /* Not nesscessary to style the spinner couse it is cool by default ;) */
+      /* Not nesscessary to style the spinner couse it is cool by default 😉 */
       
       paper-button.blue, paper-icon-button.blue {
         color: var(--google-blue-500);
+      }
+      
+      .arrow-btn {
+        will-change: color;
+        @apply(--shadow-transition);
+        --paper-fab-keyboard-focus: black;
+        --paper-fab-background: white;
+        position: fixed;
+        top: calc(50vh - 28px);
+        transition: color 150ms cubic-bezier(0.4, 0.0, 0.2, 1);
       }
       
       /* Styling individual slides */
@@ -229,7 +299,7 @@
       }
       div[index="2"] paper-button {
         background-color: white;
-        color: var(--paper-indigo-500);
+        color: var(--paper-blue-500);
       }
       div[index="2"] iron-image {
         margin: 30px;
@@ -240,20 +310,20 @@
     <div id="main">
       <div id="loginPage">
         <div images>
-          <iron-image src="../images/login-image.png" preload fade sizing="contain"></iron-image>
+          <iron-image src="/images/login-image.png" preload fade sizing="contain"></iron-image>
         </div>
         <div text>
           <h2>Sign-in with Google</h2>
           <p>This allows Your Timetable to work on all of your devices</p>
           <paper-button raised google-signin on-tap="signIn">
             <template is="dom-if" if id="text">
-              <img src="../images/googlelogo-big.png">Sign in with Google
+              <img src="/images/googlelogo-big.png">Sign in with Google
             </template>
             <template is="dom-if" id="spinner">
               <paper-spinner-lite active></paper-spinner-lite>
             </template>
           </paper-button>
-          <div style="display:inline-block">
+          <div style="display:inline-block" hidden$="[[signedIn]]">
             <paper-button class="small blue" on-tap="testDrive">Test drive</paper-button>
             <span>
               <paper-icon-button class="blue" icon="help-outline" id="helpButtonTooltipTarget" on-tap="showHelpTooltip"></paper-icon-button>
@@ -262,21 +332,21 @@
           </div>
         </div>
       </div>
-      <template is="dom-if" id="intro" restamp>
-        <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle threshold="0.2" force-update>
+      <template is="dom-if" id="intro" restamp if="[[signedIn]]">
+        <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle threshold="0.2" force-update items="{{pages}}">
             <div index="0" color="#9575cd">
               <div images>
-                <iron-image src="../images/onboarding_s1.png" preload fade sizing="contain"></iron-image>
+                <iron-image src="/images/onboarding_s1.png" preload fade sizing="contain"></iron-image>
               </div>
               <div text>
-                <h2>A new way to view your timetable</h2>
-                <p>Check your timetable, assigments, tests and reminders in right place, at right time.</p>
+                <h2>New way to view your timetable</h2>
+                <p>Check your timetable, assigments, tests and reminders in one place.</p>
                 <paper-button raised on-tap="_proceed">Get started</paper-button>
               </div>
             </div>
             <div index="1" color="#ef5350">
               <div images>
-                <iron-image src="../images/onboarding_s2.png" preload fade sizing="contain"></iron-image>
+                <iron-image src="/images/onboarding_s2.png" preload fade sizing="contain"></iron-image>
               </div>
               <div text>
                 <h2>On all of your devices</h2>
@@ -287,7 +357,7 @@
             <template is="dom-if" if="[[_isOfflineReady()]]">
               <div index="2" color="#64b5f6">
                 <div images>
-                  <iron-image src="../images/onboarding_s3.png" preload fade sizing="contain"></iron-image>
+                  <iron-image src="/images/onboarding_s3.png" preload fade sizing="contain"></iron-image>
                 </div>
                 <div text>
                   <h2>Even offline</h2>
@@ -297,6 +367,23 @@
               </div>
             </template>
         </iron-swipeable-pages>
+        <yta-pager id="pager"
+                   selected="{{selected}}"
+                   items="[[pages]]"
+                   style="position: absolute">
+        </yta-pager>
+        <template is="dom-if" if="[[desktopLayout]]" restamp>
+          <paper-fab class="arrow-btn"
+                     icon="arrow-back"
+                     id="arrowLeft"
+                     on-tap="_tapArrowLeft"
+                     style="color: [[color]]"></paper-fab>
+          <paper-fab class="arrow-btn"
+                     icon="arrow-forward"
+                     id="arrowRight"
+                     on-tap="_tapArrowRight"
+                     style="color: [[color]]"></paper-fab>
+        </template>
       </template>
     </div>
   </template>
@@ -313,6 +400,11 @@
       properties: {
         
         phoneLayout: {
+          type: Boolean,
+          notify: true
+        },
+        
+        desktopLayout: {
           type: Boolean,
           notify: true
         },
@@ -337,17 +429,28 @@
           observer: '_colorChanged'
         },
         
+        pages: {
+          type: Array,
+          notify: true
+        },
+        
+        signedIn: {
+          type: Boolean,
+          notify: true,
+          value: false
+        },
+        
         animationConfig: {
           value: function() { return {
             'entry': {
               name: 'slide-from-bottom-animation',
               node: this,
-              timing: { duration: 225, easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)' }
+              timing: { duration: 300, easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)' }
             },
             'exit': {
               name: 'slide-down-animation',
               node: this,
-              timing: { duration: 195, easing: 'cubic-bezier(0.4, 0.0, 1, 1)' }
+              timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 1, 1)' }
             },
             'closeLogin': [
               {
@@ -367,7 +470,8 @@
       },
       
       listeners: {
-        'iron-resize': 'setLayout' // To set the layout when screen size changes
+        'iron-resize': 'setLayout', // To set the layout when screen size changes
+        'dom-change': 'setLayout' // Little workaround dom-if rendering
       },
       
       attached: function() {
@@ -381,7 +485,7 @@
       
       close: function() {
         this.isActive = false;
-        this.$.intro.if = false
+        this.signedIn = false
       },
       
       signIn: function(e) {
@@ -397,12 +501,13 @@
             firebaseControl.isFirstTimeVisit().then(resp => {
               if(resp) {
                 this.importHref('bower_components/iron-swipeable-pages/iron-swipeable-pages.html', () => {
-                  this.$.intro.if = true;
+                  this.signedIn = true;
                   this.$.intro.render();
                   this._selectedChanged(0);
                   this.setLayout();
                   this.set('animationConfig.closeLogin.1.node', this.$$('#carousel'));
                   this.playAnimation('closeLogin');
+                  this.notifyPath('color')
                 });
               } else {
                 this.fire('switch-page', { action: 'closeOnboarding' })
@@ -422,20 +527,30 @@
           .then(() => {
             // Signed in anonymously
             //  Powerup the carousel
-            this.$.intro.if = true;
+            this.signedIn = true;
             this.$.intro.render();
             this._selectedChanged(0);
             this.setLayout();
             this.set('animationConfig.closeLogin.1.node', this.$$('#carousel'));
             this.playAnimation('closeLogin');
+            this.notifyPath('color');
             //  Set a timeout for data
-            window.onbeforeunload = function() {
-              return "If you will leve now your data will be lost! Sign in before leaving to save it."
-            };
-            window.onunload = function() {
-              firebaseControl.signOut();
-            };
-            anonymousUser.async = onboarding.async(function() {
+            if(isChrome()) {
+              // For Chrome
+              window.onbeforeunload = function() {
+                firebaseControl.signOut();
+                return null;
+              };
+            } else {
+              // For other browsers
+              window.onbeforeunload = function() {
+                return "If you will leve now your data will be lost! Sign in before leaving to save it."
+              };
+              window.onunload = function() {
+                firebaseControl.signOut();
+              };
+            }
+            this.async(function() {
               firebaseControl.signOut();
             }, 1.8e+6)
           }).catch(function(err) {
@@ -461,6 +576,37 @@
             output -= item.offsetHeight - 24;
             item.style.marginBottom = output + 'px'
           });
+          var pager = this.$$('#pager');
+          var pagerPosLeft, pagerPosBottom;
+          if(shell.desktopLayout) {
+            pager.style.position = 'fixed';
+            var main = this.$.main;
+            var mainLeft = main.offsetLeft;
+            var mainCenter = mainLeft + main.offsetWidth / 2;
+            pagerPosLeft = mainCenter - pager.offsetWidth / 2;
+            pagerPosBottom = windowOffsetBottom(main) - 24 - pager.offsetHeight;
+          } else if(!this.phoneLayout || this.offsetWidth < this.offsetHeight) {
+            pager.style.position = 'absolute';
+            pagerPosLeft = this.offsetWidth / 2 - pager.offsetWidth / 2 - 5;
+            pagerPosBottom = 10;
+          } else {
+            pager.style.position = 'absolute';
+            var textDiv = this.$$('#carousel div[text] paper-button');
+            pagerPosLeft = textDiv.offsetLeft + (textDiv.offsetWidth / 2 - pager.offsetWidth / 2 - 5);
+            var buttonBottom = this.offsetHeight - (textDiv.offsetTop + textDiv.offsetHeight);
+            pagerPosBottom = buttonBottom - 20 - pager.offsetHeight - 10;
+          }
+          pager.style.left = pagerPosLeft + 'px';
+          pager.style.bottom = pagerPosBottom + 'px';
+          if(this.desktopLayout) {
+            var arrowLeftPos, arrowRightPos;
+            var mainLeft = this.$.main.offsetLeft;
+            var mainRight = mainLeft + this.$.main.offsetWidth;
+            arrowLeftPos = mainLeft - 56 - 48;
+            arrowRightPos = mainRight + 48;
+            this.$$('#arrowLeft').style.left = arrowLeftPos + 'px';
+            this.$$('#arrowRight').style.left = arrowRightPos + 'px';
+          }
         };
         var textsNL = this.root.querySelectorAll('#loginPage > div[text] > p');
         var texts = Array.prototype.slice.call(textsNL);
@@ -480,10 +626,56 @@
       
       _colorChanged: function(color) {
         document.head.querySelector('#themeColor').setAttribute('content', color);
+        if(this.signedIn) {
+          if(this.desktopLayout) {
+            this.$$('#pager').customStyle['--paper-pager-color'] = color;
+          } else {
+            this.$$('#pager').customStyle['--paper-pager-color'] = 'white';
+          }
+          this.$$('#pager').updateStyles();
+        }
       },
       
       _isOfflineReady: function() {
         return 'serviceWorker' in navigator
+      },
+      
+      _proceed: function() {
+        this.fire('switch-page', { action: 'closeOnboarding' });
+        this.fire('switch-page', { action: 'openSetupDialog' });
+      },
+      
+      _tapArrowRight: function(e) {
+        /*if(this.selected == (this.pages.length - 2)) {
+          e.target.icon = 'check'
+        } else {
+          e.target.icon = 'arrow-forward'
+        };*/
+        if(this.selected != (this.pages.length - 1)) {
+          this.selected++
+        } else {
+          this._proceed()
+        }
+      },
+      
+      _tapArrowLeft: function() {
+        /*if(this.selected == 1) {
+          e.target.disabled = true
+        } else {
+          e.target.disabled = false
+        };*/
+        if(this.selected != 0) {
+          this.selected--
+        }
       }
     })
+    
+    // Nescessary one
+    function windowOffsetBottom(item) {
+      var elemHeight = item.offsetHeight;
+      var elemTop = item.offsetTop;
+      var windowHeight = window.innerHeight;
+      return windowHeight - (elemTop + elemHeight);
+    }
   </script>
+</dom-module>

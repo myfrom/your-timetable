@@ -1,6 +1,4 @@
-<!-- This component is built on ES6 and might not work everywhere -->
-
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 
 <dom-module id="yta-firebase">
   <script>
@@ -17,34 +15,50 @@
         data: {
           type: Object,
           notify: true
-        },
-        
-        _firstLoadDone: {
-          type: Boolean,
-          value: false
         }
         
       },
+      
+      observers: [
+        'newData(data.*)'
+      ],
       
       attached: function() {
         firebaseControl = this;
         this._downloadSDKs().then(() => {
           firebase.auth().onAuthStateChanged(user => {
-            this._checkUser(user);
+            this._checkUser(user).then(() => {
+              window.anonymousSession = window.anonymousSession || false;
+              if(user) {
+                this._firstSetup();
+              };
+              if(user && user.isAnonymous && anonymousSession) {
+                this.signOut();
+              }
+            });
           });
           document.addEventListener('visibilitychange', () => {
-            document.hidden ? firebase.goOffline:
-                              firebase.goOnline;
+            /*document.hidden ? Firebase.goOffline():              Buggy
+                              Firebase.goOnline();*/
           })
-        })
+        });
       },
       
       signIn: function() {
         return firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+          .then(credintial => {
+            if(sw) {
+              sendMessage({ cmd: 'setupPouchDB', uid: credintial.user.uid })
+            };
+            return credintial
+          }).then(credintial => {
+            this.fire('signed-in')
+            return credintial
+          })
       },
       
       signOut: function() {
-        var output;
+        let output;
         if(this.user.isAnonymous) {
           output = firebase.auth().currentUser.delete()
         } else {
@@ -52,8 +66,7 @@
         };
         return output
           .then(() => {
-            // Delete PouchDB
-            location.reload()
+            this._deletePouchDB().then(() => location.reload());
           })
           .catch(err => {
             console.warn('Sign out failed', err)
@@ -78,7 +91,30 @@
       },
       
       signInAnonymously: function() {
-        return firebase.auth().signInAnonymously();
+        return firebase.auth().signInAnonymously().then(credintial => {
+          this.fire('signed-in');
+          window.anonymousSession = true;
+          return credintial
+        });
+      },
+      
+      newData: function(changeRecord) {
+        if(sw) {
+          const number = Math.random();
+          firebase.auth().currentUser.getToken().then(token => {
+            sendMessage({
+              cmd: 'processChangeRecord',
+              value: changeRecord,
+              skipLocal: this.user.isAnonymous,
+              token: token,
+              uid: this.user.uid,
+              syncId: number
+            }).then(() => navigator.serviceWorker.ready
+                .then(reg => reg.sync.register(number)));
+          })
+        } else {
+          //Some local way
+        }
       },
       
       _checkUser: function(user = firebase.auth().currentUser) {
@@ -88,7 +124,7 @@
             if(!user.isAnonymous) {
               this.user = user
             } else {
-              var output = this.user;
+              let output = this.user;
               output.isAnonymous = true;
               output.uid = user.uid;
               output.isDefault = false;
@@ -98,14 +134,14 @@
             // No user is signed in.
             this.fire('switch-page', { action: 'openOnboarding' });
           };
-          resolve(user);
+          resolve(this.user);
         })
       },
       
       _downloadSDKs: function() {
         function downloadPouchDB() {
           return new Promise((resolve, reject) => {
-            var script = document.createElement('script');
+            let script = document.createElement('script');
             script.src = 'bower_components/pouchdb/dist/pouchdb.min.js';
             script.onload = function () {
               resolve()
@@ -114,38 +150,34 @@
           })
         };
         
-        var p1 = new Promise((resolve, reject) => {
-          var script = document.createElement('script');
+        const p1 = new Promise((resolve, reject) => {
+          let script = document.createElement('script');
           script.src = 'https://www.gstatic.com/firebasejs/3.1.0/firebase-app.js';
           script.onload = function () {
             resolve()
           };
           document.head.appendChild(script);
         });
-        var p2 = new Promise((resolve, reject) => {
-          var script = document.createElement('script');
+        const p2 = new Promise((resolve, reject) => {
+          let script = document.createElement('script');
           script.src = 'https://www.gstatic.com/firebasejs/3.1.0/firebase-auth.js';
           script.onload = function () {
             resolve()
           };
           document.head.appendChild(script);
         });
-        var p3 = new Promise((resolve, reject) => {
-          var script = document.createElement('script');
+        const p3 = new Promise((resolve, reject) => {
+          let script = document.createElement('script');
           script.src = 'https://www.gstatic.com/firebasejs/3.1.0/firebase-database.js';
           script.onload = function () {
             resolve();
           };
           document.head.appendChild(script);
         });
-        var p4 = new Promise((resolve, reject) => {
+        const p4 = new Promise((resolve, reject) => {
           if ('serviceWorker' in navigator && 'SyncManager' in window) {
-            navigator.serviceWorker.ready.then(reg => {
-              resolve();
-              // return reg.sync.register('firstSync');
-            }).catch(() => {
-              downloadPouchDB().then(() => resolve());
-            });
+            sw = navigator.serviceWorker.controller;
+            sendMessage({ cmd: 'downloadPouchDB' }).then(() => resolve());
           } else {
             // serviceworker/sync not supported
             downloadPouchDB().then(() => resolve());
@@ -153,14 +185,124 @@
         });
         
         return Promise.all([p1, p2, p3, p4]).then(() => {
-          var config = {
+          let config = {
             apiKey: "AIzaSyDaMune3u4WZMti3aB66FWjX9aA_lWTLkQ",
             authDomain: "your-timetable.firebaseapp.com",
             databaseURL: "https://your-timetable.firebaseio.com"
           };
           firebase.initializeApp(config);
         });
+      },
+      
+      _deletePouchDB: function() {
+        return new Promise((resolve, reject) => {
+          if(!sw && !db) {
+            resolve()
+          };
+          if(sw) {
+            sw.postMessage({ cmd: 'deletePouchDB' });
+            resolve()
+          } else {
+            //Delete Pouch locally
+          }
+        })
+      },
+      
+      _firstSetup: function() {
+        return new Promise((resolve, reject) => {
+          if(sw) {
+            sendMessage({ cmd: 'giveTimetable' }).then(cached => {
+              firebase.database()
+                .ref(['users', this.user.uid].join('/'))
+                .once('value').then(snapshot => {
+                  let cloud = snapshot.val();
+                  if(cloud == null) {
+                    if(cached == null) {
+                      this.fire('switch-page', { action: 'openSetupDialog' })
+                    } else {
+                      this.set('data', cached)
+                    }
+                  } else {;
+                    if(cached.lastEdit > cloud.lastEdit) {
+                      this.set('data', cached)
+                    } else {
+                      this.set('data', cloud)
+                    };
+                  }
+                });
+            }, err => {
+              if(err == 'PouchDB not set up!') {
+                sendMessage({ cmd: 'setupPouchDB', uid: this.user.uid }).then(() => this._firstSetup())
+              }
+            });
+          } else {
+            //Some local way
+          };
+          window.setTimeout(() => window.requestIdleCallback(this.fetchData), 60000);
+          resolve();
+        })
+      },
+      
+      fetchData: function(deadline) {
+        let database = firebase.database()
+        let uref = 'users/' + firebaseControl.user.uid + '/';
+        if(typeof dataToFetch == 'undefined' || dataToFetch.length == 0) {
+          dataToFetch = ['timetable', 'settings', 'config', /*'notifications'*/]
+        };
+        if(navigator.onLine) {
+          while (deadline.timeRemaining() > 0) {
+            (() => {
+              let currentJob = dataToFetch.pop();
+              database.ref(uref + currentJob).once('value').then(snapshot => {
+                firebaseControl.set(['data', currentJob].join('.'), snapshot.val())
+              })
+            })()
+          };
+        };
+        if(dataToFetch.length > 0) {
+          window.requestIdleCallback(firebaseControl.fetchData)
+        } else {
+          window.setTimeout(() => window.requestIdleCallback(firebaseControl.fetchData), 60000);
+        }
       }
     });
+    
+    // From https://googlechrome.github.io/samples/service-worker/post-message/
+    function sendMessage(message) {
+      return new Promise((resolve, reject) => {
+        var messageChannel = new MessageChannel();
+        messageChannel.port1.onmessage = e => {
+          if (e.data.err) {
+            reject(e.data.err);
+          } else {
+            resolve(e.data);
+          }
+        };
+    
+        navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
+      })
+    }
+    
+    // requestIdleCallback shim
+    // From https://developers.google.com/web/updates/2015/08/using-requestidlecallback
+    window.requestIdleCallback =
+      window.requestIdleCallback ||
+      function (cb) {
+        var start = Date.now();
+        return setTimeout(function () {
+          cb({
+            didTimeout: false,
+            timeRemaining: function () {
+              return Math.max(0, 50 - (Date.now() - start));
+            }
+          });
+        }, 1);
+      }
+    
+    window.cancelIdleCallback =
+      window.cancelIdleCallback ||
+      function (id) {
+        clearTimeout(id);
+      }
   </script>
 </dom-module>

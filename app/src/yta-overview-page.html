@@ -1,0 +1,110 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<link rel="import" href="yta-lesson-card.html">
+<link rel="import" href="yta-common-styles.html">
+
+<dom-module id="yta-overview-page">
+  <template>
+    <style include="yta-common-styles">
+      
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        
+        #placeholder {
+          @apply(--layout-vertical);
+        }
+        
+      }
+      
+      #placeholder {
+         padding: 8px;
+      }
+    
+    </style>
+    
+    <div id="placeholder">
+      <template is="dom-repeat" items="[[lessonsToday(data.timetable)]]">
+        <yta-lesson-card i="[[index]]"
+                         name="[[item.name]]"
+                         start-time="[[viewReadable(item.startTime)]]"
+                         end-time="[[viewReadable(item.endTime)]]"
+                         color="[[_pickLessonColor(item.name)]]"
+                         classroom="[[_pickClassroom(item.name)]]"
+                         phone-layout="[[phoneLayout]]"
+                         ></yta-lesson-card>
+      </template>
+      <yta-lesson-card blank
+                       phone-layout="[[phoneLayout]]"
+                       ></yta-lesson-card>
+    </div>
+  </template>
+  
+  <script>
+    Polymer({
+      is: 'yta-overview-page',
+      
+      properties: {
+        
+        phoneLayout: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true
+        },
+        
+        data: {
+          type: Object,
+          notify: true
+        }
+        
+      },
+      
+      lessonsToday: function(tt) {
+        if(tt == null) {
+          this.fire('no-data');
+          return []
+        } else {
+          var now = new Date()
+          var todayTt = tt[now.getDay() - 1]
+          if(now.getDay() > tt.length || now.getDay() == 0) {
+            return tt[0]
+          } else if(hoursTimer(now) >= hoursTimer(todayTt[todayTt.length - 1].endTime)) {
+            if(now.getDay() + 1 > tt.length) {
+              return tt[0]
+            } else {
+              return tt[now.getDay()]
+            }
+          } else {
+            return todayTt
+          }
+        }
+      },
+      
+      viewReadable: function(time) {
+        var input = new Date(time);
+        var output = [null, ':', null];
+        output[0] = input.getHours();
+        output[2] = input.getMinutes();
+        if(output[2].toString().length == 1) {
+          output[2] = '0' + output[2]
+        };
+        return output.join('')
+      },
+      
+      _pickLessonColor: function(name) {
+        var config = this.data.config;
+        return config[name].color;
+      },
+      
+      _pickClassroom: function(name) {
+        var config = this.data.config;
+        return config[name].class;
+      }
+    })
+    
+    function hoursTimer(date) {
+      var output = new Date();
+      var input = new Date(date);
+      output.setHours(input.getHours(), input.getMinutes())
+      return output.getTime()
+    }
+  </script>
+</dom-module>

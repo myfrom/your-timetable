@@ -2,8 +2,9 @@ language: node_js
 node_js: stable
 dist: trusty
 sudo: required
-before_script:
+install:
 - npm install -g bower polymer-cli
+before_script:
 - cd app
 - bower install
 script:

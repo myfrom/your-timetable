@@ -1,13 +1,13 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 
-<link rel="import" href="../bower_components/app-route/app-location.html">
-<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="/bower_components/app-route/app-location.html">
+<link rel="import" href="/bower_components/app-route/app-route.html">
 
-<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
-<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="/bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<link rel="import" href="../bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
-<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
+<link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
 
 <link rel="import" href="yta-main-view.html">
 
@@ -37,11 +37,11 @@
       
     </style>
     
-    <app-location route="{{route}}" use-hash-as-path></app-location>
+    <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}"
                pattern="/:page"
                data="{{routeData}}"
-               tail="{{tail}}"></app-route>
+               id="router"></app-route>
     
     <iron-media-query query="(min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait)"
                       query-matches="{{phoneLayout}}"></iron-media-query>
@@ -52,7 +52,8 @@
                      data="{{appData}}"
                      style="display:block!important"></yta-main-view>
       <yta-settings key="settings"></yta-settings>
-      <yta-onboarding key="onboarding" phone-layout="[[phoneLayout]]"></yta-onboarding>
+      <yta-onboarding key="onboarding" phone-layout="[[phoneLayout]]" desktop-layout="[[desktopLayout]]"></yta-onboarding>
+      <yta-setup-dialog key="setup" phone-layout="[[phoneLayout]]"></yta-setup-dialog>
       <yta-add-dialog key="add"
                       app-data="{{appData}}"
                       phone-layout="[[phoneLayout]]"></yta-add-dialog>
@@ -66,7 +67,6 @@
       
       behaviors: [
         Polymer.IronResizableBehavior,
-        //Polymer.IronBooleanBehavior # Think of adding something like this
       ],
       
       properties: {
@@ -116,18 +116,22 @@
       
       attached: function() {
         shell = this;
-        if(!this.route.path) {
+        if(!this.route.path || this.route.path == '/') {
           this.set('route.path', '/app')
         };
+        if(!'serviceWorker' in navigator) {
+          this.importHref('src/yta-add-dialog.html', null, null, true)
+        }
       },
       
       switchRoute: function(e) {
         switch (e.detail.action) {
           case 'openAddDialog':
-            addDialog.isActive = true;
-            addDialog.$.dialog.open();
-            this.selected = 'add';
-            this.set('routeData.page', 'add');
+             this.importHref('src/yta-add-dialog.html', function() {
+              addDialog.open();
+              this.selected = 'add';
+              this.set('routeData.page', 'add');
+            }, null, true);
             break;
           case 'closeAddDialog':
             addDialog.$.dialog.close();
@@ -146,6 +150,12 @@
             this.selected = 'main';
             this.set('routeData.page', 'app');
             break;
+          case 'openSetupDialog':
+            this.importHref('src/yta-setup-dialog.html', function() {
+              this.selected = "setup";
+              this.set('routeData.page', 'app');
+            });
+            break;
           default:
             throw('`switch-page` event fired without or with unknown action!')
         }
@@ -153,26 +163,30 @@
       
       resolveRoute: function(toPage) {
         if(toPage == 'app') {
-          if(addDialog.isActive) {
+          if(addDialog && addDialog.isActive) {
             this.set('routeData.page', 'add');
             addDialog.$.dialog.fire('iron-overlay-canceled', 'page redirect', { cancelable: true });
-          } else if(onboarding.isActive) {
+          } else if(onboarding && onboarding.isActive) {
             this.set('routeData.page', 'welcome');
           }
         };
-        /*if(toPage != 'app') {
-          if(toPage == 'calendar') {
-            console.log('Open calendar')
-            //Open calendar tab of main-view                                    // Important!!!
-          } else if(!(addDialog || onboarding) || (!addDialog.isActive && !onboarding.isActive)) {
-            console.log('Navigate to /app')
-            this.set('routeData.page', 'app')
-          }
-          console.log('Function executed')
-        }*/
       },
       
-      // To bo moved to behavior
+      checkForTargets: function() {
+        return new Promise((resolve, reject) => {
+          const output = this.$.router.queryParams.target;
+          if(output) {
+            const validTargets = ['main', 'timetable', 'teachers', 'calendar']
+            if(validTargets.include(output)) {
+              resolve(output)
+            } else {
+              reject('invalid target')
+            }
+          } else {
+            reject('no targets')
+          }
+        })
+      },
       
       isFalse: function(arg1, arg2) {
         if(!arg1 && !arg2) {

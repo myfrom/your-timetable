@@ -1,27 +1,27 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 
-<link rel="import" href="../bower_components/app-layout/app-layout.html">
+<link rel="import" href="/bower_components/app-layout/app-layout.html">
 
-<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
-<link rel="import" href="../bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-image/iron-image.html">
+<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
 
-<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
-<link rel="import" href="../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
-<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../bower_components/paper-styles/typography.html">
-<link rel="import" href="../bower_components/paper-styles/color.html">
-<link rel="import" href="../bower_components/paper-styles/shadow.html">
+<link rel="import" href="/bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="/bower_components/paper-styles/typography.html">
+<link rel="import" href="/bower_components/paper-styles/color.html">
+<link rel="import" href="/bower_components/paper-styles/shadow.html">
 
-<link rel="import" href="../bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
-<link rel="import" href="../bower_components/neon-animation/neon-animation-runner-behavior.html">
-<link rel="import" href="../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
+<link rel="import" href="/bower_components/neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="/bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
 
 <link rel="import" href="yta-firebase.html">
 <link rel="import" href="yta-overview-page.html">
@@ -94,6 +94,7 @@
         --paper-fab-iron-icon: {
           opacity: var(--dark-primary-opacity);
         };
+        --paper-fab-keyboard-focus-background: var(--dark-accent-color);
       }
       
       /* From http://stackoverflow.com/questions/1495407/maintain-the-aspect-ratio-of-a-div-with-css */
@@ -181,9 +182,11 @@
       }
       
       iron-swipeable-pages > div > .waiter {
+        @apply(--layout-fit);
         @apply(--layout-horizontal);
         @apply(--layout-center);
         @apply(--layout-center-justified);
+        background-color: var(--primary-body-color);
       }
       
       iron-swipeable-pages > div > .waiter > paper-spinner {
@@ -197,10 +200,10 @@
     
     <yta-firebase data="{{data}}" user="{{user}}"></yta-firebase>
     
-    <app-drawer-layout force-narrow fullbleed>
+    <app-drawer-layout force-narrow>
       <app-drawer id="drawer" swipe-open="[[phoneLayout]]">
         <div id="ratioContainer">
-          <iron-image src="../images/paper-backdrop.png" fade preload sizing="contain"></iron-image>
+          <iron-image src="/images/paper-backdrop.png" fade preload sizing="contain"></iron-image>
           <div scrim></div>
           <iron-image fade preload src="[[user.photoURL]]" sizing="contain" class="avatar"></iron-image>
           <div>
@@ -211,23 +214,23 @@
             <paper-menu-button horizontal-align="right">
               <paper-icon-button icon="arrow-drop-down" class="dropdown-trigger"></paper-icon-button>
               <paper-menu class="dropdown-content">
-                <paper-item on-tap="signOut">Log out</paper-item>
+                <paper-item on-tap="signOut" role="menuitem">Sign out</paper-item>
               </paper-menu>
             </paper-menu-button>
           </div>
         </div>
         <div id="drawerMenusContainer">
           <paper-menu selected="{{selected}}" on-tap="_closeDrawer" attr-for-selected="key">
-            <paper-item key="overview"><iron-icon icon="home"></iron-icon>Overview</paper-item>
-            <paper-item key="timetable"><iron-icon icon="timeline"></iron-icon>Timetable</paper-item>
-            <paper-item key="teachers"><iron-icon icon="account-balance"></iron-icon>Teachers</paper-item>
-            <paper-item key="calendar"><iron-icon icon="event"></iron-icon>Calendar</paper-item>
+            <paper-item key="overview" role="menuitem"><iron-icon icon="home"></iron-icon>Overview</paper-item>
+            <paper-item key="timetable" role="menuitem"><iron-icon icon="timeline"></iron-icon>Timetable</paper-item>
+            <paper-item key="teachers" role="menuitem"><iron-icon icon="account-balance"></iron-icon>Teachers</paper-item>
+            <paper-item key="calendar" role="menuitem"><iron-icon icon="event"></iron-icon>Calendar</paper-item>
           </paper-menu>
           <hr noshade>
           <paper-menu on-tap="_closeDrawer" activate-event="">
-            <paper-item on-tap="_openSettings"><iron-icon icon="settings"></iron-icon>Settings</paper-item>
-            <paper-item on-tap="_sendFeedback"><iron-icon icon="feedback"></iron-icon>Send feedback</paper-item>
-            <!--<paper-item key="calendar"><iron-icon icon="help"></iron-icon>Help</paper-item> # Think of help section -->
+            <paper-item on-tap="_openSettings" role="menuitem"><iron-icon icon="settings"></iron-icon>Settings</paper-item>
+            <paper-item on-tap="_sendFeedback" role="menuitem"><iron-icon icon="feedback"></iron-icon>Send feedback</paper-item>
+            <!--<paper-item key="calendar" role="menuitem"><iron-icon icon="help"></iron-icon>Help</paper-item> # Think of help section -->
           </paper-menu>
         </div>
       </app-drawer>
@@ -240,21 +243,23 @@
             <paper-menu-button hidden$="[[phoneLayout]]" horizontal-align="right">
               <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
               <paper-menu class="dropdown-content">
-                <paper-item on-tap="_openSettings">Settings</paper-item>
-                <paper-item on-tap="_sendFeedback">Feedback</paper-item>
-                <paper-item on-tap="signOut">Sign out</paper-item>
-                <!--<paper-item>Help</paper-item> # Think of help section -->
+                <paper-item on-tap="_openSettings" role="menuitem">Settings</paper-item>
+                <paper-item on-tap="_sendFeedback"role="menuitem">Feedback</paper-item>
+                <paper-item on-tap="signOut" role="menuitem">Sign out</paper-item>
+                <!--<paper-item role="menuitem">Help</paper-item> # Think of help section -->
               </paper-menu>
             </paper-menu-button>
           </app-toolbar>
-          <app-toolbar hidden$="[[phoneLayout]]">
-            <paper-tabs selected="{{selected}}" attr-for-selected="key" bottom-item>
-              <paper-tab key="overview">overview</paper-tab>
-              <paper-tab key="timetable">timetable</paper-tab>
-              <paper-tab key="teachers">teachers</paper-tab>
-              <paper-tab key="calendar">calendar</paper-tab>
-            </paper-tabs>
-          </app-toolbar>
+          <template is="dom-if" if="[[!phoneLayout]]" restamp>
+            <app-toolbar>
+              <paper-tabs selected="{{selected}}" attr-for-selected="key" bottom-item>
+                <paper-tab key="overview">overview</paper-tab>
+                <paper-tab key="timetable">timetable</paper-tab>
+                <paper-tab key="teachers">teachers</paper-tab>
+                <paper-tab key="calendar">calendar</paper-tab>
+              </paper-tabs>
+            </app-toolbar>
+          </template>
         </app-header>
         
         <div content>
@@ -263,13 +268,13 @@
                                 selected="{{selected}}"
                                 attr-for-selected="id">
             <div id="overview">
-              <yta-overview-page></yta-overview-page>
+              <yta-overview-page phone-layout="[[phoneLayout]]" data="[[data]]"></yta-overview-page>
               <div class="waiter">
                 <paper-spinner active></paper-spinner>
               </div>
             </div>
             <div id="timetable">
-              <yta-timetable-page></yta-timetable-page>
+              <yta-timetable-page data="[[data]]"></yta-timetable-page>
               <div class="waiter">
                 <paper-spinner active></paper-spinner>
               </div>
@@ -319,7 +324,8 @@
         
         data: {
           type: Object,
-          notify: true
+          notify: true,
+          observer: '_loadOverviewPage'
         },
         
         user: {
@@ -372,35 +378,30 @@
       
       listeners: {
         'iron-resize': 'setLayout', // To set the layout when screen size changes
-        'drawer.app-drawer-transitioned': '_onDrawerTransitioned' // To keep focus in drawer when open
+        'drawer.app-drawer-transitioned': '_onDrawerTransitioned', // To keep focus in drawer when open
       },
       
       attached: function() {
         appmain = this;
         this.setLayout();
         this.playAnimation('ready');
+        shell.checkForTargets().then(target => {
+          this.selected = target;
+        })
       },
       
       setLayout: function() {
         // Fix app-layout
-        var screenSpace = this.offsetHeight - this.$.header.offsetHeight + 'px';
+        var screenSpace = window.innerHeight - this.$.header.offsetHeight + 'px';
         this.$$('div[content]').style.height = screenSpace;
         this.$.pages.style.height = screenSpace;
         this.$.pages.style.paddingTop = this.$.header.offsetHeight + 'px';
-        // Set addDialog animation timing
-        if(addDialog) {
-          if(shell.desktopLayout) {
-            addDialog.$.cancel.animationConfig.entry[0].timing.duration = 150;
-            addDialog.$.cancel.animationConfig.entry[1].timing.duration = 150;
-            addDialog.$.cancel.animationConfig.exit[0].timing.duration = 120;
-            addDialog.$.cancel.animationConfig.exit[1].timing.duration = 120;
-          } else {
-            addDialog.$.cancel.animationConfig.entry[0].timing.duration = 225;
-            addDialog.$.cancel.animationConfig.entry[1].timing.duration = 225;
-            addDialog.$.cancel.animationConfig.exit[0].timing.duration = 195;
-            addDialog.$.cancel.animationConfig.exit[1].timing.duration = 195;
-          }
-        }
+        /*var inPages = this.$.pages.querySelectorAll('*');
+        inPages = Array.prototype.slice.call(inPages);
+        inPages.forEach((item) => {
+          item.style.height = screenSpace;
+          item.style.paddingTop = this.$.header.offsetHeight + 'px';
+        })*/
       },
       
       signOut: function() {
@@ -409,110 +410,19 @@
       
       resolveSelected: function(selectedString) {
         if(selectedString != 'overview') {
-          selectedItemWaiter = appmain.$.pages.querySelector(['#', selectedString, ' > .waiter'].join(''));
+          selectedItemWaiter = this.$$(['#', selectedString, ' > .waiter'].join(''));
           if(!selectedItemWaiter.hidden) {
-            this.importHref(['src/yta', selectedString, 'page.html'].join('-'), function() {
-              appmain.set('animationConfig.fadeOut.node', selectedItemWaiter);
-              appmain.listen(appmain, 'neon-animation-finish', '_hideSelectedItemWaiter');
-              appmain.playAnimation('fadeOut');
+            this.importHref(['/src/yta', selectedString, 'page.html'].join('-'), () => {
+              this.set('animationConfig.fadeOut.node', selectedItemWaiter);
+              this.listen(appmain, 'neon-animation-finish', '_hideSelectedItemWaiter');
+              this.playAnimation('fadeOut');
             }, null, true);
           }
         }
       },
       
       _openAddDialog: function() {
-        // Import element
-        this.importHref('src/yta-add-dialog.html', function() {
-          /*// Define shared elents
-          if(!shell.desktopLayout) {
-            appmain.sharedElements = {
-              'hero': appmain.$.fab
-            };
-          };
-        
-          // Set to-dialog transition
-          var output = [];
-          if(!shell.desktopLayout) {
-            output.push({
-              name: 'hero-animation',
-              id: 'hero',
-              timing: {
-                duration: 300, // Default for phone
-                easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
-              },
-              fromPage: appmain
-            });
-            if(shell.tabletLayout) {
-              output[0].timing.duration = 390;
-            };
-          } else {
-            output.push({
-              name: 'scale-down-animation',
-              node: appmain.$.fab,
-              timing: {
-                duration: 100,
-                easing: 'cubic-bezier(0.4, 0.0, 1, 1)'
-              }
-            });
-          };
-          appmain.set('animationConfig.exit', output);
-          
-          var output = [];
-          if(!shell.phoneLayout) {
-            output.push({
-              name: 'fade-in-animation',
-              node: addDialog.$.backdrop,
-              timing: {
-                duration: 150, // Default for desktop
-                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-              }
-            });
-            if(shell.tabletLayout) {
-              output[0].timing.duration = 390;
-            };
-          };
-          if(!shell.desktopLayout) {
-            output.push({
-              name: 'hero-animation',
-              id: 'hero',
-              toPage: addDialog
-            })
-          } else {
-            output.push({
-              name: 'slide-from-bottom-animation',
-              node: addDialog.$.dialog,
-              timing: {
-                duration: 150,
-                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-              }
-            });
-            output.push({
-              name: 'fade-in-animation',
-              node: addDialog.$.dialog,
-              timing: {
-                duration: 150,
-                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-              }
-            });
-          };
-          addDialog.set('animationConfig.entry', output)*/
-          if(shell.desktopLayout) {
-            addDialog.$.cancel.animationConfig.entry[0].timing.duration = 150;
-            addDialog.$.cancel.animationConfig.entry[1].timing.duration = 150;
-            addDialog.$.cancel.animationConfig.exit[0].timing.duration = 120;
-            addDialog.$.cancel.animationConfig.exit[1].timing.duration = 120;
-          } else {
-            addDialog.$.cancel.animationConfig.entry[0].timing.duration = 225;
-            addDialog.$.cancel.animationConfig.entry[1].timing.duration = 225;
-            addDialog.$.cancel.animationConfig.exit[0].timing.duration = 195;
-            addDialog.$.cancel.animationConfig.exit[1].timing.duration = 195;
-          }
-          // Set from-dialog transition
-          //..
-          // Switch pages
-          this.fire('switch-page', { action: 'openAddDialog' });
-          
-        }, null, true);
+        this.fire('switch-page', { action: 'openAddDialog' });
       },
       
       _hideSelectedItemWaiter: function() {
@@ -536,6 +446,18 @@
       
       _closeDrawer: function() {
         this.$.drawer.close()
+      },
+      
+      _loadOverviewPage: function(data) {
+        var overviewPage = this.$$('#overview yta-overview-page');
+        selectedItemWaiter = this.$$('#overview > .waiter');
+        if(!selectedItemWaiter.hidden) {
+          this.importHref('src/yta-overview-page.html', () => {
+            this.set('animationConfig.fadeOut.node', selectedItemWaiter);
+            this.listen(appmain, 'neon-animation-finish', '_hideSelectedItemWaiter');
+            this.playAnimation('fadeOut');
+          }, null, true);
+        }
       }
     })
   </script>
