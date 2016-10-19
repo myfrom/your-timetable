@@ -28,14 +28,8 @@
           padding-left: 8px;
         }
         
-        app-toolbar::shadow [title] {
+        app-toolbar [title] {
           margin-left: 24px;
-        }
-      
-        #fab {
-          position: fixed;
-          bottom: 16px;
-          right: 16px;
         }
         
       }
@@ -91,10 +85,20 @@
         padding: 0 60px;
       }
       
-      #fab { /* Well, it should not be here, it's for phones */
+      #fab {
+        z-index: 10;
+      }
+      
+      app-header {
         position: fixed;
-        bottom: 16px;
-        right: 16px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 9;
+      }
+      
+      app-drawer {
+        z-index: 11;
       }
     
     

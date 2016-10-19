@@ -114,7 +114,19 @@
         'resolveRoute(routeData.page)'
       ],
       
-      attached: function() {
+      /*attached: function() {
+        console.log('yta-shell attached() fired');
+        shell = this;
+        if(!this.route.path || this.route.path == '/') {
+          this.set('route.path', '/app')
+        };
+        if(!'serviceWorker' in navigator) {
+          this.importHref('src/yta-add-dialog.html', null, null, true)
+        }
+      },*/
+      
+      ready: function() {
+        console.log('yta-shell ready() fired');
         shell = this;
         if(!this.route.path || this.route.path == '/') {
           this.set('route.path', '/app')

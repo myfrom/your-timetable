@@ -3,45 +3,24 @@
 <link rel="import" href="/bower_components/app-datepicker/app-datepicker-dialog.html">
 
 <!--<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">-->
-<link rel="import" href="/bower_components/iron-collapse/iron-collapse.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="/bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="/bower_components/paper-item/paper-item.html">
-<link rel="import" href="/bower_components/paper-item/paper-item-body.html">
-<link rel="import" href="/bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
 
 <link rel="import" href="/bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
 <link rel="import" href="/bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
 
-<!--<link rel="import" href="/bower_components/vaadin-combo-box/vaadin-combo-box.html">-->
-
+<link rel="import" href="paper-expansion-panel.html">
 <link rel="import" href="yta-common-styles.html">
 
 <dom-module id="yta-add-dialog">
   <template>
     <style include="yta-common-styles">
-      
-      @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait), (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
-        
-        
-      /*
-       * Phone styles
-       */
-        
-        
-        /*#dialog {
-          @apply(--layout-fit);
-          background-color: rgba(0,0,0,0) !important;
-        }*/
-        
-      }
       
       #content {
         /*@apply(--layout-fit);*/
@@ -59,31 +38,37 @@
       <h2>Add to calendar</h2>
       <paper-dialog-scrollable>
         <template is="dom-repeat" items="{{data}}">
-          <div>
-            <paper-dropdown-menu label="What to add?">
-              <paper-listbox attr-for-selected="key" selected="{{item.type}}" class="dropdown-content">
-                <paper-item key="change">Change in plan</paper-item>
-                <paper-item key="test">Test</paper-item>
-                <paper-item key="reminder">Reminder</paper-item>
-              </paper-listbox>
-            </paper-dropdown-menu>
-            <br>
-            <template is="dom-if" if="{{_isChangeSelected(item.type)}}">
-              <paper-checkbox checked="{{item.pernament}}">Pernament change</paper-checkbox><br>
-              <paper-icon-item role="menuitem">
-                <paper-item-body two-line="[[_changeFromContent(data)]]">
-                  <div>Change from</div>
-                  <div secondary>[[_changeFromContent(data)]]</div>
-                </paper-item-body>
-                <paper-icon-button icon="keyboard-arrow-down" on-tap="collapseFrom"></paper-icon-button>
-              </paper-icon-item>
-              <iron-collapse class="from">
-                <div>
-                  
-                </div>
-              </iron-collapse>
-            </template>
-          </div>
+          <!--<paper-icon-item role="menuitem">-->
+          <!--  <paper-item-body two-line="[[_changeFromContent(item)]]">-->
+          <!--    <div>Change from</div>-->
+          <!--    <template is="dom-if" if="[[_changeFromContent(item)]]">-->
+          <!--      <div secondary>[[_changeFromContent(item)]]</div>-->
+          <!--    </template>-->
+          <!--  </paper-item-body>-->
+          <!--  <paper-icon-button icon="arrow-drop-down"-->
+          <!--                     on-tap="collapseFrom"-->
+          <!--                     class="rotateable"></paper-icon-button>-->
+          <!--</paper-icon-item>-->
+          <!--<iron-collapse class="from">-->
+          <!--  <div>-->
+              <paper-dropdown-menu label="What to add?">
+                <paper-listbox attr-for-selected="key" selected="{{item.type}}" class="dropdown-content">
+                  <paper-item key="change">Change in plan</paper-item>
+                  <paper-item key="test">Test</paper-item>
+                  <paper-item key="reminder">Reminder</paper-item>
+                </paper-listbox>
+              </paper-dropdown-menu>
+              <br>
+              <template is="dom-if" if="{{_isChangeSelected(item.type)}}">
+                <paper-checkbox checked="{{item.pernament}}" class="change">Pernament change</paper-checkbox><br>
+                <paper-expansion-panel header-content="[[_changeFromContent(item.from)]]" header-title="Change from">
+                  <div>
+                    Hello world!
+                  </div>
+                </paper-expansion-panel>
+              </template>
+          <!--  </div>-->
+          <!--</iron-collapse>-->
         </template>
       </paper-dialog-scrollable>
       <div class="buttons">
@@ -137,8 +122,7 @@
         
         phoneLayout: {
           type: Boolean,
-          notify: true,
-          observer: '_onPhoneLayoutChanges'
+          notify: true
         },
         
         isActive: {
@@ -214,10 +198,6 @@
         }
       },
       
-      collapseFrom: function() {
-        this.$$('iron-collapse.from').toggle();
-      },
-      
       open: function() {
         this.isActive = true;
         this.$.dialog.open()
@@ -251,10 +231,42 @@
         }
       },
       
-      _onPhoneLayoutChanges: function(phoneLayout) {
-        if(phoneLayout) {
-          
+      _changeFromContent: function(from) {
+        if(from) {
+          const output = this.appData.timetable[from.day][from.lesson]
+          const name = output.name;
+          const timeStart = viewReadableTime(output.startTime);
+          const timeEnd = viewReadableTime(output.endTime);
+          const time = `${timeStart} - ${timeEnd}`;
+          const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+          /*
+          const daysLocalised = [];
+          for(i=0; i>5; i++) {
+            daysLocalized[i] = this.localize(days[i])
+          };
+          days = daysLocalised;
+          */
+          const day = days[from.day];
+          if(!this.$$('iron-collapse.from').opened) {
+            return `${day}, ${name} ${time}`
+          } else {
+            return false
+          }
+        } else {
+          return false
         }
       }
     })
+    
+    function viewReadableTime(time) {
+      const input = new Date(time);
+      const output = [null, ':', null];
+      output[0] = input.getHours();
+      output[2] = input.getMinutes();
+      if(output[2].toString().length == 1) {
+        output[2] = '0' + output[2]
+      };
+      return output.join('')
+    }
   </script>
+</dom-module>

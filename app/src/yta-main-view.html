@@ -1,11 +1,13 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 
 <link rel="import" href="/bower_components/app-layout/app-layout.html">
+<link rel="import" href="/bower_components/app-layout/app-scroll-effects/effects/waterfall.html">
 
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/iron-image/iron-image.html">
 <link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="/bower_components/iron-scroll-target-behavior/iron-scroll-target-behavior.html">
 <link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
 
 <link rel="import" href="/bower_components/paper-menu-button/paper-menu-button.html">
@@ -34,17 +36,43 @@
     
       @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
         
-      /*
-       * Phone styles
-       */
-       
-        
+        /* Phone styles */
+         
+        #fab {
+          position: fixed;
+          bottom: 16px;
+          right: 16px;
+        }
         
       }
       
-      /*
-       * Cross-device styles
-       */
+      @media (min-width: 601px) and (max-width: 840px) and (orientation: portrait), (min-width: 961px) and (max-width: 1279px) and (orientation: landscape) {
+        
+        /* Tablet styles */ /* A bit wider than standart tablet */
+         
+        #fab {
+          position: fixed;
+          right: 24px;
+          bottom: 24px;
+        }
+        
+      }
+      
+      @media (min-width: 1280px) and (orientation: landscape) {
+        
+        paper-tabs {
+          padding: 0 180px !important;
+        }
+        
+        #fab {
+          position: fixed;
+          top: 96px;
+          right: 52px;
+        }
+        
+      }
+      
+      /* Cross-device styles */
       
       hr {
         border-width: 1px 0 0 0;
@@ -200,8 +228,66 @@
     
     <yta-firebase data="{{data}}" user="{{user}}"></yta-firebase>
     
-    <app-drawer-layout force-narrow>
-      <app-drawer id="drawer" swipe-open="[[phoneLayout]]">
+    <app-header id="header" fixed shadow>
+      <app-toolbar>
+        <paper-icon-button icon="menu" hidden$="[[!phoneLayout]]" on-tap="_toggleDrawer"></paper-icon-button>
+        <div title>Your Timetable</div>
+        <paper-menu-button hidden$="[[phoneLayout]]" horizontal-align="right">
+          <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
+          <paper-menu class="dropdown-content">
+            <paper-item on-tap="_openSettings" role="menuitem">Settings</paper-item>
+            <paper-item on-tap="_sendFeedback"role="menuitem">Feedback</paper-item>
+            <paper-item on-tap="signOut" role="menuitem">Sign out</paper-item>
+            <!--<paper-item role="menuitem">Help</paper-item> # Think of help section -->
+          </paper-menu>
+        </paper-menu-button>
+      </app-toolbar>
+      <template is="dom-if" if="[[!phoneLayout]]" restamp>
+        <app-toolbar>
+          <paper-tabs selected="{{selected}}" attr-for-selected="key" bottom-item>
+            <paper-tab key="overview">overview</paper-tab>
+            <paper-tab key="timetable">timetable</paper-tab>
+            <paper-tab key="teachers">teachers</paper-tab>
+            <paper-tab key="calendar">calendar</paper-tab>
+          </paper-tabs>
+        </app-toolbar>
+      </template>
+    </app-header>
+    
+    <paper-fab id="fab" icon="add" on-tap="_openAddDialog"></paper-fab>
+    
+    <iron-swipeable-pages id="pages"
+                          edge-swipe-sensitivity="30"
+                          selected="{{selected}}"
+                          attr-for-selected="id">
+      <div id="overview">
+        <yta-overview-page phone-layout="[[phoneLayout]]" data="[[data]]" scroll-target="document"></yta-overview-page>
+        <div class="waiter">
+          <paper-spinner active></paper-spinner>
+        </div>
+      </div>
+      <div id="timetable">
+        <yta-timetable-page data="[[data]]" scroll-target="document"></yta-timetable-page>
+        <div class="waiter">
+          <paper-spinner active></paper-spinner>
+        </div>
+      </div>
+      <div id="teachers">
+        <yta-teachers-page scroll-target="document"></yta-teachers-page>
+        <div class="waiter">
+          <paper-spinner active></paper-spinner>
+        </div>
+      </div>
+      <div id="calendar">
+        <yta-calendar-page scroll-target="document"></yta-calendar-page>
+        <div class="waiter">
+          <paper-spinner active></paper-spinner>
+        </div>
+      </div>
+    </iron-swipeable-pages>
+    
+    <template is="dom-if" restamp if="[[phoneLayout]]">
+      <app-drawer id="drawer" swipe-open>
         <div id="ratioContainer">
           <iron-image src="/images/paper-backdrop.png" fade preload sizing="contain"></iron-image>
           <div scrim></div>
@@ -234,68 +320,7 @@
           </paper-menu>
         </div>
       </app-drawer>
-      
-      <app-header-layout> 
-        <app-header id="header" fixed shadow>
-          <app-toolbar>
-            <paper-icon-button icon="menu" hidden$="[[!phoneLayout]]" drawer-toggle></paper-icon-button>
-            <div title>Your Timetable</div>
-            <paper-menu-button hidden$="[[phoneLayout]]" horizontal-align="right">
-              <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
-              <paper-menu class="dropdown-content">
-                <paper-item on-tap="_openSettings" role="menuitem">Settings</paper-item>
-                <paper-item on-tap="_sendFeedback"role="menuitem">Feedback</paper-item>
-                <paper-item on-tap="signOut" role="menuitem">Sign out</paper-item>
-                <!--<paper-item role="menuitem">Help</paper-item> # Think of help section -->
-              </paper-menu>
-            </paper-menu-button>
-          </app-toolbar>
-          <template is="dom-if" if="[[!phoneLayout]]" restamp>
-            <app-toolbar>
-              <paper-tabs selected="{{selected}}" attr-for-selected="key" bottom-item>
-                <paper-tab key="overview">overview</paper-tab>
-                <paper-tab key="timetable">timetable</paper-tab>
-                <paper-tab key="teachers">teachers</paper-tab>
-                <paper-tab key="calendar">calendar</paper-tab>
-              </paper-tabs>
-            </app-toolbar>
-          </template>
-        </app-header>
-        
-        <div content>
-          <iron-swipeable-pages id="pages"
-                                edge-swipe-sensitivity="30"
-                                selected="{{selected}}"
-                                attr-for-selected="id">
-            <div id="overview">
-              <yta-overview-page phone-layout="[[phoneLayout]]" data="[[data]]"></yta-overview-page>
-              <div class="waiter">
-                <paper-spinner active></paper-spinner>
-              </div>
-            </div>
-            <div id="timetable">
-              <yta-timetable-page data="[[data]]"></yta-timetable-page>
-              <div class="waiter">
-                <paper-spinner active></paper-spinner>
-              </div>
-            </div>
-            <div id="teachers">
-              <yta-teachers-page></yta-teachers-page>
-              <div class="waiter">
-                <paper-spinner active></paper-spinner>
-              </div>
-            </div>
-            <div id="calendar">
-              <yta-calendar-page></yta-calendar-page>
-              <div class="waiter">
-                <paper-spinner active></paper-spinner>
-              </div>
-            </div>
-          </iron-swipeable-pages>
-          <paper-fab id="fab" icon="add" on-tap="_openAddDialog"></paper-fab>
-        </div>
-      </app-header-layout>
-    </app-drawer-layout>
+    </template>
   </template>
   
   <script>
@@ -305,7 +330,8 @@
       behaviors: [
         Polymer.NeonSharedElementAnimatableBehavior,
         Polymer.NeonAnimationRunnerBehavior,
-        Polymer.IronResizableBehavior
+        Polymer.IronResizableBehavior,
+        Polymer.IronScrollTargetBehavior
       ],
       
       properties: {
@@ -378,7 +404,6 @@
       
       listeners: {
         'iron-resize': 'setLayout', // To set the layout when screen size changes
-        'drawer.app-drawer-transitioned': '_onDrawerTransitioned', // To keep focus in drawer when open
       },
       
       attached: function() {
@@ -387,21 +412,23 @@
         this.playAnimation('ready');
         shell.checkForTargets().then(target => {
           this.selected = target;
+        }, err => {
+          if(err != 'no targets' && err != 'invalid target') {
+            console.error(err)
+          }
         })
       },
       
       setLayout: function() {
         // Fix app-layout
-        var screenSpace = window.innerHeight - this.$.header.offsetHeight + 'px';
-        this.$$('div[content]').style.height = screenSpace;
-        this.$.pages.style.height = screenSpace;
-        this.$.pages.style.paddingTop = this.$.header.offsetHeight + 'px';
-        /*var inPages = this.$.pages.querySelectorAll('*');
-        inPages = Array.prototype.slice.call(inPages);
-        inPages.forEach((item) => {
+        let screenSpace = window.innerHeight - this.$.header.offsetHeight + 'px';
+        let headerHeigh = this.$.header.offsetHeight + 'px';
+        let pages = this.root.querySelectorAll('#pages, #pages :not(paper-spinner)');
+        this.$.pages.style.paddingTop = headerHeigh;
+        pages = Array.prototype.slice.call(pages);
+        pages.forEach(item => {
           item.style.height = screenSpace;
-          item.style.paddingTop = this.$.header.offsetHeight + 'px';
-        })*/
+        })
       },
       
       signOut: function() {
@@ -430,8 +457,8 @@
         this.unlisten(this, 'neon-animation-finish', '_hideSelectedItemWaiter')
       },
       
-      _onDrawerTransitioned: function(e) {
-        //..
+      _toggleDrawer: function(e) {
+        this.$$('app-drawer').toggle()
       },
       
       _sendFeedback: function() {
@@ -445,11 +472,11 @@
       },
       
       _closeDrawer: function() {
-        this.$.drawer.close()
+        this.$$('#drawer').close()
       },
       
       _loadOverviewPage: function(data) {
-        var overviewPage = this.$$('#overview yta-overview-page');
+        const overviewPage = this.$$('#overview yta-overview-page');
         selectedItemWaiter = this.$$('#overview > .waiter');
         if(!selectedItemWaiter.hidden) {
           this.importHref('src/yta-overview-page.html', () => {

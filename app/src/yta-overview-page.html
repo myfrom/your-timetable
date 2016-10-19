@@ -15,6 +15,17 @@
         
       }
       
+      @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+        
+        #placeholder {
+          @apply(--layout-horizontal);
+          @apply(--layout-wrap);
+          @apply(--layout-center-justified);
+          padding-top: 12px !important;
+        }
+        
+      }
+      
       #placeholder {
          padding: 8px;
       }
@@ -32,9 +43,11 @@
                          phone-layout="[[phoneLayout]]"
                          ></yta-lesson-card>
       </template>
-      <yta-lesson-card blank
-                       phone-layout="[[phoneLayout]]"
-                       ></yta-lesson-card>
+      <template is="dom-if" if="[[phoneLayout]]">
+        <yta-lesson-card blank
+                         phone-layout="[[phoneLayout]]"
+                         ></yta-lesson-card>
+      </template>
     </div>
   </template>
   

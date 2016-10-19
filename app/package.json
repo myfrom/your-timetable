@@ -1,17 +1,24 @@
 {
   "name": "your-timetable",
-  "engines": {
-    "node": ">=4.0"
-  },
+  "version": "0.0.0",
+  "description": "The Your Timetable app",
   "private": true,
+  "main": "index.html",
   "devDependencies": {
-    "del": "^2.2.1",
-    "google-closure-compiler-js": "^20160828.0.1",
-    "gulp": "^3.9.1",
-    "gulp-if": "^2.0.1",
-    "gulp-imagemin": "^3.0.1",
-    "merge-stream": "^1.0.0",
-    "plylog": "^0.4.0",
-    "polymer-build": "^0.3.0"
+    "http2-push-manifest": "^1.0.1"
+  },
+  "scripts": {
+    "test": "polymer lint; polymer test",
+    "build": "polymer build",
+    "run": "polymer serve -H 0.0.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/witus13/your-timetable.git"
+  },
+  "author": "Witus13 <myfrom.13th@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/witus13/your-timetable/issues"
   }
 }

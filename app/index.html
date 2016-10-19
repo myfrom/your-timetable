@@ -82,6 +82,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       })();
       
+      // Load nescessary polyfills
+      (function() {
+        'use strict';
+        if(!Array.from) {
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = '/src/polyfills/array-from-polyfill.js';
+          document.head.appendChild(script);
+        }
+      })();
+      
       // load pre-caching service worker
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {

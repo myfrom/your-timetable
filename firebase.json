@@ -3,7 +3,7 @@
     "rules": "firebase.database.rules.json"
   },
   "hosting": {
-    "public": "app/build/bundled",
+    "public": "app/build/unbundled",
     "rewrites": [ {
       "source": "**/!{*.*}",
       "destination": "/index.html"

@@ -51,6 +51,14 @@
         }
         
       }
+      
+      @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+        
+        .dayPlaceholder {
+          @apply(--layout-flex);
+        }
+        
+      }
     
     </style>
     
@@ -86,8 +94,8 @@
       },
       
       viewReadable: function(time) {
-        var input = new Date(time);
-        var output = [null, ':', null];
+        let input = new Date(time);
+        let output = [null, ':', null];
         output[0] = input.getHours();
         output[2] = input.getMinutes();
         if(output[2].toString().length == 1) {
@@ -97,9 +105,9 @@
       },
       
       _computeDayName: function(day) {
-        var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         /*
-        var daysLocalised = [];
+        let daysLocalised = [];
         for(i=0; i>5; i++) {
           daysLocalized[i] = this.localize(days[i])
         };
@@ -109,21 +117,21 @@
       },
       
       _pickLessonColor: function(name) {
-        var config = this.data.config;
+        let config = this.data.config;
         return config[name].color;
       },
       
       _pickClassroom: function(name) {
-        var config = this.data.config;
+        let config = this.data.config;
         return config[name].class;
       }
     })
     
     function hoursTimer(date) {
-      var output = new Date();
-      var input = new Date(date);
+      let output = new Date();
+      let input = new Date(date);
       output.setHours(input.getHours(), input.getMinutes())
       return output.getTime()
     }
   </script>
-</dom-module>.
+</dom-module>

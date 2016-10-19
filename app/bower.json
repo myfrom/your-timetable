@@ -4,17 +4,17 @@
   "authors": [
     "Witus13 <myfrom.13th@gmail.com>"
   ],
-  "license": "GNU v3",
+  "license": "GPL-3.0",
   "private": true,
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.6.0",
+    "polymer": "Polymer/polymer#^1.7.0",
     "iron-elements": "PolymerElements/iron-elements#^1.0.10",
     "paper-elements": "PolymerElements/paper-elements#^1.0.7",
     "neon-elements": "PolymerElements/neon-elements#^1.0.0",
-    "app-elements": "PolymerElements/app-elements#^0.9.0",
-    "iron-swipeable-pages": "^1.2.3",
-    "app-datepicker": "^2.7.0",
-    "pouchdb": "^5.4.4"
+    "app-elements": "PolymerElements/app-elements#^0.10.0",
+    "iron-swipeable-pages": "^1.2.6",
+    "app-datepicker": "^2.8.1",
+    "pouchdb": "^6.0.6"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

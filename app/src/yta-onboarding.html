@@ -16,7 +16,7 @@
 <link rel="import" href="yta-common-styles.html">
 
 <!-- This can get moved in future! -->
-<link rel="import" href="yta-pager.html">
+<link rel="import" href="paper-pager.html">
 
 <dom-module id="yta-onboarding">
   <template>
@@ -367,11 +367,11 @@
               </div>
             </template>
         </iron-swipeable-pages>
-        <yta-pager id="pager"
+        <paper-pager id="pager"
                    selected="{{selected}}"
                    items="[[pages]]"
                    style="position: absolute">
-        </yta-pager>
+        </paper-pager>
         <template is="dom-if" if="[[desktopLayout]]" restamp>
           <paper-fab class="arrow-btn"
                      icon="arrow-back"
