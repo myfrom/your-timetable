@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="/bower_components/app-route/app-location.html">
 <link rel="import" href="/bower_components/app-route/app-route.html">
@@ -15,10 +16,7 @@
   <template>
     <style>
       
-      :host {
-        /* --paper-font-common-base */
-        font-family: 'Roboto', 'Noto', sans-serif;
-        -webkit-font-smoothing: antialiased;
+      :host > * {
         /* Turn off selection */
         -moz-user-select: none;
         -ms-user-select: none;
@@ -37,20 +35,24 @@
       
     </style>
     
+    <!-- Router -->
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}"
                pattern="/:page"
                data="{{routeData}}"
                id="router"></app-route>
     
+    <!-- Set layout indicators -->
     <iron-media-query query="(min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait)"
                       query-matches="{{phoneLayout}}"></iron-media-query>
     
+    <!-- Switch between views -->
     <neon-animated-pages selected="[[selected]]" attr-for-selected="key">
       <yta-main-view key="main"
                      phone-layout="[[phoneLayout]]"
                      data="{{appData}}"
                      style="display:block!important"></yta-main-view>
+                     <!-- ^^^ this is used to keep the main view visible -->
       <yta-settings key="settings"></yta-settings>
       <yta-onboarding key="onboarding" phone-layout="[[phoneLayout]]" desktop-layout="[[desktopLayout]]"></yta-onboarding>
       <yta-setup-dialog key="setup" phone-layout="[[phoneLayout]]"></yta-setup-dialog>
@@ -58,10 +60,133 @@
                       app-data="{{appData}}"
                       phone-layout="[[phoneLayout]]"></yta-add-dialog>
       <yta-feedback-dialog key="feedback"></yta-feedback-dialog>
+      <yta-about-page key="about"></yta-about-page>
     </neon-animated-pages>
   </template>
   
   <script>
+    class Shell extends /*Polymer.IronResizableBehavior(*/Polymer.Element/*)*/ {
+      static get is() { return 'yta-shell'; }
+      static get config() {
+        return {
+          properties: {
+          
+            // Currently selected view
+            selected: {
+              type: String,
+              notify: true,
+              value: 'main'
+            },
+            
+            // Sharing the user data between views
+            appData: {
+              type: Object,
+              notify: true
+            },
+            
+            // Layout indicators
+            phoneLayout: {
+              type: Boolean,
+              notify: true
+            },
+            
+            // This layout is not going to be used until later release
+            tabletLayout: {
+              type: Boolean,
+              notify: true,
+              value: false // To be removed - only for testing
+            },
+            
+            desktopLayout: {
+              type: Boolean,
+              notify: true,
+              computed: '_isFalse(phoneLayout, tabletLayout)'
+            }
+            
+          },
+          
+          observers: [
+            '_resolveRoute(routeData.page)'
+          ],
+        }
+      }
+      
+      constructor() {
+        super();
+        //..
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+        
+        // Add event listeners
+        requestAnimationFrame(() => {
+          this.addEventListener('switch-page', this.switchRoute);
+        });
+        
+        // Set route if null
+        if (!this.route.path || this.route.path == '/') {
+          this.set('route.path', '/app')
+        };
+        
+        // If there is no sw, import AddDialog for smoother experience
+        if (!'serviceWorker' in navigator) {
+          this.importHref('src/yta-add-dialog.html', null, null, true)          // importHref isn't defined
+        }
+      }
+      
+      disconnectedCallback() {
+        // Remove event listeners
+        this.removeEventListener('switch-page', this.switchRoute);
+      }
+      
+      _switchRoute(e) {
+        /*switch (e.detail.action) {
+          case 'openAddDialog':
+             this.importHref('src/yta-add-dialog.html', function() {
+              addDialog.open();
+              this.selected = 'add';
+              this.set('routeData.page', 'add');
+            }, null, true);
+            break;
+          case 'closeAddDialog':
+            addDialog.$.dialog.close();
+            this.selected = 'main';
+            this.set('routeData.page', 'app');
+            break;
+          case 'openOnboarding':
+            this.importHref('src/yta-onboarding.html', function() {
+              onboarding.open()
+              this.selected = 'onboarding';
+              this.set('routeData.page', 'welcome');
+            }, null, true);
+            break;
+          case 'closeOnboarding':
+            onboarding.close();
+            this.selected = 'main';
+            this.set('routeData.page', 'app');
+            break;
+          case 'openSetupDialog':
+            this.importHref('src/yta-setup-dialog.html', function() {
+              this.selected = "setup";
+              this.set('routeData.page', 'app');
+            });
+            break;
+          default:
+            console.error(new Error('`switch-page` event fired without or with unknown action!'))
+        }*/
+      }
+        
+      _isFalse(arg1, arg2) {
+        if(!arg1 && !arg2) {
+          return true
+        } else {
+          return false
+        }
+      }
+    }
+    
+    customElements.define(Shell.is, Shell);
     Polymer({
       is: 'yta-shell',
       
