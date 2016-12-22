@@ -1,22 +1,21 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="/bower_components/iron-image/iron-image.html">
-<link rel="import" href="/bower_components/iron-icons/iron-icons.html"><!-- Change for smaller package -->
 
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="/bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="/bower_components/paper-pager/paper-pager.html">
 
 <link rel="import" href="/bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
 <link rel="import" href="/bower_components/neon-animation/neon-animation-runner-behavior.html">
 
 <link rel="import" href="yta-common-styles.html">
 
-<!-- This can get moved in future! -->
-<link rel="import" href="paper-pager.html">
+<link rel="import" href="icons.html">
 
 <dom-module id="yta-onboarding">
   <template>
@@ -326,7 +325,7 @@
           <div style="display:inline-block" hidden$="[[signedIn]]">
             <paper-button class="small blue" on-tap="testDrive">Test drive</paper-button>
             <span>
-              <paper-icon-button class="blue" icon="help-outline" id="helpButtonTooltipTarget" on-tap="showHelpTooltip"></paper-icon-button>
+              <paper-icon-button class="blue" icon="icons:help-outline" id="helpButtonTooltipTarget" on-tap="showHelpTooltip"></paper-icon-button>
               <paper-tooltip for="helpButtonTooltipTarget" fit-to-visible-bounds manual-mode>Browse anonymously for 30 minutes</paper-tooltip>
             </span>
           </div>
@@ -374,12 +373,12 @@
         </paper-pager>
         <template is="dom-if" if="[[desktopLayout]]" restamp>
           <paper-fab class="arrow-btn"
-                     icon="arrow-back"
+                     icon="icons:arrow-back"
                      id="arrowLeft"
                      on-tap="_tapArrowLeft"
                      style="color: [[color]]"></paper-fab>
           <paper-fab class="arrow-btn"
-                     icon="arrow-forward"
+                     icon="icons:arrow-forward"
                      id="arrowRight"
                      on-tap="_tapArrowRight"
                      style="color: [[color]]"></paper-fab>

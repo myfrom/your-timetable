@@ -1,308 +1,306 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/src/templatizer/dom-if.html">
+<link rel="import" href="/bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="/bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="/bower_components/polymerfire/firebase-document.html">
 
 <dom-module id="yta-firebase">
+  <template>
+    <firebase-app
+      auth-domain="your-timetable.firebaseapp.com"
+      database-url="https://your-timetable.firebaseio.com"
+      api-key="AIzaSyDaMune3u4WZMti3aB66FWjX9aA_lWTLkQ"
+      messaging-sender-id="806106096657">
+    </firebase-app>
+    <firebase-auth
+      id="auth"
+      online="{{online}}"
+      status-known="{{statusKnown}}"
+      user="{{user}}"
+      provider="google">
+    </firebase-auth>
+    <firebase-document
+      id="cloudDb"
+      path="/users/[[user.uid]]"
+      data="{{cloudData}}"
+      disabled="[[_isCloudDisabled(statusKnown, online)]]">
+    </firebase-document>
+    
+    <dom-if if="[[!isSW]]">
+      <template>
+        <app-pouchdb-conflict-resolution
+          strategy="lastWriteWins">
+        </app-pouchdb-conflict-resolution>
+        <app-pouchdb-document
+          id="pouch"
+          db-name="data"
+          doc-id="[[user.uid]]"
+          data="{{localData}}">
+        </app-pouchdb-document>
+      </template>
+    </dom-if>
+  </template>
+  
   <script>
-    Polymer({
-      is: 'yta-firebase',
-      
-      properties: {
-        
-        user: {
-          type: Object,
-          notify: true
-        },
-        
-        data: {
-          type: Object,
-          notify: true
-        }
-        
-      },
-      
-      observers: [
-        'newData(data.*)'
-      ],
-      
-      attached: function() {
-        firebaseControl = this;
-        this._downloadSDKs().then(() => {
-          firebase.auth().onAuthStateChanged(user => {
-            this._checkUser(user).then(() => {
-              window.anonymousSession = window.anonymousSession || false;
-              if(user) {
-                this._firstSetup();
-              };
-              if(user && user.isAnonymous && anonymousSession) {
-                this.signOut();
+    class FirebaseControl extends Polymer.Element {
+      static get is() { return 'yta-firebase'; }
+      static get config() {
+        return {
+          properties: {
+          
+            user: {
+              type: Object,
+              notify: true
+            },
+            
+            data: {
+              type: Object,
+              notify: true
+            },
+            
+            cloudData: {
+              type: Object,
+              observer: '_cloudChanged'
+            },
+            
+            localData: {
+              type: Object,
+              observer: '_pushToPouch'
+            },
+            
+            satusKnown: {
+              type: Boolean
+            },
+            
+            online: {
+              type: Boolean
+            },
+            
+            isSW: {
+              type: Boolean,
+              value: () => {
+                return 'serviceWorker' in navigator;
               }
-            });
-          });
-          document.addEventListener('visibilitychange', () => {
-            /*document.hidden ? Firebase.goOffline():              Buggy
-                              Firebase.goOnline();*/
-          })
-        });
-      },
-      
-      signIn: function() {
-        return firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
-          .then(credintial => {
-            if(sw) {
-              sendMessage({ cmd: 'setupPouchDB', uid: credintial.user.uid })
-            };
-            return credintial
-          }).then(credintial => {
-            this.fire('signed-in')
-            return credintial
-          })
-      },
-      
-      signOut: function() {
-        let output;
-        if(this.user.isAnonymous) {
-          output = firebase.auth().currentUser.delete()
-        } else {
-          output = firebase.auth().signOut()
-        };
-        return output
-          .then(() => {
-            this._deletePouchDB().then(() => location.reload());
-          })
-          .catch(err => {
-            console.warn('Sign out failed', err)
-          })
-      },
-      
-      isFirstTimeVisit: function() {
-        return new Promise((resolve, reject) => {
-          this._checkUser().then(user => {
-            if(user.isDefault) {
-              reject(Error('No user signed in!'))
-            };
-            firebase.database().ref(['users', user.uid].join('/')).once('value', snapshot => {
-              if(snapshot.val()) {
-                resolve(false)
-              } else {
-                resolve(true)
-              }
-            })
-          })
-        });
-      },
-      
-      signInAnonymously: function() {
-        return firebase.auth().signInAnonymously().then(credintial => {
-          this.fire('signed-in');
-          window.anonymousSession = true;
-          return credintial
-        });
-      },
-      
-      newData: function(changeRecord) {
-        if(sw) {
-          const number = Math.random();
-          firebase.auth().currentUser.getToken().then(token => {
-            sendMessage({
-              cmd: 'processChangeRecord',
-              value: changeRecord,
-              skipLocal: this.user.isAnonymous,
-              token: token,
-              uid: this.user.uid,
-              syncId: number
-            }).then(() => navigator.serviceWorker.ready
-                .then(reg => reg.sync.register(number)));
-          })
-        } else {
-          //Some local way
-        }
-      },
-      
-      _checkUser: function(user = firebase.auth().currentUser) {
-        return new Promise((resolve, reject) => {
-          if (user) {
-            // User is signed in.
-            if(!user.isAnonymous) {
-              this.user = user
-            } else {
-              let output = this.user;
-              output.isAnonymous = true;
-              output.uid = user.uid;
-              output.isDefault = false;
-              this.user = output
             }
-          } else {
-            // No user is signed in.
-            this.fire('switch-page', { action: 'openOnboarding' });
-          };
-          resolve(this.user);
-        })
-      },
-      
-      _downloadSDKs: function() {
-        function downloadPouchDB() {
-          return new Promise((resolve, reject) => {
-            let script = document.createElement('script');
-            script.src = 'bower_components/pouchdb/dist/pouchdb.min.js';
-            script.onload = function () {
-              resolve()
-            };
-            document.head.appendChild(script);
-          })
+            
+          },
+          
+          observers: [
+            'newData(data.*)'
+          ],
         };
+      }
+      
+      constructor() {
+        super();
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
         
-        const p1 = new Promise((resolve, reject) => {
-          let script = document.createElement('script');
-          script.src = 'https://www.gstatic.com/firebasejs/3.1.0/firebase-app.js';
-          script.onload = function () {
-            resolve()
-          };
-          document.head.appendChild(script);
+        this._auth = this.$.auth;
+        
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (this.isSW) {
+              this._loadPouchDB();
+            } else {
+              importHref('/bower_components/app-pouchdb/app-pouchdb-document.html');
+              importHref('/bower_components/app-pouchdb/app-pouchdb-conflict-resolution.html');
+            }
+            this.setData();
+          });
         });
-        const p2 = new Promise((resolve, reject) => {
-          let script = document.createElement('script');
-          script.src = 'https://www.gstatic.com/firebasejs/3.1.0/firebase-auth.js';
-          script.onload = function () {
-            resolve()
-          };
-          document.head.appendChild(script);
+      }
+      
+      signIn() {
+        return new Promise((resolve, reject) => {
+          this._auth.signInWithPopup().then(resp => {
+            this._fire('firebase-signed-in', { annonymous: false });
+            resolve(resp);
+          }, err => {
+            console.error('Sign in failed', 'annonymous == false', err);
+            reject(err);
+          });
         });
-        const p3 = new Promise((resolve, reject) => {
-          let script = document.createElement('script');
-          script.src = 'https://www.gstatic.com/firebasejs/3.1.0/firebase-database.js';
-          script.onload = function () {
-            resolve();
-          };
-          document.head.appendChild(script);
+      }
+      
+      signInAnonymously() {
+        return new Promise((resolve, reject) => {
+          this._auth.signInAnonymously().then(resp => {
+            this._fire('firebase-signed-in', { annonymous: true });
+            resolve(resp);
+          }, err => {
+            console.error('Sign in failed', 'annonymous == true', err);
+            reject(err);
+          });
         });
-        const p4 = new Promise((resolve, reject) => {
-          if ('serviceWorker' in navigator && 'SyncManager' in window) {
-            sw = navigator.serviceWorker.controller;
-            sendMessage({ cmd: 'downloadPouchDB' }).then(() => resolve());
+      }
+      
+      signOut() {
+        return new Promise((resolve, reject) => {
+          this._auth.signOut().then(() => {
+            this._fire('firebase-signed-out');
+            return this.isSW ? sendMessage({ cmd: 'deletePouch' })
+                                : this.shadowRoot.querySelector('#pouch').destroy();
+          }, err => {
+            console.error('Sign out failed', err);
+            reject(err);
+          }).catch(err => {
+            console.error('Error deleting Pouch', err);
+            reject(err);
+          });
+        });
+      }
+      
+      newData(changeRecord) {
+        requestIdleCallback(deadline => {
+          this.cloudData = this.data;
+          this.localData = this.data;
+        });
+      }
+      
+      setData() {
+        this._waitForData().then(() => {
+          const cloudData = this.cloudData;
+          const localData = this.localData;
+          if (!localData && cloudData) {
+            this.data = cloudData;
+          } else if (!cloudData && localData) {
+            this.data = localData;
+          } else if (!cloudData && !localData) {
+            this.data = {};
           } else {
-            // serviceworker/sync not supported
-            downloadPouchDB().then(() => resolve());
+            const lastCloud = cloudData.lastEdit;
+            const lastLocal = localData.lastEdit;
+            if (lastLocal >= lastCloud) {
+              this.data = localData;
+            } else {
+              this.data = cloudData;
+            }
+          }
+        });
+      }
+      
+      _loadPouchDB() {
+        // Return if this function has been already called
+        if (this._pouchReady) return;
+        
+        // Return if SW reports it has got Pouch working
+        sendMessage({ cmd: 'checkPouch' }).then(() => {
+          this._pouchReady = true;
+          return;
+        });
+        
+        this._waitForUser().then(user => {
+          sendMessage({ cmd: 'setupPouch', uid: user.uid }).then(() => {
+            this._pouchReady = true;
+            return;
+          }).catch(err => {
+            console.error('Error setting up PouchDB on service worker', err);
+          });
+        });
+      }
+      
+      _waitForUser() {
+        const auth = new Promise(r => {
+          const authObj = this.$.auth;
+          
+          if (authObj.statusKnown) r();
+          
+          authObj.addEventListener('status-known-changed', () => r(), { once:true });
+        });
+        
+        const user = new Promise(r => {
+          if (this.user) r();
+          
+          const auth = this.$.auth.auth;
+          auth.onAuthStateChanged(user => {
+            if (user) r(user);
+          });
+        });
+        
+        return Promise.all([auth, user]).then(() => this.user);
+      }
+      
+      _waitForData() {
+        const cloud = new Promise(r => {
+          if (Object.keys(this.cloudData).length !== 0) {
+            r(this.cloudData);
+          } else {
+            this._waitForUser().then(user => {
+              firebase.database().ref('users/' + user.uid).once('value', snapshot => {
+                r(snapshot.val());
+              });
+            })
           }
         });
         
-        return Promise.all([p1, p2, p3, p4]).then(() => {
-          let config = {
-            apiKey: "AIzaSyDaMune3u4WZMti3aB66FWjX9aA_lWTLkQ",
-            authDomain: "your-timetable.firebaseapp.com",
-            databaseURL: "https://your-timetable.firebaseio.com"
-          };
-          firebase.initializeApp(config);
-        });
-      },
-      
-      _deletePouchDB: function() {
-        return new Promise((resolve, reject) => {
-          if(!sw && !db) {
-            resolve()
-          };
-          if(sw) {
-            sw.postMessage({ cmd: 'deletePouchDB' });
-            resolve()
+        const local = new Promise(r => {
+          if (this.localData) {
+            r(this.localData);
           } else {
-            //Delete Pouch locally
+            if (this.isSW) {
+              this._loadPouchDB();
+              sendMessage({ cmd: 'readData' }).then(val => r(val));
+            } else {
+              this.shadowRoot.querySelector('app-pouchdb-document').addEventListener('data-changed', val => {
+                r(val);
+              });
+            }
           }
-        })
-      },
+        });
+        
+        return Promise.all([cloud, local]);
+      }
       
-      _firstSetup: function() {
-        return new Promise((resolve, reject) => {
-          if(sw) {
-            sendMessage({ cmd: 'giveTimetable' }).then(cached => {
-              firebase.database()
-                .ref(['users', this.user.uid].join('/'))
-                .once('value').then(snapshot => {
-                  let cloud = snapshot.val();
-                  if(cloud == null) {
-                    if(cached == null) {
-                      this.fire('switch-page', { action: 'openSetupDialog' })
-                    } else {
-                      this.set('data', cached)
-                    }
-                  } else {;
-                    if(cached.lastEdit > cloud.lastEdit) {
-                      this.set('data', cached)
-                    } else {
-                      this.set('data', cloud)
-                    };
-                  }
-                });
-            }, err => {
-              if(err == 'PouchDB not set up!') {
-                sendMessage({ cmd: 'setupPouchDB', uid: this.user.uid }).then(() => this._firstSetup())
-              }
-            });
-          } else {
-            //Some local way
-          };
-          window.setTimeout(() => window.requestIdleCallback(this.fetchData), 60000);
-          resolve();
-        })
-      },
-      
-      fetchData: function(deadline) {
-        let database = firebase.database()
-        let uref = 'users/' + firebaseControl.user.uid + '/';
-        if(typeof dataToFetch == 'undefined' || dataToFetch.length == 0) {
-          dataToFetch = ['timetable', 'settings', 'config', /*'notifications'*/]
-        };
-        if(navigator.onLine) {
-          while (deadline.timeRemaining() > 0) {
-            (() => {
-              let currentJob = dataToFetch.pop();
-              database.ref(uref + currentJob).once('value').then(snapshot => {
-                firebaseControl.set(['data', currentJob].join('.'), snapshot.val())
-              })
-            })()
-          };
-        };
-        if(dataToFetch.length > 0) {
-          window.requestIdleCallback(firebaseControl.fetchData)
-        } else {
-          window.setTimeout(() => window.requestIdleCallback(firebaseControl.fetchData), 60000);
+      _pushToPouch(data) {
+        if (this.isSW) {
+          if (!this._pouchReady) {
+            this._loadPouchDB();
+            this._pushToPouch(data);
+            return;
+          }
+          sendMessage({ cmd: 'pushToPouch', data });
         }
       }
-    });
+      
+      _cloudChanged(data, oldData) {
+        if (!this.$.cloudDb.ref) return;
+        if (data != this.data) {
+          this.data = data;
+        } else {
+          this.$.cloudDb.ref.set(data);
+        }
+      }
+      
+      _isCloudDisabled(online = this.online, statusKnown = this.statusKnown) {
+        return online && statusKnown;
+      }
+      
+      _fire(name, details = null, bubbles = true) {
+        const evt = new CustomEvent(name, { detail: details });
+        this.dispatchEvent(evt, { bubbles: bubbles });
+      }
+    }
+    
+    customElements.define(FirebaseControl.is, FirebaseControl);
     
     // From https://googlechrome.github.io/samples/service-worker/post-message/
     function sendMessage(message) {
-      return new Promise((resolve, reject) => {
-        var messageChannel = new MessageChannel();
-        messageChannel.port1.onmessage = e => {
-          if (e.data.err) {
-            reject(e.data.err);
+      return new Promise(function(resolve, reject) {
+        const messageChannel = new MessageChannel();
+        messageChannel.port1.onmessage = event => {
+          if (event.data.error) {
+            reject(event.data.error);
           } else {
-            resolve(e.data);
+            resolve(event.data);
           }
         };
-    
-        navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
-      })
+        
+        navigator.serviceWorker.controller.postMessage(message,
+          [messageChannel.port2]);
+      });
     }
-    
-    // requestIdleCallback shim
-    // From https://developers.google.com/web/updates/2015/08/using-requestidlecallback
-    window.requestIdleCallback =
-      window.requestIdleCallback ||
-      function (cb) {
-        var start = Date.now();
-        return setTimeout(function () {
-          cb({
-            didTimeout: false,
-            timeRemaining: function () {
-              return Math.max(0, 50 - (Date.now() - start));
-            }
-          });
-        }, 1);
-      }
-    
-    window.cancelIdleCallback =
-      window.cancelIdleCallback ||
-      function (id) {
-        clearTimeout(id);
-      }
   </script>
 </dom-module>

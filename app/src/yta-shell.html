@@ -1,5 +1,4 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="/bower_components/app-route/app-location.html">
 <link rel="import" href="/bower_components/app-route/app-route.html">
@@ -11,6 +10,8 @@
 <link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
 
 <link rel="import" href="yta-main-view.html">
+
+<link rel="preload" href="yta-add-dialog.html">
 
 <dom-module id="yta-shell">
   <template>
@@ -108,230 +109,118 @@
           observers: [
             '_resolveRoute(routeData.page)'
           ],
-        }
+        };
       }
       
       constructor() {
         super();
-        //..
+      }
+      
+      ready() {
+        super.ready();
+        
+        // Add event listeners
+        this.addEventListener('switch-page', this._switchRoute);
       }
       
       connectedCallback() {
         super.connectedCallback();
         
-        // Add event listeners
-        requestAnimationFrame(() => {
-          this.addEventListener('switch-page', this.switchRoute);
-        });
-        
         // Set route if null
         if (!this.route.path || this.route.path == '/') {
-          this.set('route.path', '/app')
-        };
-        
-        // If there is no sw, import AddDialog for smoother experience
-        if (!'serviceWorker' in navigator) {
-          this.importHref('src/yta-add-dialog.html', null, null, true)          // importHref isn't defined
+          this.set('route.path', '/app');
         }
       }
       
       disconnectedCallback() {
         // Remove event listeners
-        this.removeEventListener('switch-page', this.switchRoute);
+        this.removeEventListener('switch-page', this._switchRoute);
+      }
+      
+      checkForTargets() {
+        return new Promise((resolve, reject) => {
+          const output = this.$.router.queryParams.target;
+          if (output) {
+            const validTargets = ['main', 'timetable', 'teachers', 'calendar'];
+            if (validTargets.include(output)) {
+              resolve(output);
+            } else {
+              reject('invalid-target');
+            }
+          } else {
+            reject('no-targets');
+          }
+        });
       }
       
       _switchRoute(e) {
-        /*switch (e.detail.action) {
+        switch (e.detail.action) {                                              // @TODO (@Witus): All child elements must implement event listening for parent open/close-name events
           case 'openAddDialog':
-             this.importHref('src/yta-add-dialog.html', function() {
-              addDialog.open();
+            importHref('src/yta-add-dialog.html').then(() => {
+              const clientRect = this.desktopLayout ? null :
+                                                      e.detail.clientRect;
+              this._fire('open-add-dialog', { clientRect: clientRect });
               this.selected = 'add';
-              this.set('routeData.page', 'add');
-            }, null, true);
+              this.routeData.page = 'add';
+              this.routeData = this.routeData;
+            });
             break;
           case 'closeAddDialog':
-            addDialog.$.dialog.close();
+            const clientRect = this.desktopLayout ? null :
+                                                    e.detail.clientRect;
+            this._fire('close-add-dialog', { clientRect: clientRect });
             this.selected = 'main';
-            this.set('routeData.page', 'app');
+            this.routeData.page = 'app';
+            this.routeData = this.routeData;
             break;
           case 'openOnboarding':
-            this.importHref('src/yta-onboarding.html', function() {
-              onboarding.open()
+            importHref('src/yta-onboarding.html').then(() => {
+              this._fire('open-onboarding');
               this.selected = 'onboarding';
-              this.set('routeData.page', 'welcome');
-            }, null, true);
+              this.routeData.page = 'welcome';
+              this.routeData = this.routeData;
+            });
             break;
           case 'closeOnboarding':
-            onboarding.close();
+            this._fire('close-onboarding');
             this.selected = 'main';
-            this.set('routeData.page', 'app');
+            this.routeData.page = 'app';
+            this.routeData = this.routeData;
             break;
           case 'openSetupDialog':
-            this.importHref('src/yta-setup-dialog.html', function() {
-              this.selected = "setup";
-              this.set('routeData.page', 'app');
+              importHref('src/yta-onboarding.html').then(() => {
+              this._fire('open-setup-dialog');
+              this.selected = 'setup';
+              this.routeData.page = 'app';
+              this.routeData = this.routeData;
             });
             break;
           default:
-            console.error(new Error('`switch-page` event fired without or with unknown action!'))
-        }*/
+            console.error(new Error('`switch-page` event fired without or with unknown action!'));
+        }
+      }
+      
+      _resolveRoute(toPage) {
+        /*if (toPage == 'app') {
+          if (addDialog && addDialog.isActive) {
+            this.set('routeData.page', 'add');
+            addDialog.$.dialog.fire('iron-overlay-canceled', 'page redirect', { cancelable: true });
+          } else if (onboarding && onboarding.isActive) {
+            this.set('routeData.page', 'welcome');
+          }
+        };*/
+      }
+      
+      _fire(name, details = null, bubbles = true) {
+        const evt = new CustomEvent(name, { detail: details });
+        this.dispatchEvent(evt, { bubbles: bubbles });
       }
         
       _isFalse(arg1, arg2) {
-        if(!arg1 && !arg2) {
-          return true
-        } else {
-          return false
-        }
+        return !arg1 && !arg2;
       }
     }
     
     customElements.define(Shell.is, Shell);
-    Polymer({
-      is: 'yta-shell',
-      
-      behaviors: [
-        Polymer.IronResizableBehavior,
-      ],
-      
-      properties: {
-        
-        selected: {
-          type: String,
-          notify: true,
-          value: 'main'
-        },
-        
-        appData: {
-          type: Object,
-          notify: true
-        },
-        
-        // Layout indicators
-        
-        phoneLayout: {
-          type: Boolean,
-          notify: true
-        },
-        
-        /* @note
-        This layout is not going to be used until later release
-        */
-        tabletLayout: {
-          type: Boolean,
-          notify: true,
-          value: false // To be removed - only for testing
-        },
-        
-        desktopLayout: {
-          type: Boolean,
-          notify: true,
-          computed: 'isFalse(phoneLayout, tabletLayout)'
-        }
-        
-      },
-      
-      listeners: {
-        'switch-page': 'switchRoute'
-      },
-      
-      observers: [
-        'resolveRoute(routeData.page)'
-      ],
-      
-      /*attached: function() {
-        console.log('yta-shell attached() fired');
-        shell = this;
-        if(!this.route.path || this.route.path == '/') {
-          this.set('route.path', '/app')
-        };
-        if(!'serviceWorker' in navigator) {
-          this.importHref('src/yta-add-dialog.html', null, null, true)
-        }
-      },*/
-      
-      ready: function() {
-        console.log('yta-shell ready() fired');
-        shell = this;
-        if(!this.route.path || this.route.path == '/') {
-          this.set('route.path', '/app')
-        };
-        if(!'serviceWorker' in navigator) {
-          this.importHref('src/yta-add-dialog.html', null, null, true)
-        }
-      },
-      
-      switchRoute: function(e) {
-        switch (e.detail.action) {
-          case 'openAddDialog':
-             this.importHref('src/yta-add-dialog.html', function() {
-              addDialog.open();
-              this.selected = 'add';
-              this.set('routeData.page', 'add');
-            }, null, true);
-            break;
-          case 'closeAddDialog':
-            addDialog.$.dialog.close();
-            this.selected = 'main';
-            this.set('routeData.page', 'app');
-            break;
-          case 'openOnboarding':
-            this.importHref('src/yta-onboarding.html', function() {
-              onboarding.open()
-              this.selected = 'onboarding';
-              this.set('routeData.page', 'welcome');
-            }, null, true);
-            break;
-          case 'closeOnboarding':
-            onboarding.close();
-            this.selected = 'main';
-            this.set('routeData.page', 'app');
-            break;
-          case 'openSetupDialog':
-            this.importHref('src/yta-setup-dialog.html', function() {
-              this.selected = "setup";
-              this.set('routeData.page', 'app');
-            });
-            break;
-          default:
-            throw('`switch-page` event fired without or with unknown action!')
-        }
-      },
-      
-      resolveRoute: function(toPage) {
-        if(toPage == 'app') {
-          if(addDialog && addDialog.isActive) {
-            this.set('routeData.page', 'add');
-            addDialog.$.dialog.fire('iron-overlay-canceled', 'page redirect', { cancelable: true });
-          } else if(onboarding && onboarding.isActive) {
-            this.set('routeData.page', 'welcome');
-          }
-        };
-      },
-      
-      checkForTargets: function() {
-        return new Promise((resolve, reject) => {
-          const output = this.$.router.queryParams.target;
-          if(output) {
-            const validTargets = ['main', 'timetable', 'teachers', 'calendar']
-            if(validTargets.include(output)) {
-              resolve(output)
-            } else {
-              reject('invalid target')
-            }
-          } else {
-            reject('no targets')
-          }
-        })
-      },
-      
-      isFalse: function(arg1, arg2) {
-        if(!arg1 && !arg2) {
-          return true
-        } else {
-          return false
-        }
-      }
-    })
   </script>
 </dom-module>

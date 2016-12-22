@@ -1,14 +1,14 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
 
-<link rel="import" href="/bower_components/paper-material/paper-material.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="/bower_components/paper-styles/color.html">
 <link rel="import" href="/bower_components/paper-item/paper-item.html">
 <link rel="import" href="/bower_components/paper-item/paper-item-body.html">
 
-<link rel="import" href="yta-common-styles.html">
-
 <dom-module id="yta-lesson-card">
   <template>
-    <style include="yta-common-styles">
+    <style>
   
       :host {
         margin: 4px;
@@ -22,7 +22,7 @@
       }
       
       :host([phone-layout]) {
-        @apply(--layout-flex);
+        @apply --layout-flex;
       }
       
       #main {
@@ -38,7 +38,7 @@
     
     </style>
     
-    <paper-material id="main" elevation=0 style$="background-color:[[color]];">
+    <div id="main" style$="background-color:[[color]];">
       <paper-item>
         <paper-item-body two-line>
           <div>[[name]]</div>
@@ -48,42 +48,47 @@
           </div>
         </paper-item-body>
       </paper-item>
-    </paper-material>
+    </div>
   </template>
   
   <script>
-    Polymer({
-      is: 'yta-lesson-card',
+    class LessonCard extends Polymer.Element {
+      static get is() { return 'yta-lesson-card'; }
+      static get config() {
+        return {
+          properties: {
+        
+            phoneLayout: Boolean,
+            
+            blank: Boolean,
+            
+            color: String,
+            
+            name: String,
+            
+            startTime: String,
+            
+            endTime: String,
+            
+            classroom: String
+            
+          }
+        };
+      }
       
-      properties: {
-        
-        phoneLayout: {
-          type: Boolean,
-          notify: true,
-          reflectToAttribute: true
-        },
-        
-        blank: Boolean,
-        
-        color: String,
-        
-        name: String,
-        
-        startTime: String,
-        
-        endTime: String,
-        
-        classroom: String
-        
-      },
+      constructor() {
+        super();
+      }
       
-      _isClassNull: function(classroom) {
-        if(classroom == "" || classroom == undefined || classroom == null) {
+      _isClassNull(classroom) {
+        if (classroom === "" || classroom === undefined || classroom === null) {
           return true
         } else {
           return false
         }
       }
-    })
+    }
+    
+    customElements.define(LessonCard.is, LessonCard);
   </script>
 </dom-module>

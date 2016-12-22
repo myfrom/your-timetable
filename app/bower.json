@@ -8,13 +8,14 @@
   "private": true,
   "dependencies": {
     "polymer": "Polymer/polymer#2.0-preview",
-    "iron-elements": "PolymerElements/iron-elements#^1.0.10",
-    "paper-elements": "PolymerElements/paper-elements#^1.0.7",
-    "neon-elements": "PolymerElements/neon-elements#^1.0.0",
-    "app-elements": "PolymerElements/app-elements#^0.10.0",
+    "iron-elements": "PolymerElements/iron-elements#_auto_generated_v2_preview",
+    "paper-elements": "PolymerElements/paper-elements#_auto_generated_v2_preview",
+    "neon-elements": "PolymerElements/neon-elements#_auto_generated_v2_preview",
+    "app-elements": "PolymerElements/app-elements#_auto_generated_v2_preview",
     "iron-swipeable-pages": "^1.2.6",
-    "app-datepicker": "^2.8.1",
-    "pouchdb": "^6.0.6"
+    "app-datepicker": "motss/app-datepicker#2.0-preview",
+    "pouchdb": "^6.0.6",
+    "polymerfire": "firebase/Polymerfire#2.0-preview"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
