@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer-element.html">
+  <link rel="import" href="/bower_components/polymer/src/templatizer/dom-bind.html">
 
 <link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="/bower_components/iron-image/iron-image.html">
@@ -9,17 +10,16 @@
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="/bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="/bower_components/paper-pager/paper-pager.html">
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html">
 
 <link rel="import" href="/bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
 <link rel="import" href="/bower_components/neon-animation/neon-animation-runner-behavior.html">
-
-<link rel="import" href="yta-common-styles.html">
 
 <link rel="import" href="icons.html">
 
 <dom-module id="yta-onboarding">
   <template>
-    <style include="yta-common-styles">
+    <style>
     
       @media (min-width: 1280px) and (orientation: landscape) {
       
@@ -30,9 +30,9 @@
         
         
         :host {
-          @apply(--layout-horizontal);
-          @apply(--layout-center);
-          @apply(--layout-center-justified);
+          @apply --layout-horizontal;
+          @apply --layout-center;
+          @apply --layout-center-justified;
         }
         
         #main::before {
@@ -46,7 +46,7 @@
         }
         
         #main {
-          @apply(--shadow-elevation-16dp);
+          @apply --shadow-elevation-16dp;
           height: 675px;
           width: 675px;
           position: relative;
@@ -57,15 +57,15 @@
         }
         
         div[index], #loginPage {
-          @apply(--layout-vertical);
+          @apply --layout-vertical;
         }
         
         div[text] {
-          @apply(--layout-center);
+          @apply --layout-center;
         }
         
         div[images] {
-          /*@apply(--layout-flex-5); # Can't use due to lack of !important */
+          /*@apply --layout-flex-5; # Can't use due to lack of !important */
           -ms-flex: 5 !important;
           -webkit-flex: 5 !important;
           flex: 5 !important;
@@ -86,7 +86,7 @@
         
         
         #main {
-          @apply(--layout-fit);
+          @apply --layout-fit;
         }
         
       }
@@ -100,11 +100,11 @@
         
         
         div[index], #loginPage {
-          @apply(--layout-vertical);
+          @apply --layout-vertical;
         }
         
         div[text] {
-          @apply(--layout-center);
+          @apply --layout-center;
         }
         
         div[text] > h2 {
@@ -127,11 +127,11 @@
         
         
         div[index], #loginPage {
-          @apply(--layout-horizontal);
+          @apply --layout-horizontal;
         }
         
         div[text] {
-          @apply(--layout-center-justified);
+          @apply --layout-center-justified;
         }
         
         div[text] > h2 {
@@ -143,7 +143,7 @@
         }
         
         div[text] paper-button, #loginPage div[text] > div {
-          @apply(--layout-self-start);
+          @apply --layout-self-start;
         }
         
       }
@@ -159,7 +159,7 @@
       }
       
       iron-swipeable-pages {
-        @apply(--layout-fit);
+        @apply --layout-fit;
       }
       
       iron-swipeable-pages, iron-swipeable-pages > * {
@@ -167,7 +167,7 @@
       }
       
       #loginPage {
-        @apply(--layout-fit);
+        @apply --layout-fit;
         background-color: white;
         color: black;
       }
@@ -179,27 +179,27 @@
       }
       
       div[images] {
-        @apply(--layout-flex-3);
+        @apply --layout-flex-3;
         position: relative;
       }
       
       div[images] > iron-image {
-        @apply(--layout-fit);
+        @apply --layout-fit;
       }
       
       div[text] {
-        @apply(--layout-flex-2);
-        @apply(--layout-vertical);
+        @apply --layout-flex-2;
+        @apply --layout-vertical;
         padding: 24px 24px 20px 24px;
       }
       
       div[text] > h2 {
-        @apply(--paper-font-headline);
+        @apply --paper-font-headline;
         margin: 0 !important;
       }
       
       div[text] > p {
-        @apply(--paper-font-subhead);
+        @apply --paper-font-subhead;
         margin-top: 12px;
       }
       
@@ -212,7 +212,7 @@
       }
       
       #loginPage > div[text] > div > paper-button.small {
-        @apply(--paper-font-caption);
+        @apply --paper-font-caption;
       }
       
       paper-button[google-signin] {
@@ -243,7 +243,7 @@
       
       .arrow-btn {
         will-change: color;
-        @apply(--shadow-transition);
+        @apply --shadow-transition;
         --paper-fab-keyboard-focus: black;
         --paper-fab-background: white;
         position: fixed;
@@ -388,6 +388,207 @@
   </template>
   
   <script>
+    class Onboarding extends /*Polymer.IronResizableBehavior(*/Polymer.Element/*)*/ {
+      static get is() { return 'yta-onboarding'; }
+      static get config() {
+        return {
+          properties: {
+            
+            // Inherited from Shell
+            phoneLayout: {
+              type: Boolean,
+              notify: true
+            },
+            
+            // Inherited from shell
+            desktopLayout: {
+              type: Boolean,
+              notify: true
+            },
+            
+            // Boolean indicating state of element
+            isActive: {
+              type: Boolean,
+              value: false
+            },
+            
+            // Selected page
+            selected: {
+              type: Number,
+              notify: true,
+              value: 0,
+              observer: '_selectedChanged'
+            },
+            
+            // Color of current page
+            color: {
+              type: String,
+              notify: true,
+              reflectToAttribute: true,
+              value: '#FFFFFF',
+              observer: '_colorChanged'
+            },
+            
+            // List of pages
+            pages: {
+              type: Array,
+              notify: true
+            },
+            
+            // True if user is signed in
+            signedIn: {
+              type: Boolean,
+              notify: true,
+              value: false
+            },
+            
+            animationConfig: {
+              value: function() { return {
+                'entry': {
+                  name: 'slide-from-bottom-animation',
+                  node: this,
+                  timing: { duration: 300, easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)' }
+                },
+                'exit': {
+                  name: 'slide-down-animation',
+                  node: this,
+                  timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 1, 1)' }
+                },
+                'closeLogin': [
+                  {
+                    name: 'slide-left-animation',
+                    node: this.$.loginPage,
+                    timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)' }
+                  },
+                  {
+                    name: 'slide-from-right-animation',
+                    node: this.$$('#carousel'),
+                    timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)' }
+                  }
+                ]
+              }; }
+            }
+            
+          },
+          
+          observers: [
+            '_resolveRoute(routeData.page)'
+          ],
+        };
+      }
+      
+      constructor() {
+        super();
+      }
+      
+      ready() {
+        super.ready();
+        
+        // Add event listeners
+        this.addEventListener('switch-page', this._switchRoute);
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+        
+        // Set route if null
+        if (!this.route.path || this.route.path == '/') {
+          this.set('route.path', '/app');
+        }
+      }
+      
+      disconnectedCallback() {
+        // Remove event listeners
+        this.removeEventListener('switch-page', this._switchRoute);
+      }
+      
+      checkForTargets() {
+        return new Promise((resolve, reject) => {
+          const output = this.$.router.queryParams.target;
+          if (output) {
+            const validTargets = ['main', 'timetable', 'teachers', 'calendar'];
+            if (validTargets.include(output)) {
+              resolve(output);
+            } else {
+              reject('invalid-target');
+            }
+          } else {
+            reject('no-targets');
+          }
+        });
+      }
+      
+      _switchRoute(e) {
+        switch (e.detail.action) {                                              // @TODO (@Witus): All child elements must implement event listening for parent open/close-name events
+          case 'openAddDialog':
+            importHref('src/yta-add-dialog.html').then(() => {
+              const clientRect = this.desktopLayout ? null :
+                                                      e.detail.clientRect;
+              this._fire('open-add-dialog', { clientRect: clientRect });
+              this.selected = 'add';
+              this.routeData.page = 'add';
+              this.routeData = this.routeData;
+            });
+            break;
+          case 'closeAddDialog':
+            const clientRect = this.desktopLayout ? null :
+                                                    e.detail.clientRect;
+            this._fire('close-add-dialog', { clientRect: clientRect });
+            this.selected = 'main';
+            this.routeData.page = 'app';
+            this.routeData = this.routeData;
+            break;
+          case 'openOnboarding':
+            importHref('src/yta-onboarding.html').then(() => {
+              this._fire('open-onboarding');
+              this.selected = 'onboarding';
+              this.routeData.page = 'welcome';
+              this.routeData = this.routeData;
+            });
+            break;
+          case 'closeOnboarding':
+            this._fire('close-onboarding');
+            this.selected = 'main';
+            this.routeData.page = 'app';
+            this.routeData = this.routeData;
+            break;
+          case 'openSetupDialog':
+              importHref('src/yta-onboarding.html').then(() => {
+              this._fire('open-setup-dialog');
+              this.selected = 'setup';
+              this.routeData.page = 'app';
+              this.routeData = this.routeData;
+            });
+            break;
+          default:
+            console.error(new Error('`switch-page` event fired without or with unknown action!'));
+        }
+      }
+      
+      _resolveRoute(toPage) {
+        /*if (toPage == 'app') {
+          if (addDialog && addDialog.isActive) {
+            this.set('routeData.page', 'add');
+            addDialog.$.dialog.fire('iron-overlay-canceled', 'page redirect', { cancelable: true });
+          } else if (onboarding && onboarding.isActive) {
+            this.set('routeData.page', 'welcome');
+          }
+        };*/
+      }
+      
+      _fire(name, details = null, bubbles = true) {
+        const evt = new CustomEvent(name, { detail: details });
+        this.dispatchEvent(evt, { bubbles: bubbles });
+      }
+        
+      _isFalse(arg1, arg2) {
+        return !arg1 && !arg2;
+      }
+    }
+    
+    customElements.define(Onboarding.is, Onboarding);
+    
+    // OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD
     Polymer({
       is: 'yta-onboarding',
       
@@ -577,7 +778,7 @@
           });
           var pager = this.$$('#pager');
           var pagerPosLeft, pagerPosBottom;
-          if(shell.desktopLayout) {
+          if(Onboarding.desktopLayout) {
             pager.style.position = 'fixed';
             var main = this.$.main;
             var mainLeft = main.offsetLeft;

@@ -15,7 +15,8 @@
     "iron-swipeable-pages": "^1.2.6",
     "app-datepicker": "motss/app-datepicker#2.0-preview",
     "pouchdb": "^6.0.6",
-    "polymerfire": "firebase/Polymerfire#2.0-preview"
+    "polymerfire": "firebase/Polymerfire#2.0-preview",
+    "paper-pager": "Witus13/paper-pager#^0.1.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>yta-onboarding manual test</title>
+  
+  <link rel="import" href="/src/yta-onboarding.html">
+  <link rel="import" href="/bower_components/iron-media-query/iron-media-query.html">
+  <link rel="import" href="/bower_components/polymer/src/templatizer/dom-bind.html">
+</head>
+
+<body>
+  <dom-bind>
+    <template>
+      <iron-media-query query="(min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait)"
+                      query-matches="{{phoneLayout}}"></iron-media-query>
+      <yta-onboarding phone-layout="[[phoneLayout]]" desktop-layout="[[!phoneLayout]]"></yta-onboarding>
+    </template>
+  </dom-bind>
+</body>
+</html>
