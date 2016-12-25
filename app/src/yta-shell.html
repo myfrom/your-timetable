@@ -4,7 +4,6 @@
 <link rel="import" href="/bower_components/app-route/app-route.html">
 
 <link rel="import" href="/bower_components/iron-media-query/iron-media-query.html">
-<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <link rel="import" href="/bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
 <link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
@@ -46,6 +45,8 @@
     <!-- Set layout indicators -->
     <iron-media-query query="(min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait)"
                       query-matches="{{phoneLayout}}"></iron-media-query>
+    <iron-media-query query="(min-width: 601px) and (max-width: 840px) and (orientation: portrait), (min-width: 961px) and (max-width: 1279px) and (orientation: landscape)"
+                      query-matches="{{tabletLayout}}"></iron-media-query>
     
     <!-- Switch between views -->
     <neon-animated-pages selected="[[selected]]" attr-for-selected="key">
@@ -54,19 +55,27 @@
                      data="{{appData}}"
                      style="display:block!important"></yta-main-view>
                      <!-- ^^^ this is used to keep the main view visible -->
+                     
       <yta-settings key="settings"></yta-settings>
-      <yta-onboarding key="onboarding" phone-layout="[[phoneLayout]]" desktop-layout="[[desktopLayout]]"></yta-onboarding>
+      
+      <yta-onboarding key="onboarding" phone-layout="[[phoneLayout]]"
+                      tablet-layout="[[tabletLayout]]"
+                      desktop-layout="[[desktopLayout]]"></yta-onboarding>
+                      
       <yta-setup-dialog key="setup" phone-layout="[[phoneLayout]]"></yta-setup-dialog>
+      
       <yta-add-dialog key="add"
                       app-data="{{appData}}"
                       phone-layout="[[phoneLayout]]"></yta-add-dialog>
+                      
       <yta-feedback-dialog key="feedback"></yta-feedback-dialog>
+      
       <yta-about-page key="about"></yta-about-page>
     </neon-animated-pages>
   </template>
   
   <script>
-    class Shell extends /*Polymer.IronResizableBehavior(*/Polymer.Element/*)*/ {
+    class Shell extends Polymer.Element {
       static get is() { return 'yta-shell'; }
       static get config() {
         return {
@@ -91,11 +100,9 @@
               notify: true
             },
             
-            // This layout is not going to be used until later release
             tabletLayout: {
               type: Boolean,
-              notify: true,
-              value: false // To be removed - only for testing
+              notify: true
             },
             
             desktopLayout: {
@@ -132,11 +139,6 @@
         }
       }
       
-      disconnectedCallback() {
-        // Remove event listeners
-        this.removeEventListener('switch-page', this._switchRoute);
-      }
-      
       checkForTargets() {
         return new Promise((resolve, reject) => {
           const output = this.$.router.queryParams.target;
@@ -157,9 +159,11 @@
         switch (e.detail.action) {                                              // @TODO (@Witus): All child elements must implement event listening for parent open/close-name events
           case 'openAddDialog':
             importHref('src/yta-add-dialog.html').then(() => {
+              const withAnimation = this.selected === 'main' ? true
+                                                             : false;
               const clientRect = this.desktopLayout ? null :
                                                       e.detail.clientRect;
-              this._fire('open-add-dialog', { clientRect: clientRect });
+              this._fire('open-add-dialog', { clientRect, withAnimation });
               this.selected = 'add';
               this.routeData.page = 'add';
               this.routeData = this.routeData;
@@ -201,7 +205,8 @@
       }
       
       _resolveRoute(toPage) {
-        /*if (toPage == 'app') {
+        /* EXTREAMLY BUGGY
+        if (toPage == 'app') {
           if (addDialog && addDialog.isActive) {
             this.set('routeData.page', 'add');
             addDialog.$.dialog.fire('iron-overlay-canceled', 'page redirect', { cancelable: true });
@@ -213,7 +218,7 @@
       
       _fire(name, details = null, bubbles = true) {
         const evt = new CustomEvent(name, { detail: details });
-        this.dispatchEvent(evt, { bubbles: bubbles });
+        this.dispatchEvent(evt, { bubbles });
       }
         
       _isFalse(arg1, arg2) {

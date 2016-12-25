@@ -7,7 +7,7 @@
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="/bower_components/iron-image/iron-image.html">
 <link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
-<!--<link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">-->
+<link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
 
 <link rel="import" href="/bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
@@ -15,7 +15,7 @@
 <link rel="import" href="/bower_components/paper-item/paper-item.html">
 <link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="/bower_components/paper-fab/paper-fab.html">
-<!--<link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">-->
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="/bower_components/paper-styles/paper-styles.html">
 
 <link rel="import" href="/bower_components/neon-animation/neon-animations.html"> <!-- Pick only nescessary ones -->
@@ -23,7 +23,7 @@
 <link rel="import" href="/bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
 
 <link rel="import" href="yta-firebase.html" async>
-<!--<link rel="import" href="yta-overview-page.html" async id="overviewLoader">-->
+<link rel="import" href="yta-overview-page.html" async id="overviewLoader">
 
 <link rel="import" href="icons.html">
 
@@ -440,42 +440,7 @@
                 isDefault: true
               }; }
               
-            },
-            
-            /*animationConfig: {
-              value: function() { return {
-                'ready': [
-                  {
-                    name: 'fade-in-animation',
-                    node: this.$.pages,
-                    timing: {
-                      duration: 500,
-                      easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-                    }
-                  },
-                  {
-                    name: 'scale-up-animation',
-                    node: this.$.fab,
-                    timing: {
-                      duration: 500,
-                      easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-                    }
-                  },
-                  {
-                    name: 'slide-from-top-animation',
-                    node: this.$.header,
-                    timing: {
-                      duration: 500,
-                      easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-                    }
-                  }
-                ],
-                // This one is being configured on the fly
-                'fadeOut': {
-                  name: 'fade-out-animation'
-                }
-              }; }
-            }*/
+            }
             
           }
         };
@@ -495,6 +460,40 @@
         super.connectedCallback();
         
         this._addEventListeners();
+        
+        // Set up animation config
+        this.animationConfig = {
+          'ready': [
+            {
+              name: 'fade-in-animation',
+              node: this.$.pages,
+              timing: {
+                duration: 500,
+                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
+              }
+            },
+            {
+              name: 'scale-up-animation',
+              node: this.$.fab,
+              timing: {
+                duration: 500,
+                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
+              }
+            },
+            {
+              name: 'slide-from-top-animation',
+              node: this.$.header,
+              timing: {
+                duration: 500,
+                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
+              }
+            }
+          ],
+          // This one is being configured on the fly
+          'fadeOut': {
+            name: 'fade-out-animation'
+          }
+        };
       }
       
       _addEventListeners() {
@@ -518,7 +517,9 @@
           let time = 375;
           if (shell.desktopLayout) time = 0;
           if (shell.tabletLayout) time = 490;
-          setTimeout(() => this.$.fab.classList.remove('hidden'), time);
+          setTimeout(() => requestAnimationFrame(() => {
+            this.$.fab.classList.remove('hidden');
+          }), time);
         });
       }
       
@@ -538,13 +539,13 @@
                 this._hideSelectedItemWaiter(selectedItemWaiter);
               });
               requestAnimationFrame(() => this.playAnimation('fadeOut'));
-            })
+            });
           }
         }
       }
       
       _hideSelectedItemWaiter(selectedItemWaiter) {
-        selectedItemWaiter.classList.add('hidden');
+        selectedItemWaiter.remove();
         this.removeEventListener('neon-animation-finish', () => {
           this._hideSelectedItemWaiter(selectedItemWaiter);
         });
@@ -571,7 +572,7 @@
               this._hideSelectedItemWaiter(selectedItemWaiter);
             });
             requestAnimationFrame(() => this.playAnimation('fadeOut'));
-          })
+          });
         }
       }
       
@@ -618,185 +619,5 @@
     }
     
     customElements.define(MainView.is, MainView);
-    
-    
-    Polymer({
-      is: 'yta-main-view',
-      
-      behaviors: [
-        Polymer.NeonSharedElementAnimatableBehavior,
-        Polymer.NeonAnimationRunnerBehavior,
-        Polymer.IronResizableBehavior
-      ],
-      
-      properties: {
-        
-        phoneLayout: {
-          type: Boolean,
-          notify: true
-        },
-        
-        selected: {
-          type: String,
-          notify: true,
-          value: 'overview',
-          observer: 'resolveSelected'
-        },
-        
-        data: {
-          type: Object,
-          notify: true,
-          observer: '_loadOverviewPage'
-        },
-        
-        user: {
-          type: Object,
-          notify: true,
-          value: function() { return {
-            displayName: 'Your name',
-            email: 'you@example.com',
-            photoURL: 'https://placehold.it/64?text=You',
-            isDefault: true
-          } }
-          
-        },
-        
-        animationConfig: {
-          value: function() { return {
-            'ready': [
-              {
-                name: 'fade-in-animation',
-                node: this.$.pages,
-                timing: {
-                  duration: 500,
-                  easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-                }
-              },
-              {
-                name: 'scale-up-animation',
-                node: this.$.fab,
-                timing: {
-                  duration: 500,
-                  easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-                }
-              },
-              {
-                name: 'slide-from-top-animation',
-                node: this.$.header,
-                timing: {
-                  duration: 500,
-                  easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-                }
-              }
-            ],
-            'fadeOut': {
-              name: 'fade-out-animation'
-            }
-          } }
-        }
-        
-      },
-      
-      listeners: {
-        'iron-resize': 'setLayout', // To set the layout when screen size changes
-      },
-      
-      attached: function() {
-        appmain = this;
-        this.setLayout();
-        this.playAnimation('ready');
-        shell.checkForTargets().then(target => {
-          this.selected = target;
-        }, err => {
-          if (err != 'no targets' && err != 'invalid target') {
-            console.error(err)
-          }
-        })
-      },
-      
-      setLayout: function() {
-        
-      },
-      
-      signOut: function() {
-        firebaseControl.signOut();
-      },
-      
-      resolveSelected: function(selectedString) {
-        if (selectedString != 'overview') {
-          selectedItemWaiter = this.$$(['#', selectedString, ' > .waiter'].join(''));
-          if (!selectedItemWaiter.hidden) {
-            this.importHref(['/src/yta', selectedString, 'page.html'].join('-'), () => {
-              this.set('animationConfig.fadeOut.node', selectedItemWaiter);
-              this.listen(appmain, 'neon-animation-finish', '_hideSelectedItemWaiter');
-              this.playAnimation('fadeOut');
-            }, null, true);
-          }
-        }
-      },
-      
-      _openAddDialog: function() {
-        this.fire('switch-page', { action: 'openAddDialog' });
-      },
-      
-      _hideSelectedItemWaiter: function() {
-        selectedItemWaiter.hidden = true;
-        this.unlisten(this, 'neon-animation-finish', '_hideSelectedItemWaiter')
-      },
-      
-      _toggleDrawer: function(e) {
-        this.$$('app-drawer').toggle()
-      },
-      
-      _sendFeedback: function() {
-        console.log('Feedback request sent');
-        this.fire('send-feedback');
-      },
-      
-      _openSettings: function() {
-        console.log('Open settings request sent');
-        this.fire('open-settings');
-      },
-      
-      _closeDrawer: function() {
-        this.$$('#drawer').close()
-      },
-      
-      _loadOverviewPage: function(data) {
-        const overviewPage = this.$$('#overview yta-overview-page');
-        selectedItemWaiter = this.$$('#overview > .waiter');
-        if (!selectedItemWaiter.hidden) {
-          this.importHref('src/yta-overview-page.html', () => {
-            this.set('animationConfig.fadeOut.node', selectedItemWaiter);
-            this.listen(appmain, 'neon-animation-finish', '_hideSelectedItemWaiter');
-            this.playAnimation('fadeOut');
-          }, null, true);
-        }
-      },
-      
-      _menuItemClicked: function(e) {
-        const cmd = e.target.key;
-        switch (cmd) {
-          case 'settings':
-            // code
-            break;
-          
-          case 'feedback':
-            // code
-            break;
-          
-          case 'about':
-            // code
-            break;
-          
-          case 'help':
-            console.warn(new Error('Help isn\'t available yet'));
-            break;
-          
-          default:
-            console.error(new Error('_menuItemClicked fired without key'));
-        }
-      }
-    })
   </script>
 </dom-module>

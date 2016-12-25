@@ -95,6 +95,19 @@
         super();
       }
       
+      ready() {
+        super.ready();
+        
+        // Add event listeners
+        const this1 = this;
+        window.addEventListener('FIREBASE-sign-in-required', e => {
+          const isAnnonymous = e.detail.provider === 'google' ? false
+                                                              : true;
+          isAnnonymous ? this1.signInAnonymously()
+                       : this1.signIn();
+        });
+      }
+      
       connectedCallback() {
         super.connectedCallback();
         
@@ -116,7 +129,7 @@
       signIn() {
         return new Promise((resolve, reject) => {
           this._auth.signInWithPopup().then(resp => {
-            this._fire('firebase-signed-in', { annonymous: false });
+            this._fire('FIREBASE-signed-in', { annonymous: false, user: this.user });
             resolve(resp);
           }, err => {
             console.error('Sign in failed', 'annonymous == false', err);
@@ -128,7 +141,7 @@
       signInAnonymously() {
         return new Promise((resolve, reject) => {
           this._auth.signInAnonymously().then(resp => {
-            this._fire('firebase-signed-in', { annonymous: true });
+            this._fire('FIREBASE-signed-in', { annonymous: true, user: this.user });
             resolve(resp);
           }, err => {
             console.error('Sign in failed', 'annonymous == true', err);
@@ -140,7 +153,7 @@
       signOut() {
         return new Promise((resolve, reject) => {
           this._auth.signOut().then(() => {
-            this._fire('firebase-signed-out');
+            this._fire('FIREBASE-signed-out');
             return this.isSW ? sendMessage({ cmd: 'deletePouch' })
                                 : this.shadowRoot.querySelector('#pouch').destroy();
           }, err => {
@@ -189,15 +202,15 @@
         // Return if SW reports it has got Pouch working
         sendMessage({ cmd: 'checkPouch' }).then(() => {
           this._pouchReady = true;
-          return;
-        });
-        
-        this._waitForUser().then(user => {
-          sendMessage({ cmd: 'setupPouch', uid: user.uid }).then(() => {
-            this._pouchReady = true;
-            return;
-          }).catch(err => {
-            console.error('Error setting up PouchDB on service worker', err);
+        }).catch(() => {
+          // Else, set up Pouch on SW
+          this._waitForUser().then(user => {
+            sendMessage({ cmd: 'setupPouch', uid: user.uid }).then(() => {
+              this._pouchReady = true;
+              return;
+            }).catch(err => {
+              console.error('Error setting up PouchDB on service worker', err);
+            });
           });
         });
       }
@@ -212,11 +225,14 @@
         });
         
         const user = new Promise(r => {
-          if (this.user) r();
-          
-          const auth = this.$.auth.auth;
-          auth.onAuthStateChanged(user => {
-            if (user) r(user);
+          auth.then(() => {
+            this.user ? r()
+                      : this._noUser();
+            
+            const auth = this.$.auth.auth;
+            auth.onAuthStateChanged(user => {
+              if (user) r(user);
+            });
           });
         });
         
@@ -242,7 +258,11 @@
           } else {
             if (this.isSW) {
               this._loadPouchDB();
-              sendMessage({ cmd: 'readData' }).then(val => r(val));
+              sendMessage({ cmd: 'readData' }).then(val => r(val)).catch(err => {
+                if (err === 'Pouch not Pouch is unavailable') this._loadPouchDB().then(() => {
+                  sendMessage({ cmd: 'readData' }).then(val => r(val));
+                });
+              });
             } else {
               this.shadowRoot.querySelector('app-pouchdb-document').addEventListener('data-changed', val => {
                 r(val);
@@ -252,6 +272,11 @@
         });
         
         return Promise.all([cloud, local]);
+      }
+      
+      _noUser() {
+        this._fire('FIREBASE-no-user');
+        this._fire('switch-page', { action: 'openOnboarding' });
       }
       
       _pushToPouch(data) {
@@ -280,7 +305,7 @@
       
       _fire(name, details = null, bubbles = true) {
         const evt = new CustomEvent(name, { detail: details });
-        this.dispatchEvent(evt, { bubbles: bubbles });
+        this.dispatchEvent(evt, { bubbles });
       }
     }
     

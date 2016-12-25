@@ -14,7 +14,9 @@
     <template>
       <iron-media-query query="(min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait)"
                       query-matches="{{phoneLayout}}"></iron-media-query>
-      <yta-onboarding phone-layout="[[phoneLayout]]" desktop-layout="[[!phoneLayout]]"></yta-onboarding>
+      <iron-media-query query="(min-width: 601px) and (max-width: 840px) and (orientation: portrait), (min-width: 961px) and (max-width: 1279px) and (orientation: landscape)"
+                      query-matches="{{tabletLayout}}"></iron-media-query>
+      <yta-onboarding phone-layout="[[phoneLayout]]" tablet-layout="[[tabletLayout]]" desktop-layout="[[!phoneLayout]]"></yta-onboarding>
     </template>
   </dom-bind>
 </body>

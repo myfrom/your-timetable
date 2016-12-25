@@ -44,7 +44,10 @@ importScripts('service-worker.js');
         output._id = 'data';
         output._rev = resp._rev || undefined;
         db.put(output).then(() => e.ports[0].postMessage(true));
-      }).catch(err => e.ports[0].postMessage({ error: err }));
+      }).catch(err => {
+        console.error('Error when pushing to Pouch', err);
+        e.ports[0].postMessage({ error: 'Unknown error occured, check console for details' });
+      });
       break;
       
     case 'deletePouch':

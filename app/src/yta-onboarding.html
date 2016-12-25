@@ -1,12 +1,10 @@
 <link rel="import" href="/bower_components/polymer/polymer-element.html">
-  <link rel="import" href="/bower_components/polymer/src/templatizer/dom-bind.html">
+<link rel="import" href="/bower_components/polymer/src/templatizer/dom-bind.html">
 
 <link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
-<link rel="import" href="/bower_components/iron-image/iron-image.html">
+<link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
 
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="/bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="/bower_components/paper-pager/paper-pager.html">
@@ -20,371 +18,12 @@
 <dom-module id="yta-onboarding">
   <template>
     <style>
-    
-      @media (min-width: 1280px) and (orientation: landscape) {
-      
-        
-      /*
-       * Desktop styles
-       */
-        
-        
-        :host {
-          @apply --layout-horizontal;
-          @apply --layout-center;
-          @apply --layout-center-justified;
-        }
-        
-        #main::before {
-          content: "";
-          background-color: rgba(0,0,0,0.6);
-          position: fixed;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          left: 0;
-        }
-        
-        #main {
-          @apply --shadow-elevation-16dp;
-          height: 675px;
-          width: 675px;
-          position: relative;
-        }
-        
-        #main, #loginPage, div[index] {
-          border-radius: 16px;
-        }
-        
-        div[index], #loginPage {
-          @apply --layout-vertical;
-        }
-        
-        div[text] {
-          @apply --layout-center;
-        }
-        
-        div[images] {
-          /*@apply --layout-flex-5; # Can't use due to lack of !important */
-          -ms-flex: 5 !important;
-          -webkit-flex: 5 !important;
-          flex: 5 !important;
-        }
-        
-        paper-button.blue, paper-icon-button.blue {
-          color: white !important;
-        }
-        
-      }
-    
-      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
-      
-        
-      /*
-       * Phone styles
-       */
-        
-        
-        #main {
-          @apply --layout-fit;
-        }
-        
-      }
-      
-      @media (min-width: 0px) and (max-width: 840px) and (orientation: portrait) {
-        
-        
-      /*
-       * Phone & tablet portrait styles
-       */
-        
-        
-        div[index], #loginPage {
-          @apply --layout-vertical;
-        }
-        
-        div[text] {
-          @apply --layout-center;
-        }
-        
-        div[text] > h2 {
-          text-align: center;
-        }
-        
-        div[text] > p {
-          text-align: center;
-          margin: 0 40px 0 40px;
-        }
-        
-      }
-      
-      @media (min-width: 480px) and (max-width: 1279px) and (orientation: landscape) {
-        
-        
-      /*
-       * Phone & tablet landscape styles
-       */
-        
-        
-        div[index], #loginPage {
-          @apply --layout-horizontal;
-        }
-        
-        div[text] {
-          @apply --layout-center-justified;
-        }
-        
-        div[text] > h2 {
-          text-align: left;
-        }
-        
-        div[text] > p {
-          text-align: left;
-        }
-        
-        div[text] paper-button, #loginPage div[text] > div {
-          @apply --layout-self-start;
-        }
-        
-      }
-        
-        
-      /*
-       * Cross-device styles
-       */
       
       
-      #main {
-        background-color: white;
-      }
-      
-      iron-swipeable-pages {
-        @apply --layout-fit;
-      }
-      
-      iron-swipeable-pages, iron-swipeable-pages > * {
-        overflow-x: hidden;
-      }
-      
-      #loginPage {
-        @apply --layout-fit;
-        background-color: white;
-        color: black;
-      }
-      #loginPage h2 {
-        opacity: 0.87;
-      }
-      #loginPage p {
-        opacity: 0.54;
-      }
-      
-      div[images] {
-        @apply --layout-flex-3;
-        position: relative;
-      }
-      
-      div[images] > iron-image {
-        @apply --layout-fit;
-      }
-      
-      div[text] {
-        @apply --layout-flex-2;
-        @apply --layout-vertical;
-        padding: 24px 24px 20px 24px;
-      }
-      
-      div[text] > h2 {
-        @apply --paper-font-headline;
-        margin: 0 !important;
-      }
-      
-      div[text] > p {
-        @apply --paper-font-subhead;
-        margin-top: 12px;
-      }
-      
-      #loginPage > div[text] {
-        padding-bottom: 0;
-      }
-      
-      #loginPage > div[text] > paper-button[google-signin] {
-        margin-bottom: 24px;
-      }
-      
-      #loginPage > div[text] > div > paper-button.small {
-        @apply --paper-font-caption;
-      }
-      
-      paper-button[google-signin] {
-          padding: 0 12px 0 0;
-          font-weight: 500;
-          font-size: 14px;
-          color: white;
-          min-height: 40px;
-          background-color: #4285F4;
-          transition: background-color 200ms cubic-bezier(0.4, 0.0, 0.2, 1);
-      }
-      paper-button[google-signin] > img {
-          height: 18px;
-          width: 18px;
-          padding: 8px;
-          background-color: white;
-          margin: 0 16px 0 4px;
-          border-radius: 5px;
-      }
-      paper-button[google-signin].keyboard-focus {
-        font-weight: 500 !important;
-      }
-      /* Not nesscessary to style the spinner couse it is cool by default 😉 */
-      
-      paper-button.blue, paper-icon-button.blue {
-        color: var(--google-blue-500);
-      }
-      
-      .arrow-btn {
-        will-change: color;
-        @apply --shadow-transition;
-        --paper-fab-keyboard-focus: black;
-        --paper-fab-background: white;
-        position: fixed;
-        top: calc(50vh - 28px);
-        transition: color 150ms cubic-bezier(0.4, 0.0, 0.2, 1);
-      }
-      
-      /* Styling individual slides */
-      
-      div[index] {
-        color: white;
-      }
-      div[index] h2 {
-        opacity: 1;
-      }
-      div[index] p {
-        opacity: 0.7;
-      }
-      
-      div[index="0"] {
-        background-color: #9575cd;
-        color: white;
-      }
-      div[index="0"] h2 {
-        opacity: 1;
-      }
-      div[index="0"] p {
-        opacity: 0.7;
-      }
-      div[index="0"] paper-button {
-        background-color: white;
-        color: var(--paper-deep-purple-500);
-      }
-      
-      div[index="1"] {
-        background-color: #ef5350;
-      }
-      div[index="1"] paper-button {
-        background-color: white;
-        color: var(--paper-red-500);
-      }
-      
-      div[index="2"] {
-        background-color: var(--paper-blue-300);
-        color: black;
-      }
-      div[index="2"] h2 {
-        opacity: 0.87;
-      }
-      div[index="2"] p {
-        opacity: 0.54;
-      }
-      div[index="2"] paper-button {
-        background-color: white;
-        color: var(--paper-blue-500);
-      }
-      div[index="2"] iron-image {
-        margin: 30px;
-      }
       
     </style>
     
-    <div id="main">
-      <div id="loginPage">
-        <div images>
-          <iron-image src="/images/login-image.png" preload fade sizing="contain"></iron-image>
-        </div>
-        <div text>
-          <h2>Sign-in with Google</h2>
-          <p>This allows Your Timetable to work on all of your devices</p>
-          <paper-button raised google-signin on-tap="signIn">
-            <template is="dom-if" if id="text">
-              <img src="/images/googlelogo-big.png">Sign in with Google
-            </template>
-            <template is="dom-if" id="spinner">
-              <paper-spinner-lite active></paper-spinner-lite>
-            </template>
-          </paper-button>
-          <div style="display:inline-block" hidden$="[[signedIn]]">
-            <paper-button class="small blue" on-tap="testDrive">Test drive</paper-button>
-            <span>
-              <paper-icon-button class="blue" icon="icons:help-outline" id="helpButtonTooltipTarget" on-tap="showHelpTooltip"></paper-icon-button>
-              <paper-tooltip for="helpButtonTooltipTarget" fit-to-visible-bounds manual-mode>Browse anonymously for 30 minutes</paper-tooltip>
-            </span>
-          </div>
-        </div>
-      </div>
-      <template is="dom-if" id="intro" restamp if="[[signedIn]]">
-        <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle threshold="0.2" force-update items="{{pages}}">
-            <div index="0" color="#9575cd">
-              <div images>
-                <iron-image src="/images/onboarding_s1.png" preload fade sizing="contain"></iron-image>
-              </div>
-              <div text>
-                <h2>New way to view your timetable</h2>
-                <p>Check your timetable, assigments, tests and reminders in one place.</p>
-                <paper-button raised on-tap="_proceed">Get started</paper-button>
-              </div>
-            </div>
-            <div index="1" color="#ef5350">
-              <div images>
-                <iron-image src="/images/onboarding_s2.png" preload fade sizing="contain"></iron-image>
-              </div>
-              <div text>
-                <h2>On all of your devices</h2>
-                <p>Check Your Timetable on all of your signed-in devices</p>
-                <paper-button raised on-tap="_proceed">Get started</paper-button>
-              </div>
-            </div>
-            <template is="dom-if" if="[[_isOfflineReady()]]">
-              <div index="2" color="#64b5f6">
-                <div images>
-                  <iron-image src="/images/onboarding_s3.png" preload fade sizing="contain"></iron-image>
-                </div>
-                <div text>
-                  <h2>Even offline</h2>
-                  <p>Poor connection or offline? It's not a problem for Your Timetable</p>
-                  <paper-button raised on-tap="_proceed">Get started</paper-button>
-                </div>
-              </div>
-            </template>
-        </iron-swipeable-pages>
-        <paper-pager id="pager"
-                   selected="{{selected}}"
-                   items="[[pages]]"
-                   style="position: absolute">
-        </paper-pager>
-        <template is="dom-if" if="[[desktopLayout]]" restamp>
-          <paper-fab class="arrow-btn"
-                     icon="icons:arrow-back"
-                     id="arrowLeft"
-                     on-tap="_tapArrowLeft"
-                     style="color: [[color]]"></paper-fab>
-          <paper-fab class="arrow-btn"
-                     icon="icons:arrow-forward"
-                     id="arrowRight"
-                     on-tap="_tapArrowRight"
-                     style="color: [[color]]"></paper-fab>
-        </template>
-      </template>
-    </div>
+    
   </template>
   
   <script>
@@ -401,16 +40,23 @@
             },
             
             // Inherited from shell
+            tabletLayout: {
+              type: Boolean,
+              notify: true
+            },
+            
+            // Inherited from shell
             desktopLayout: {
               type: Boolean,
               notify: true
             },
             
+            /* NOT SURE IF NESSCESSARY
             // Boolean indicating state of element
             isActive: {
               type: Boolean,
               value: false
-            },
+            },*/
             
             // Selected page
             selected: {
@@ -433,47 +79,9 @@
             pages: {
               type: Array,
               notify: true
-            },
-            
-            // True if user is signed in
-            signedIn: {
-              type: Boolean,
-              notify: true,
-              value: false
-            },
-            
-            animationConfig: {
-              value: function() { return {
-                'entry': {
-                  name: 'slide-from-bottom-animation',
-                  node: this,
-                  timing: { duration: 300, easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)' }
-                },
-                'exit': {
-                  name: 'slide-down-animation',
-                  node: this,
-                  timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 1, 1)' }
-                },
-                'closeLogin': [
-                  {
-                    name: 'slide-left-animation',
-                    node: this.$.loginPage,
-                    timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)' }
-                  },
-                  {
-                    name: 'slide-from-right-animation',
-                    node: this.$$('#carousel'),
-                    timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)' }
-                  }
-                ]
-              }; }
             }
             
-          },
-          
-          observers: [
-            '_resolveRoute(routeData.page)'
-          ],
+          }
         };
       }
       
@@ -485,104 +93,69 @@
         super.ready();
         
         // Add event listeners
-        this.addEventListener('switch-page', this._switchRoute);
+        this.addEventListener('iron-resize', () => this.setLayout());
       }
       
       connectedCallback() {
         super.connectedCallback();
         
-        // Set route if null
-        if (!this.route.path || this.route.path == '/') {
-          this.set('route.path', '/app');
-        }
+        this._shell = this.parentElement;
+        
+        // Add event listeners
+        this._shell.addEventListener('open-onboarding', () => this.open());
+        this._shell.addEventListener('close-onboarding', () => this.close());
+        
+        // Set up animation config
+        this.animationConfig = {
+          'entry': {
+            name: 'slide-from-bottom-animation',
+            node: this,
+            timing: {
+              duration: 300,
+              easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
+            }
+          },
+          'exit': {
+            name: 'slide-down-animation',
+            node: this,
+            timing: {
+              duration: 300,
+              easing: 'cubic-bezier(0.4, 0.0, 1, 1)'
+            }
+          }
+        };
+        
+        // Ensure correct display viewport
+        this.setLayout();
       }
       
       disconnectedCallback() {
+        if (!this._shell) return;
+        
         // Remove event listeners
-        this.removeEventListener('switch-page', this._switchRoute);
+        this._shell.removeEventListener('open-onboarding', () => this.open());
+        this._shell.removeEventListener('close-onboarding', () => this.close());
       }
       
-      checkForTargets() {
-        return new Promise((resolve, reject) => {
-          const output = this.$.router.queryParams.target;
-          if (output) {
-            const validTargets = ['main', 'timetable', 'teachers', 'calendar'];
-            if (validTargets.include(output)) {
-              resolve(output);
-            } else {
-              reject('invalid-target');
-            }
-          } else {
-            reject('no-targets');
-          }
-        });
+      _signIn() {
+        const evt = new CustomEvent('FIREBASE-sign-in-required', { detail: { provider: 'google' } });
+        window.dispatchEvent(evt, { bubbles: true });
+        this._addListenerFotSignIn();
       }
       
-      _switchRoute(e) {
-        switch (e.detail.action) {                                              // @TODO (@Witus): All child elements must implement event listening for parent open/close-name events
-          case 'openAddDialog':
-            importHref('src/yta-add-dialog.html').then(() => {
-              const clientRect = this.desktopLayout ? null :
-                                                      e.detail.clientRect;
-              this._fire('open-add-dialog', { clientRect: clientRect });
-              this.selected = 'add';
-              this.routeData.page = 'add';
-              this.routeData = this.routeData;
-            });
-            break;
-          case 'closeAddDialog':
-            const clientRect = this.desktopLayout ? null :
-                                                    e.detail.clientRect;
-            this._fire('close-add-dialog', { clientRect: clientRect });
-            this.selected = 'main';
-            this.routeData.page = 'app';
-            this.routeData = this.routeData;
-            break;
-          case 'openOnboarding':
-            importHref('src/yta-onboarding.html').then(() => {
-              this._fire('open-onboarding');
-              this.selected = 'onboarding';
-              this.routeData.page = 'welcome';
-              this.routeData = this.routeData;
-            });
-            break;
-          case 'closeOnboarding':
-            this._fire('close-onboarding');
-            this.selected = 'main';
-            this.routeData.page = 'app';
-            this.routeData = this.routeData;
-            break;
-          case 'openSetupDialog':
-              importHref('src/yta-onboarding.html').then(() => {
-              this._fire('open-setup-dialog');
-              this.selected = 'setup';
-              this.routeData.page = 'app';
-              this.routeData = this.routeData;
-            });
-            break;
-          default:
-            console.error(new Error('`switch-page` event fired without or with unknown action!'));
-        }
+      _signInAnonymously() {
+        const evt = new CustomEvent('FIREBASE-sign-in-required', { detail: { provider: 'google' } });
+        window.dispatchEvent(evt, { bubbles: true });
+        this._addListenerFotSignIn();
       }
       
-      _resolveRoute(toPage) {
-        /*if (toPage == 'app') {
-          if (addDialog && addDialog.isActive) {
-            this.set('routeData.page', 'add');
-            addDialog.$.dialog.fire('iron-overlay-canceled', 'page redirect', { cancelable: true });
-          } else if (onboarding && onboarding.isActive) {
-            this.set('routeData.page', 'welcome');
-          }
-        };*/
+      _addListenerFotSignIn() {
+        window.addEventListener()                                                                   // START HERE
       }
       
       _fire(name, details = null, bubbles = true) {
         const evt = new CustomEvent(name, { detail: details });
-        this.dispatchEvent(evt, { bubbles: bubbles });
-      }
-        
-      _isFalse(arg1, arg2) {
-        return !arg1 && !arg2;
+        this.dispatchEvent(evt, { bubbles });
       }
     }
     
