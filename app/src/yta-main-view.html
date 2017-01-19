@@ -1,4 +1,4 @@
-<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/polymer/src/templatizer/dom-if.html">
 
 <link rel="import" href="/bower_components/app-layout/app-layout.html">
@@ -7,7 +7,7 @@
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="/bower_components/iron-image/iron-image.html">
 <link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
-<link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
+<!--<link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">-->
 
 <link rel="import" href="/bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
@@ -19,13 +19,15 @@
 <link rel="import" href="/bower_components/paper-styles/paper-styles.html">
 
 <link rel="import" href="/bower_components/neon-animation/neon-animations.html"> <!-- Pick only nescessary ones -->
-<link rel="import" href="/bower_components/neon-animation/neon-animation-runner-behavior.html">
-<link rel="import" href="/bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
 
-<link rel="import" href="yta-firebase.html" async>
-<link rel="import" href="yta-overview-page.html" async id="overviewLoader">
+<link rel="import" href="/src/behaviors/neon-animation-runner-behavior.html">
+
+<!--<link rel="import" href="yta-firebase.html" async>-->
+<link rel="import" href="yta-overview-page.html" async>
 
 <link rel="import" href="icons.html">
+
+<link rel="import" href="yta-theme.html">
 
 <dom-module id="yta-main-view">
   <template>
@@ -49,9 +51,8 @@
           margin-left: 24px;
         }
         
-        iron-swipeable-pages,
-        iron-swipeable-pages > div {
-          top: 56px;
+        iron-swipeable-pages {
+          top: 56px !important;
         }
       }
       
@@ -62,8 +63,7 @@
           height: 48px !important;
         }
         
-        iron-swipeable-pages,
-        iron-swipeable-pages > div {
+        iron-swipeable-pages {
           top: 48px !important;
         }
       }
@@ -82,13 +82,12 @@
           padding: 0 8px 0 60px;
         }
         
-        iron-swipeable-pages,
-        iron-swipeable-pages > div {
-          top: 64px;
+        iron-swipeable-pages {
+          top: 128px !important;
         }
       }
       
-      @media (min-width: 1280px) and (orientation: landscape) {
+      @media (min-width: 1280px) and (orientation: landscape), (min-width: 841px) and (orientation: portrait) {
         /* Desktop styles */
         
         paper-tabs {
@@ -106,9 +105,8 @@
           padding: 0 8px 0 60px;
         }
         
-        iron-swipeable-pages,
-        iron-swipeable-pages > div {
-          top: 64px;
+        iron-swipeable-pages {
+          top: 128px !important;
         }
       }
       
@@ -119,7 +117,8 @@
         border-color: var(--divider-color);
       }
       
-      iron-swipeable-pages {
+      iron-swipeable-pages,
+      iron-swipeable-pages > div {
         @apply --layout-fit;
       }
       
@@ -257,7 +256,6 @@
       
       iron-swipeable-pages > div {
         background-color: var(--primary-background-color);
-        position: relative;
       }
       
       iron-swipeable-pages > div > * {
@@ -402,7 +400,7 @@
   </template>
   
   <script>
-    class MainView extends /*Polymer.NeonAnimationRunnerBehavior(Polymer.IronResizableBehavior(*/Polymer.Element/*))*/ {
+    class MainView extends Polymer.NeonAnimationRunnerBehavior(Polymer.Element) {
       static get is() { return 'yta-main-view'; }
       static get config() {
         return {
@@ -417,7 +415,6 @@
             // Selected page
             selected: {
               type: String,
-              notify: true,
               value: 'overview',
               observer: 'resolveSelected'
             },
@@ -425,8 +422,7 @@
             // The app data (also known as appData on upper levels)
             data: {
               type: Object,
-              notify: true,
-              observer: '_loadOverviewPage'
+              notify: true
             },
             
             // Info to dislpay basic info about the user
@@ -499,9 +495,11 @@
       _addEventListeners() {
         if (!this._shell) this._shell = this.parentElement;
         
+        // Show overview page after data received
+        this.addEventListener('data-changed', this._loadOverviewPage, { once: true });
+        
         // Check if there are targets in URI
-        const overviewLoader = this.shadowRoot.querySelector('#overviewLoader');
-        overviewLoader.onload = () => {
+        window.addEventListener('OVERIVIEW-PAGE-loaded', () => {
           this._shell.checkForTargets().then(selected => {
             this.selected = selected;
           }).catch(err => {
@@ -509,7 +507,7 @@
               console.error(new Error('Shell.checkForTargets() returned error: ' + err));
             }
           });
-        };
+        }, { once: true});
         
         // Show FAB after goin back from AddDialog
         this._shell.addEventListener('close-add-dialog', () => {
@@ -562,8 +560,9 @@
       }
       
       _loadOverviewPage(data) {
-        const overviewPage = this.$$('#overview yta-overview-page');
-        const selectedItemWaiter = this.$$('#overview > .waiter');
+        if (!data) return;
+        const overviewPage = this.shadowRoot.querySelector('#overview yta-overview-page');
+        const selectedItemWaiter = this.shadowRoot.querySelector('#overview > .waiter');
         if (!selectedItemWaiter.hidden) {
           importHref(`/src/yta-overview-page.html`).then(() => {
             this.animationConfig.fadeOut.node = selectedItemWaiter;
@@ -605,11 +604,11 @@
       }
       
       _toggleDrawer() {
-        this.$$('app-drawer').toggle();
+        this.shadowRoot.querySelector('app-drawer').toggle();
       }
       
       _closeDrawer() {
-        this.$$('#drawer').close();
+        this.shadowRoot.querySelector('#drawer').close();
       }
       
       _fire(name, details = null, bubbles = true) {

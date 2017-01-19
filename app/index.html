@@ -36,9 +36,11 @@
   <!--<meta name="msapplication-TileColor" content="#673ab7">-->
   <!--<meta name="msapplication-tap-highlight" content="no">-->
   
+  <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  
   <script>
     // Load webcomponentsjs polyfill if browser does not support native Web Components
-    (function() {
+    /*(function() {
       'use strict';
       const onload = function() {
         // For native Imports, manually fire WebComponentsReady so user code
@@ -63,7 +65,7 @@
       } else {
         onload();
       }
-    })();
+    })();*/
     
     // Load nescessary polyfills
     function importPolyfill(id) {

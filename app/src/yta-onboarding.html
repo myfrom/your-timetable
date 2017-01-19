@@ -1,7 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer-element.html">
-<link rel="import" href="/bower_components/polymer/src/templatizer/dom-bind.html">
+<link rel="import" href="/bower_components/polymer/src/templatizer/dom-if.html">
 
-<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
 
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
@@ -19,36 +18,84 @@
   <template>
     <style>
       
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
+        /* Phone landscape styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+      }
       
+      @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        /* Phone portirait styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+      }
+      
+      @media (min-width: 961px) and (max-width: 1279px) and (orientation: landscape) {
+        /* Tablet landscape styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+      }
+      
+      @media (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {
+        /* Tablet portirait styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+      }
+      
+      @media (min-width: 841px) and (orientation: portrait), (min-width: 1280px) and (orientation: landscape) {
+        /* Desktop styles */
+        
+        :host {
+          @apply --layout-flex;
+          @apply --layout-center;
+          @apply --layout-center-justify;
+        }
+        
+        #main {
+          width: 750px;
+          height: 750px;
+          border-radius: 5px;
+        }
+      }
+      
+      :host, iron-swipeable-pages, iron-swipeable-pages .page {
+        @apply(--layout-fit);
+      }
+      
+      #main {
+        position: relative;
+        background-color: orange;
+      }
       
     </style>
     
-    
+    <div id="main">
+      <iron-swipeable-pages id="carousel" selected="{{selected}}">
+        <div class="page" i="1">
+          
+        </div>
+      </iron-swipeable-pages>
+    </div>
   </template>
   
   <script>
-    class Onboarding extends /*Polymer.IronResizableBehavior(*/Polymer.Element/*)*/ {
+    class Onboarding extends Polymer.Element {
       static get is() { return 'yta-onboarding'; }
       static get config() {
         return {
           properties: {
             
-            // Inherited from Shell
-            phoneLayout: {
-              type: Boolean,
-              notify: true
-            },
-            
-            // Inherited from shell
-            tabletLayout: {
-              type: Boolean,
-              notify: true
-            },
-            
             // Inherited from shell
             desktopLayout: {
-              type: Boolean,
-              notify: true
+              type: Boolean
             },
             
             /* NOT SURE IF NESSCESSARY
@@ -61,7 +108,6 @@
             // Selected page
             selected: {
               type: Number,
-              notify: true,
               value: 0,
               observer: '_selectedChanged'
             },
@@ -77,8 +123,7 @@
             
             // List of pages
             pages: {
-              type: Array,
-              notify: true
+              type: Array
             }
             
           }
@@ -91,9 +136,6 @@
       
       ready() {
         super.ready();
-        
-        // Add event listeners
-        this.addEventListener('iron-resize', () => this.setLayout());
       }
       
       connectedCallback() {
@@ -124,9 +166,6 @@
             }
           }
         };
-        
-        // Ensure correct display viewport
-        this.setLayout();
       }
       
       disconnectedCallback() {
@@ -138,19 +177,37 @@
       }
       
       _signIn() {
-        const evt = new CustomEvent('FIREBASE-sign-in-required', { detail: { provider: 'google' } });
-        window.dispatchEvent(evt, { bubbles: true });
-        this._addListenerFotSignIn();
+        this._requestSignIn({ annonymous: false });
       }
       
       _signInAnonymously() {
-        const evt = new CustomEvent('FIREBASE-sign-in-required', { detail: { provider: 'google' } });
-        window.dispatchEvent(evt, { bubbles: true });
-        this._addListenerFotSignIn();
+        this._requestSignIn({ annonymous: true });
       }
       
-      _addListenerFotSignIn() {
-        window.addEventListener()                                                                   // START HERE
+      _requestSignIn(config) {
+        this._fire('FIREBASE-sign-in-required', { provider: config.annonymous ? 'annonymous'
+                                                                              : 'google' });
+        this.$.loginButton.classList.add('waiting');
+        this._listenFotSignIn().then(() => {
+          // Sign in successful - proceed
+        }, () => {
+          requestAnimationFrame(() => {
+            this.$.loginButton.classList.remove('waiting');
+            this.$.loginButton.classList.add('failed');
+          });
+          setTimeout(() => {
+            requestAnimationFrame(() => {
+              this.$.loginButton.classList.remove('failed');
+            });
+          }, 500);
+        });
+      }
+      
+      _listenFotSignIn() {
+        return new Promise((resolve, reject) => {
+          window.addEventListener('FIREABSE-signed-in', e => resolve(e));
+          window.addEventListener('FIREABSE-sign-in-failed', e => reject(e));
+        });
       }
       
       _fire(name, details = null, bubbles = true) {
@@ -161,8 +218,8 @@
     
     customElements.define(Onboarding.is, Onboarding);
     
-    // OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD
-    Polymer({
+    // OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD  OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD
+    old = {
       is: 'yta-onboarding',
       
       behaviors: [
@@ -441,7 +498,7 @@
           this.selected--
         }
       }
-    })
+    }
     
     // Nescessary one
     function windowOffsetBottom(item) {

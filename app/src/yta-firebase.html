@@ -133,6 +133,7 @@
             resolve(resp);
           }, err => {
             console.error('Sign in failed', 'annonymous == false', err);
+            this._fire('FIREBASE-sign-in-failed');
             reject(err);
           });
         });
@@ -145,6 +146,7 @@
             resolve(resp);
           }, err => {
             console.error('Sign in failed', 'annonymous == true', err);
+            this._fire('FIREBASE-sign-in-failed');
             reject(err);
           });
         });

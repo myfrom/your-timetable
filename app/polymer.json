@@ -11,12 +11,12 @@
     "src/yta-feedback-dialog.html",
     "src/yta-setup-dialog.html"
   ],
-  "sourceGlobs": [
+  "sources": [
    "src/*",
    "images/**/*",
    "bower.json"
   ],
-  "includeDependencies": [
+  "extraDependencies": [
     "sw-runner.js",
     "manifest.json",
     "bower_components/webcomponentsjs/webcomponents-lite.min.js",

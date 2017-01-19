@@ -86,6 +86,12 @@
         super();
       }
       
+      connectedCallback() {
+        super.connectedCallback();
+        const evt = new CustomEvent('OVERIVIEW-PAGE-loaded');
+        this.dispatchEvent(evt, { bubbles: true });
+      }
+      
       lessonsToday(tt) {
         if (tt == null) {
           this._fire('err-no-data');
