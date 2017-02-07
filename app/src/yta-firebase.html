@@ -129,11 +129,11 @@
       signIn() {
         return new Promise((resolve, reject) => {
           this._auth.signInWithPopup().then(resp => {
-            this._fire('FIREBASE-signed-in', { annonymous: false, user: this.user });
+            this._fire('FIREBASE-signed-in', { annonymous: false, user: this.user }, true, window);
             resolve(resp);
           }, err => {
             console.error('Sign in failed', 'annonymous == false', err);
-            this._fire('FIREBASE-sign-in-failed');
+            this._fire('FIREBASE-sign-in-failed', null, true, window);
             reject(err);
           });
         });
@@ -142,17 +142,17 @@
       signInAnonymously() {
         return new Promise((resolve, reject) => {
           this._auth.signInAnonymously().then(resp => {
-            this._fire('FIREBASE-signed-in', { annonymous: true, user: this.user });
+            this._fire('FIREBASE-signed-in', { annonymous: true, user: this.user }, true, window);
             resolve(resp);
           }, err => {
             console.error('Sign in failed', 'annonymous == true', err);
-            this._fire('FIREBASE-sign-in-failed');
+            this._fire('FIREBASE-sign-in-failed', null, true, window);
             reject(err);
           });
         });
       }
       
-      signOut() {
+      signOut() {                                                                           // Never resolves
         return new Promise((resolve, reject) => {
           this._auth.signOut().then(() => {
             this._fire('FIREBASE-signed-out');
@@ -170,8 +170,10 @@
       
       newData(changeRecord) {
         requestIdleCallback(deadline => {
-          this.cloudData = this.data;
-          this.localData = this.data;
+          const upload = this.data;
+          upload.lastEdit = Date.now();
+          this.cloudData = upload;
+          this.localData = upload;
         });
       }
       
@@ -179,12 +181,15 @@
         this._waitForData().then(() => {
           const cloudData = this.cloudData;
           const localData = this.localData;
-          if (!localData && cloudData) {
+          if (!(localData && Object.keys(localData).length !== 0) && (cloudData && Object.keys(cloudData).length !== 0)) {
             this.data = cloudData;
-          } else if (!cloudData && localData) {
+          } else if (!(cloudData && Object.keys(cloudData).length !== 0) && (localData && Object.keys(localData).length !== 0)) {
             this.data = localData;
-          } else if (!cloudData && !localData) {
+          } else if (!(cloudData && Object.keys(cloudData).length !== 0) && !(localData && Object.keys(localData).length !== 0)) {
             this.data = {};
+            this._fire('FIREBASE-setup-requested');
+            this._dataChangeAllowed = true;
+            return;
           } else {
             const lastCloud = cloudData.lastEdit;
             const lastLocal = localData.lastEdit;
@@ -194,24 +199,31 @@
               this.data = cloudData;
             }
           }
+          if (!this.data.config || !this.data.settings || !this.data.timetable) {
+            this._fire('FIREBASE-setup-requested');
+          }
+          this._dataChangeAllowed = true;
         });
       }
       
       _loadPouchDB() {
-        // Return if this function has been already called
-        if (this._pouchReady) return;
-        
-        // Return if SW reports it has got Pouch working
-        sendMessage({ cmd: 'checkPouch' }).then(() => {
-          this._pouchReady = true;
-        }).catch(() => {
-          // Else, set up Pouch on SW
-          this._waitForUser().then(user => {
-            sendMessage({ cmd: 'setupPouch', uid: user.uid }).then(() => {
-              this._pouchReady = true;
-              return;
-            }).catch(err => {
-              console.error('Error setting up PouchDB on service worker', err);
+        return new Promise((resolve, reject) => {
+          // Resolve if this function has been already called
+          if (this._pouchReady) resolve();
+          
+          // Resolve if SW reports it has got Pouch working
+          sendMessage({ cmd: 'checkPouch' }).then(() => {
+            this._pouchReady = true;
+            resolve();
+          }).catch(() => {
+            // Else, set up Pouch on SW
+            this._waitForUser().then(user => {
+              sendMessage({ cmd: 'setupPouch', uid: user.uid }).then(() => {
+                this._pouchReady = true;
+                resolve();
+              }).catch(err => {
+                reject(err);
+              });
             });
           });
         });
@@ -223,13 +235,13 @@
           
           if (authObj.statusKnown) r();
           
-          authObj.addEventListener('status-known-changed', () => r(), { once:true });
+          authObj.addEventListener('status-known-changed', () => r(), { once: true });
         });
         
         const user = new Promise(r => {
           auth.then(() => {
             this.user ? r()
-                      : this._noUser();
+                      : this._fire('FIREBASE-no-user');
             
             const auth = this.$.auth.auth;
             auth.onAuthStateChanged(user => {
@@ -243,32 +255,29 @@
       
       _waitForData() {
         const cloud = new Promise(r => {
-          if (Object.keys(this.cloudData).length !== 0) {
+          if (this.cloudData && Object.keys(this.cloudData).length !== 0) {
             r(this.cloudData);
           } else {
             this._waitForUser().then(user => {
               firebase.database().ref('users/' + user.uid).once('value', snapshot => {
                 r(snapshot.val());
               });
-            })
+            });
           }
         });
         
         const local = new Promise(r => {
-          if (this.localData) {
+          if (this.localData && Object.keys(this.localData).length !== 0) {
             r(this.localData);
           } else {
             if (this.isSW) {
-              this._loadPouchDB();
-              sendMessage({ cmd: 'readData' }).then(val => r(val)).catch(err => {
-                if (err === 'Pouch not Pouch is unavailable') this._loadPouchDB().then(() => {
-                  sendMessage({ cmd: 'readData' }).then(val => r(val));
-                });
+              this._loadPouchDB().then(() => {
+                sendMessage({ cmd: 'readData' }).then(val => r(val));
               });
             } else {
               this.shadowRoot.querySelector('app-pouchdb-document').addEventListener('data-changed', val => {
                 r(val);
-              });
+              }, { once: true });
             }
           }
         });
@@ -276,38 +285,33 @@
         return Promise.all([cloud, local]);
       }
       
-      _noUser() {
-        this._fire('FIREBASE-no-user');
-        this._fire('switch-page', { action: 'openOnboarding' });
-      }
-      
       _pushToPouch(data) {
+        if (!this._dataChangeAllowed) return;
         if (this.isSW) {
           if (!this._pouchReady) {
-            this._loadPouchDB();
-            this._pushToPouch(data);
-            return;
+            this._loadPouchDB().then(() => sendMessage({ cmd: 'pushToPouch', data }));
           }
           sendMessage({ cmd: 'pushToPouch', data });
         }
       }
       
       _cloudChanged(data, oldData) {
-        if (!this.$.cloudDb.ref) return;
-        if (data != this.data) {
-          this.data = data;
+        if (!this.$.cloudDb.ref || !this._dataChangeAllowed) return;
+        if (data.lastEdit > this.data.lastEdit) {
+          //this.data = data;                                                                     // No live changes - brings infinite loops
         } else {
           this.$.cloudDb.ref.set(data);
         }
       }
       
       _isCloudDisabled(online = this.online, statusKnown = this.statusKnown) {
-        return online && statusKnown;
+        return !online || !statusKnown;
       }
       
-      _fire(name, details = null, bubbles = true) {
-        const evt = new CustomEvent(name, { detail: details });
-        this.dispatchEvent(evt, { bubbles });
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
       }
     }
     

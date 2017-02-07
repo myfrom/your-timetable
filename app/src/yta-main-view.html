@@ -22,7 +22,7 @@
 
 <link rel="import" href="/src/behaviors/neon-animation-runner-behavior.html">
 
-<!--<link rel="import" href="yta-firebase.html" async>-->
+<link rel="import" href="yta-firebase.html" async>
 <link rel="import" href="yta-overview-page.html" async>
 
 <link rel="import" href="icons.html">
@@ -493,7 +493,10 @@
       }
       
       _addEventListeners() {
-        if (!this._shell) this._shell = this.parentElement;
+        // Complicated? parentElement is neon-animated-pages, parentNode is ShadowRoot and we need it's host
+        //              But if it's not Shadow DOM, pick just parentElement
+        if (!this._shell) this._shell = Polymer.Settings.useShadow ? this.parentElement.parentNode.host
+                                                                   : this.parentElement.parentElement;
         
         // Show overview page after data received
         this.addEventListener('data-changed', this._loadOverviewPage, { once: true });
@@ -519,6 +522,16 @@
             this.$.fab.classList.remove('hidden');
           }), time);
         });
+        
+        // FirebaseController says data needs init
+        this.$.firebase.addEventListener('FIREBASE-setup-requested', () => {
+          this._fire('switch-page', { action: 'openSetupDialog' }, true, this._shell);
+        });
+        
+        // FirebaseController reports no user signed in
+        this.$.firebase.addEventListener('FIREBASE-no-user', () => {
+          this._fire('switch-page', { action: 'openOnboarding' }, true, this._shell);
+        }, { once: true });
       }
       
       signOut() {
@@ -611,9 +624,10 @@
         this.shadowRoot.querySelector('#drawer').close();
       }
       
-      _fire(name, details = null, bubbles = true) {
-        const evt = new CustomEvent(name, { detail: details });
-        this.dispatchEvent(evt, { bubbles: bubbles });
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
       }
     }
     

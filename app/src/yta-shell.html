@@ -58,7 +58,7 @@
                      
       <yta-settings key="settings"></yta-settings>
       
-      <yta-onboarding key="onboarding" desktop-layout="[[desktopLayout]]"></yta-onboarding>
+      <yta-onboarding key="onboarding" desktop-layout="[[desktopLayout]]" tablet-layout="[[tabletLayout]]"></yta-onboarding>
                       
       <yta-setup-dialog key="setup" phone-layout="[[phoneLayout]]"></yta-setup-dialog>
       
@@ -198,7 +198,7 @@
             });
             break;
           default:
-            console.error(new Error('`switch-page` event fired without or with unknown action!'));
+            console.error('`switch-page` event fired without or with unknown action!', e);
         }
       }
       
@@ -214,9 +214,10 @@
         };*/
       }
       
-      _fire(name, details = null, bubbles = true) {
-        const evt = new CustomEvent(name, { detail: details });
-        this.dispatchEvent(evt, { bubbles });
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
       }
         
       _isFalse(arg1, arg2) {

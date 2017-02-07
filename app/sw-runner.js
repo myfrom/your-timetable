@@ -41,9 +41,13 @@ importScripts('service-worker.js');
         }
       }).then(resp => {
         const output = resp;
+        output.config = data.config;
+        output.settings = data.settings;
+        output.timetable = data.timetable;
         output._id = 'data';
         output._rev = resp._rev || undefined;
-        db.put(output).then(() => e.ports[0].postMessage(true));
+        db.put(output).then(() => {
+        });
       }).catch(err => {
         console.error('Error when pushing to Pouch', err);
         e.ports[0].postMessage({ error: 'Unknown error occured, check console for details' });
@@ -54,6 +58,7 @@ importScripts('service-worker.js');
       if (db) {
         e.waitUntil(new Promise(r => {
           db.destroy().then(() => {
+            db = undefined;
             e.ports[0].postMessage(true);
             r();
           }, err => {
@@ -65,6 +70,9 @@ importScripts('service-worker.js');
         e.ports[0].postMessage(true);
       }
       break;
+      
+    default:
+      console.warn(`Unknown message sent to Service Worker - command: ${e.data.cmd}`, e);
     }
   };
 })();

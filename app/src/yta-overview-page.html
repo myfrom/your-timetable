@@ -141,9 +141,10 @@
         return config[name].class;
       }
       
-      _fire(name, details = null, bubbles = true) {
-        const evt = new CustomEvent(name, { detail });
-        this.dispatchEvent(evt, { bubbles });
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
       }
     }
     

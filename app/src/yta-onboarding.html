@@ -24,6 +24,21 @@
         #main {
           @apply --layout-fit;
         }
+        
+        .page {
+          @apply --layout-horizontal;
+          height: 100vh;
+          width: 100vw;
+        }
+        
+        .page > .image {
+          @apply --layout-flex;
+        }
+        
+        .page > .text {
+          @apply --layout-flex;
+          @apply --layout-start
+        }
       }
       
       @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
@@ -31,6 +46,30 @@
         
         #main {
           @apply --layout-fit;
+        }
+        
+        .page {
+          @apply --layout-vertical;
+          height: 100vh;
+          width: 100vw;
+        }
+        
+        .page > .image {
+          @apply --layout-flex-3;
+        }
+        
+        .page > .text {
+          @apply --layout-flex-2;
+          @apply --layout-center;
+        }
+        
+        .page > .text > p {
+          text-align: center;
+          margin: 0 50px;
+        }
+        
+        #signin-btn {
+          margin: 0 auto;
         }
       }
       
@@ -40,6 +79,21 @@
         #main {
           @apply --layout-fit;
         }
+        
+        .page {
+          @apply --layout-horizontal;
+          height: 100vh;
+          width: 100vw;
+        }
+        
+        .page > .image {
+          @apply --layout-flex-2;
+        }
+        
+        .page > .text {
+          @apply --layout-start;
+          @apply --layout-flex;
+        }
       }
       
       @media (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {
@@ -47,6 +101,30 @@
         
         #main {
           @apply --layout-fit;
+        }
+        
+        .page {
+          @apply --layout-vertical;
+          height: 100vh;
+          width: 100vw;
+        }
+        
+        .page > .image {
+          @apply --layout-flex-2;
+        }
+        
+        .page > .text {
+          @apply --layout-flex;
+          @apply --layout-center;
+        }
+        
+        .page > .text > p {
+          text-align: center;
+          margin: 0 70px;
+        }
+        
+        #signin-btn {
+          margin: 0 auto;
         }
       }
       
@@ -64,25 +142,188 @@
           height: 750px;
           border-radius: 5px;
         }
+        
+        .page {
+          @apply --layout-vertical;
+          width: 750px;
+          height: 750px;
+        }
+        
+        .page > .image {
+          @apply --layout-flex-2;
+        }
+        
+        .page > .text {
+          @apply --layout-flex;
+          @apply --layout-center;
+        }
+        
+        .page > .text > p {
+          text-align: center;
+        }
+        
+        #signin-btn {
+          margin: 0 auto;
+        }
       }
       
-      :host, iron-swipeable-pages, iron-swipeable-pages .page {
-        @apply(--layout-fit);
+      :host {
+        transform: translateY(100vh);
       }
+      
+      :host(.open) {
+        transform: none;
+      }
+      
+      :host, iron-swipeable-pages {
+        @apply --layout-fit;
+      }
+      
+      .page {
+        @apply --layout;
+        @apply --layout-center;
+      }
+      
+      .page > .text {
+        @apply --layout;
+        @apply --layout-vertical;
+      }
+      
+      .image > img {
+        width: 100%;
+      }
+      
+      ./*image, .text {
+        @apply --layout-layout;
+      }*/
       
       #main {
-        position: relative;
-        background-color: orange;
+        @apply --layout;
+        @apply --layout-center;
+        @apply --layout-center-justified;
+        background-color: white;
+      }
+      
+      #signin-btn {
+        height: 40px;
+        padding: 1px 16px 1px 1px;
+        background-color: #4285F4;
+        border-radius: 2px;
+        font-family: 'Roboto', 'Noto', sans-serif !important;
+        font-weight: 500 !important;
+        color: white;
+        font-size: 14px !important;
+        text-transform: none !important;
+      }
+      
+      #signin-btn img, #signin-btn .logo-placeholder {
+        width: 18px;
+        height: 18px;
+      }
+      
+      #signin-btn .logo-placeholder {
+        padding: 10px;
+        background: white;
+        margin-right: 14px;
+      }
+      
+      .text > h1 {
+        @apply --paper-font-headline;
+        margin: 0 0 16px 0;
+        font-weight: 500 !important;
+      }
+      
+      .text > p {
+        @apply --paper-font-subhead;
+        height: 72px;
+        margin: 0;
+      }
+      
+      /* Page specific styles */
+      
+      .page[i="4"] h1 {
+        opacity: 0.87;
+      }
+      .page[i="4"] p {
+        opacity: 0.54;
+      }
+      
+      .page[i="3"] {
+        color: white;
+        background: #64B5F6;
+      }
+      .page[i="3"] p {
+        opacity: 0.7;
+      }
+      
+      .page[i="2"] {
+        color: white;
+        background: #f9a825;
+      }
+      .page[i="2"] p {
+        opacity: 0.7;
+      }
+      
+      .page[i="1"] {
+        color: white;
+        background: #9575cd;
+      }
+      .page[i="1"] p {
+        opacity: 0.7;
       }
       
     </style>
     
     <div id="main">
-      <iron-swipeable-pages id="carousel" selected="{{selected}}">
-        <div class="page" i="1">
-          
+      <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle>
+        <div class="page" i="1" color="#9575cd">
+          <div class="image">
+            <img src="/images/welcome.svg" class="image">
+          </div>
+          <div class="text">
+            <h1>Everything in one place</h1>
+            <p>Easily view your timetable, assigments and tests in one place</p>
+          </div>
+        </div>
+        <div class="page" i="2" color="#f9a825">
+          <div class="image">
+            <img src="/images/sync.svg" class="image">
+          </div>
+          <div class="text">
+            <h1>On all of your devices</h1>
+            <p>At home using computer or in bus using a phone, your timetable has can be viewed everywhere</p>
+          </div>
+        </div>
+        <dom-if if="[[_isSW()]]">
+          <template>
+            <div class="page" i="3" color="#64B5F6">
+              <div class="image">
+                <img src="/images/offline.svg" class="image">
+              </div>
+              <div class="text">
+                <h1>Without connection</h1>
+                <p>You don't need internet to browse it, just like a paper one</p>
+              </div>
+            </div>
+          </template>
+        </dom-if>
+        <div class="page" i="4" color="#FFFFFF">
+          <div class="image">
+            <img src="/images/login-page.svg" class="image">
+          </div>
+          <div class="text">
+            <h1>Sign in with Google</h1>
+            <p>To let the app work everywhere you need to sign in with your Google account.</p>
+            <paper-button on-tap="_signIn" id="signin-btn" raised>
+              <div class="logo-placeholder">
+                <img src="/images/google-g-logo.svg">
+              </div>
+              Sign in with Google
+            </paper-button>
+          </div>
         </div>
       </iron-swipeable-pages>
+      <paper-pager id="pager" selected="{{selected}}" items-count="[[_pagesCount()]]"></paper-pager>
     </div>
   </template>
   
@@ -95,6 +336,11 @@
             
             // Inherited from shell
             desktopLayout: {
+              type: Boolean
+            },
+            
+            // Inherited from shell
+            tabletLayout: {
               type: Boolean
             },
             
@@ -119,11 +365,6 @@
               reflectToAttribute: true,
               value: '#FFFFFF',
               observer: '_colorChanged'
-            },
-            
-            // List of pages
-            pages: {
-              type: Array
             }
             
           }
@@ -141,7 +382,10 @@
       connectedCallback() {
         super.connectedCallback();
         
-        this._shell = this.parentElement;
+        // Complicated? parentElement is neon-animated-pages, parentNode is ShadowRoot and we need it's host
+        //              But if it's not Shadow DOM, pick just parentElement
+        if (!this._shell) this._shell = Polymer.Settings.useShadow ? this.parentElement.parentNode.host
+                                                                   : this.parentElement.parentElement;
         
         // Add event listeners
         this._shell.addEventListener('open-onboarding', () => this.open());
@@ -176,6 +420,38 @@
         this._shell.removeEventListener('close-onboarding', () => this.close());
       }
       
+      open() {
+        this.style.transition = 'transform 200ms ease-out';
+        this._computeTransitionTimes();
+        Polymer.RenderStatus.afterNextRender(this, () => { 
+          this.classList.add('open');
+          this.$.pager._selectedChanged(0, this._isSW() ? 3 : 2);
+        });
+      }
+      
+      close() {
+        this.style.transition = 'transform 200ms ease-in';
+        this._computeTransitionTimes();
+        this.classList.remove('open');
+      }
+      
+      _computeTransitionTimes() {
+        if (this._lastTransTimeChange &&
+            this._lastTransTimeChange[0] === this.tabletLayout &&
+            this._lastTransTimeChange[1] === this.desktopLayout)
+        {
+          return;
+        }
+        if (this.tabletLayout) {
+          this.style.transitionDuration = '260ms';
+        } else if (this.desktopLayout) {
+          this.style.transitionDuration = '150ms';
+        } else {
+          this.style.transitionDuration = '200ms';
+        }
+        this._lastTransTimeChange = [this.tabletLayout, this.desktopLayout];
+      }
+      
       _signIn() {
         this._requestSignIn({ annonymous: false });
       }
@@ -185,12 +461,17 @@
       }
       
       _requestSignIn(config) {
-        this._fire('FIREBASE-sign-in-required', { provider: config.annonymous ? 'annonymous'
-                                                                              : 'google' });
+        this._fire('FIREBASE-sign-in-required',
+          { provider: config.annonymous ? 'annonymous'
+                                        : 'google' },
+          true,
+          window
+        );
         this.$.loginButton.classList.add('waiting');
         this._listenFotSignIn().then(() => {
           // Sign in successful - proceed
         }, () => {
+          // Sign in failed, reset
           requestAnimationFrame(() => {
             this.$.loginButton.classList.remove('waiting');
             this.$.loginButton.classList.add('failed');
@@ -203,6 +484,28 @@
         });
       }
       
+      _selectedChanged(selected) {
+        if (selected === null) {
+          this.selected = 0;
+          return;
+        }
+        if (!this.shadowRoot) return;
+        console.log('I run (color picker)');
+        //this.color = this.$.carousel.selectedItem.getAttribute('color');
+      }
+      
+      _colorChanged(color) {
+        document.head.querySelector('#themeColor').setAttribute('content', color);
+        if (!this.shadowRoot) return;
+        const pager = this.shadowRoot.querySelector('#pager');
+        if (this.desktopLayout) {
+          pager.updateStyles({ '--paper-pager-color': color });
+        } else {
+          pager.updateStyles({ '--paper-pager-color': color == '#FFFFFF' ? 'rgba(0,0,0,0)'
+                                                                         : '#FFFFFF'});
+        }
+      }
+      
       _listenFotSignIn() {
         return new Promise((resolve, reject) => {
           window.addEventListener('FIREABSE-signed-in', e => resolve(e));
@@ -210,9 +513,19 @@
         });
       }
       
-      _fire(name, details = null, bubbles = true) {
-        const evt = new CustomEvent(name, { detail: details });
-        this.dispatchEvent(evt, { bubbles });
+      _isSW() {
+        return 'serviceWorker' in navigator;
+      }
+      
+      _pagesCount() {
+        return this._isSW() ? 4
+                            : 3;
+      }
+      
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
       }
     }
     
