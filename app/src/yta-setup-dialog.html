@@ -1,99 +1,207 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
 
-<!--<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">-->
-<link rel="import" href="/bower_components/iron-image/iron-image.html">
-<link rel="import" href="/bower_components/iron-icons/iron-icons.html"><!-- Change for smaller package -->
+<link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
 
-<link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
-<link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="/bower_components/paper-steps/paper-steps.html">
+<link rel="import" href="/bower_components/paper-steps/paper-steps.html">
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html"> <!-- Replace with smaller package -->
+<link rel="import" href="/bower_components/paper-toggle-button/paper-toggle-button.html">
 
-<link rel="import" href="/bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
-<link rel="import" href="/bower_components/neon-animation/neon-animation-runner-behavior.html">
-
-<link rel="import" href="yta-common-styles.html">
+<link rel="import" href="icons.html">
 
 <dom-module id="yta-setup-dialog">
   <template>
-    <style include="yta-common-styles">
-    
-      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+    <style>
       
-        
-      /*
-       * Phone styles
-       */
-        
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
+        /* Phone landscape styles */
         
         #main {
-          @apply(--layout-fit);
+          @apply --layout-fit;
+        }
+      }
+      
+      @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        /* Phone portirait styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+      }
+      
+      @media (min-width: 961px) and (max-width: 1279px) and (orientation: landscape) {
+        /* Tablet landscape styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+      }
+      
+      @media (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {
+        /* Tablet portirait styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+      }
+      
+      @media (min-width: 841px) and (orientation: portrait), (min-width: 1280px) and (orientation: landscape) {
+        /* Desktop styles */
+        
+        :host {
+          @apply --layout;
+          @apply --layout-center;
+          @apply --layout-center-justified;
         }
         
+        #main {
+          width: 750px;
+          height: 750px;
+          position: relative;
+        }
+        
+        #main, .fab {
+          @apply --shadow-elevation-16dp;
+        }
+        
+        #main, .page {
+          border-radius: 25px;
+        }
       }
-        
-        
-      /*
-       * Cross-device styles
-       */
       
+      :host {
+        transform: translateY(100vh);
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 999;
+      }
+      
+      :host(.open) {
+        transform: none;
+      }
+      
+      :host, iron-swipeable-pages {
+        @apply --layout-fit;
+      }
       
       #main {
-        @apply(--shadow-elevation-24dp);
         background-color: white;
       }
       
     </style>
     
     <div id="main">
-      <div class="content">
-        
-      </div>
-      <div class="buttons">
-        
-      </div>
+      
     </div>
   </template>
   
   <script>
-    Polymer({
-      is: 'yta-setup-dialog',
-      
-      behaviors: [
-        Polymer.NeonAnimationRunnerBehavior,
-        Polymer.IronResizableBehavior
-      ],
-      
-      properties: {
-        
-        phoneLayout: {
-          type: Boolean,
-          notify: true
-        },
-        
-        animationConfig: {
-          value: function() { return {
-            'entry': {
-              name: 'slide-from-bottom-animation',
-              node: this,
-              timing: { duration: 300, easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)' }
+    class SetupDialog extends Polymer.Element {
+      static get is() { return 'yta-setup-dialog'; }
+      static get config() {
+        return {
+          properties: {
+            
+            // Inherited from shell
+            desktopLayout: {
+              type: Boolean
             },
-            'exit': {
-              name: 'slide-down-animation',
-              node: this,
-              timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 1, 1)' }
+            
+            // Inherited from shell
+            tabletLayout: {
+              type: Boolean
+            },
+            
+            /* NOT SURE IF NESSCESSARY
+            // Boolean indicating state of element
+            isActive: {
+              type: Boolean,
+              value: false
+            },*/
+            
+            // Selected page
+            selected: {
+              type: Number,
+              value: 0,
+              observer: '_selectedChanged'
+            },
+            
+            // User data
+            appData: {
+              type: Object,
+              notify: true
             }
-          } }
-        }
-        
-      },
-      
-      listeners: {
-        // 'iron-resize': 'setLayout'
-      },
-      
-      attached: function() {
-        setupDialog = this;
+            
+          }
+        };
       }
-    })
+      
+      constructor() {
+        super();
+      }
+      
+      ready() {
+        super.ready();
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+        
+        // Complicated? parentElement is neon-animated-pages, parentNode is ShadowRoot and we need it's host
+        //              But if it's not Shadow DOM, pick just parentElement
+        if (!this._shell) this._shell = Polymer.Settings.useShadow ? this.parentElement.parentNode.host
+                                                                   : this.parentElement.parentElement;
+        
+        // Add event listeners
+        this._shell.addEventListener('open-setup-dialog', () => this.open());
+        this._shell.addEventListener('close-setup-dialog', () => this.close());
+      }
+      
+      disconnectedCallback() {
+        if (!this._shell) return;
+        
+        // Remove event listeners
+        this._shell.removeEventListener('open-setup-dialog', () => this.open());
+        this._shell.removeEventListener('close-setup-dialog', () => this.close());
+      }
+      
+      open() {
+        this.style.transition = 'transform 200ms ease-out';
+        this._computeTransitionTimes();
+        Polymer.RenderStatus.afterNextRender(this, () => { 
+          this.classList.add('open');
+        });
+      }
+      
+      close() {
+        this.style.transition = 'transform 200ms ease-in';
+        this._computeTransitionTimes();
+        this.classList.remove('open');
+      }
+      
+      _computeTransitionTimes() {
+        if (this._lastTransTimeChange &&
+            this._lastTransTimeChange[0] === this.tabletLayout &&
+            this._lastTransTimeChange[1] === this.desktopLayout)
+        {
+          return;
+        }
+        if (this.tabletLayout) {
+          this.style.transitionDuration = '260ms';
+        } else if (this.desktopLayout) {
+          this.style.transitionDuration = '150ms';
+        } else {
+          this.style.transitionDuration = '200ms';
+        }
+        this._lastTransTimeChange = [this.tabletLayout, this.desktopLayout];
+      }
+      
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
+      }
+    }
+    
+    customElements.define(SetupDialog.is, SetupDialog);
   </script>
+</dom-module>

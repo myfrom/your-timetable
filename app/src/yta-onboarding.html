@@ -1,16 +1,12 @@
 <link rel="import" href="/bower_components/polymer/polymer-element.html">
-<link rel="import" href="/bower_components/polymer/src/templatizer/dom-if.html">
+<link rel="import" href="/bower_components/polymer/src/data-elements/dom-if.html">
 
 <link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
 
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
-<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="/bower_components/paper-fab/paper-fab.html"><!-- Should be loaded on demand -->
 <link rel="import" href="/bower_components/paper-pager/paper-pager.html">
 <link rel="import" href="/bower_components/paper-styles/paper-styles.html">
-
-<link rel="import" href="/bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
-<link rel="import" href="/bower_components/neon-animation/neon-animation-runner-behavior.html">
 
 <link rel="import" href="icons.html">
 
@@ -38,6 +34,12 @@
         .page > .text {
           @apply --layout-flex;
           @apply --layout-start
+        }
+        
+        #pager {
+          position: absolute;
+          bottom: calc(50vh - 100px);
+          left: 50vw;
         }
       }
       
@@ -68,8 +70,15 @@
           margin: 0 50px;
         }
         
-        #signin-btn {
+        #signinBtn {
           margin: 0 auto;
+        }
+        
+        #pager {
+          position: absolute;
+          bottom: 24px;
+          left: 50vw;
+          transform: translateX(calc(-50% - 5px));
         }
       }
       
@@ -93,6 +102,12 @@
         .page > .text {
           @apply --layout-start;
           @apply --layout-flex;
+        }
+        
+        #pager {
+          position: absolute;
+          bottom: calc(50vh - 100px);
+          left: 66vw;
         }
       }
       
@@ -123,8 +138,15 @@
           margin: 0 70px;
         }
         
-        #signin-btn {
+        #signinBtn {
           margin: 0 auto;
+        }
+        
+        #pager {
+          position: absolute;
+          bottom: 24px;
+          left: 50vw;
+          transform: translateX(calc(-50% - 5px));
         }
       }
       
@@ -132,15 +154,23 @@
         /* Desktop styles */
         
         :host {
-          @apply --layout-flex;
+          @apply --layout;
           @apply --layout-center;
-          @apply --layout-center-justify;
+          @apply --layout-center-justified;
         }
         
         #main {
           width: 750px;
           height: 750px;
-          border-radius: 5px;
+          position: relative;
+        }
+        
+        #main, .fab {
+          @apply --shadow-elevation-16dp;
+        }
+        
+        #main, .page {
+          border-radius: 25px;
         }
         
         .page {
@@ -162,13 +192,42 @@
           text-align: center;
         }
         
-        #signin-btn {
+        #signinBtn {
           margin: 0 auto;
+        }
+        
+        #pager {
+          position: absolute;
+          bottom: -40px;
+          left: 50%;
+          transform: translateX(calc(-50% - 5px));
+        }
+        
+        .fab {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          --paper-fab-background: white;
+          --paper-fab-keyboard-focus-background: var(--paper-grey-200);
+          --paper-fab-disabled-background: var(--paper-grey-300);
+          --paper-fab-iron-icon: {
+            opacity: var(--dark-secondary-opacity);
+          };
+        }
+        
+        .fab.right {
+          right: -108px;
+        }
+        
+        .fab.left {
+          left: -108px;
         }
       }
       
       :host {
         transform: translateY(100vh);
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 999;
       }
       
       :host(.open) {
@@ -189,22 +248,19 @@
         @apply --layout-vertical;
       }
       
-      .image > img {
+      .image {
+        background-position: center;
+        background-size: contain;
+        background-repeat: no-repeat;
         width: 100%;
+        height: 100%;
       }
       
-      ./*image, .text {
-        @apply --layout-layout;
-      }*/
-      
       #main {
-        @apply --layout;
-        @apply --layout-center;
-        @apply --layout-center-justified;
         background-color: white;
       }
       
-      #signin-btn {
+      #signinBtn {
         height: 40px;
         padding: 1px 16px 1px 1px;
         background-color: #4285F4;
@@ -214,17 +270,31 @@
         color: white;
         font-size: 14px !important;
         text-transform: none !important;
+        transition: background 150ms;
       }
       
-      #signin-btn img, #signin-btn .logo-placeholder {
+      #signinBtn img, #signinBtn .logo-placeholder {
         width: 18px;
         height: 18px;
       }
       
-      #signin-btn .logo-placeholder {
+      #signinBtn .logo-placeholder {
         padding: 10px;
         background: white;
         margin-right: 14px;
+      }
+      
+      #signinBtn.waiting {
+        background: white;
+      }
+      
+      #signinBtn.failed {
+        background: #ff5722;
+      }
+      
+      #signinBtn.waiting > *, #signinBtn.failed > * {
+        opacity: 0;
+        color: rgba(0,0,0,0);
       }
       
       .text > h1 {
@@ -241,10 +311,10 @@
       
       /* Page specific styles */
       
-      .page[i="4"] h1 {
+      .page.login h1 {
         opacity: 0.87;
       }
-      .page[i="4"] p {
+      .page.login p {
         opacity: 0.54;
       }
       
@@ -275,20 +345,22 @@
     </style>
     
     <div id="main">
-      <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle>
+      <dom-if if="[[desktopLayout]]">
+        <template>
+          <paper-fab class="fab right" icon="icons:arrow-forward" on-tap="_nextSlide"></paper-fab>
+          <paper-fab class="fab left" disabled icon="icons:arrow-back" on-tap="_previousSlide"></paper-fab>
+        </template>
+      </dom-if>
+      <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle threshold="0.2">
         <div class="page" i="1" color="#9575cd">
-          <div class="image">
-            <img src="/images/welcome.svg" class="image">
-          </div>
+          <div class="image" style="background-image: url(/images/welcome.svg);"></div>
           <div class="text">
             <h1>Everything in one place</h1>
             <p>Easily view your timetable, assigments and tests in one place</p>
           </div>
         </div>
         <div class="page" i="2" color="#f9a825">
-          <div class="image">
-            <img src="/images/sync.svg" class="image">
-          </div>
+          <div class="image" style="background-image: url(/images/sync.svg);"></div>
           <div class="text">
             <h1>On all of your devices</h1>
             <p>At home using computer or in bus using a phone, your timetable has can be viewed everywhere</p>
@@ -297,9 +369,7 @@
         <dom-if if="[[_isSW()]]">
           <template>
             <div class="page" i="3" color="#64B5F6">
-              <div class="image">
-                <img src="/images/offline.svg" class="image">
-              </div>
+              <div class="image" style="background-image: url(/images/offline.svg);"></div>
               <div class="text">
                 <h1>Without connection</h1>
                 <p>You don't need internet to browse it, just like a paper one</p>
@@ -307,14 +377,12 @@
             </div>
           </template>
         </dom-if>
-        <div class="page" i="4" color="#FFFFFF">
-          <div class="image">
-            <img src="/images/login-page.svg" class="image">
-          </div>
+        <div class="page login" i$="[[_pagesCount()]]" color="#FFFFFF">
+          <div class="image" style="background-image: url(/images/login-page.svg);"></div>
           <div class="text">
             <h1>Sign in with Google</h1>
             <p>To let the app work everywhere you need to sign in with your Google account.</p>
-            <paper-button on-tap="_signIn" id="signin-btn" raised>
+            <paper-button on-tap="_signIn" id="signinBtn" raised>
               <div class="logo-placeholder">
                 <img src="/images/google-g-logo.svg">
               </div>
@@ -390,26 +458,6 @@
         // Add event listeners
         this._shell.addEventListener('open-onboarding', () => this.open());
         this._shell.addEventListener('close-onboarding', () => this.close());
-        
-        // Set up animation config
-        this.animationConfig = {
-          'entry': {
-            name: 'slide-from-bottom-animation',
-            node: this,
-            timing: {
-              duration: 300,
-              easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-            }
-          },
-          'exit': {
-            name: 'slide-down-animation',
-            node: this,
-            timing: {
-              duration: 300,
-              easing: 'cubic-bezier(0.4, 0.0, 1, 1)'
-            }
-          }
-        };
       }
       
       disconnectedCallback() {
@@ -467,18 +515,20 @@
           true,
           window
         );
-        this.$.loginButton.classList.add('waiting');
+        this.$.signinBtn.classList.add('waiting');
         this._listenFotSignIn().then(() => {
           // Sign in successful - proceed
+          this.color = '#673ab7';
+          this._fire('switch-page', { action: 'closeOnboarding' }, true, this._shell);
         }, () => {
           // Sign in failed, reset
           requestAnimationFrame(() => {
-            this.$.loginButton.classList.remove('waiting');
-            this.$.loginButton.classList.add('failed');
+            this.$.signinBtn.classList.remove('waiting');
+            this.$.signinBtn.classList.add('failed');
           });
           setTimeout(() => {
             requestAnimationFrame(() => {
-              this.$.loginButton.classList.remove('failed');
+              this.$.signinBtn.classList.remove('failed');
             });
           }, 500);
         });
@@ -490,26 +540,35 @@
           return;
         }
         if (!this.shadowRoot) return;
-        console.log('I run (color picker)');
-        //this.color = this.$.carousel.selectedItem.getAttribute('color');
+        const selectedEl = this.shadowRoot.querySelector(`.page[i="${selected + 1}"]`);
+        this.color = selectedEl.getAttribute('color');
+        if (!this.desktopLayout && selected === this._pagesCount() - 1) {
+          this.$.pager.style.display = 'none';
+        } else {
+          if (this.$.pager.style.display === 'initial') return;
+          this.$.pager.style.display = 'initial';
+        }
       }
       
       _colorChanged(color) {
         document.head.querySelector('#themeColor').setAttribute('content', color);
         if (!this.shadowRoot) return;
         const pager = this.shadowRoot.querySelector('#pager');
+        pager.updateStyles({ '--paper-pager-color': this.desktopLayout ? color
+                                                                       : '#FFFFFF' });
         if (this.desktopLayout) {
-          pager.updateStyles({ '--paper-pager-color': color });
-        } else {
-          pager.updateStyles({ '--paper-pager-color': color == '#FFFFFF' ? 'rgba(0,0,0,0)'
-                                                                         : '#FFFFFF'});
+          const nextFab = this.shadowRoot.querySelector('.fab.right');
+          const previousFab = this.shadowRoot.querySelector('.fab.left');
+          color = color === '#FFFFFF' ? 'black' : color; 
+          nextFab.style.color = color;
+          previousFab.style.color = color;
         }
       }
       
       _listenFotSignIn() {
         return new Promise((resolve, reject) => {
-          window.addEventListener('FIREABSE-signed-in', e => resolve(e));
-          window.addEventListener('FIREABSE-sign-in-failed', e => reject(e));
+          window.addEventListener('FIREABSE-signed-in', resolve);
+          window.addEventListener('FIREBASE-sign-in-failed', reject);
         });
       }
       
@@ -522,6 +581,38 @@
                             : 3;
       }
       
+      _nextSlide() {
+        if (this.selected + 1 !== this._pagesCount()) {
+          this.selected++;
+          if (this.selected + 1 === this._pagesCount()) {
+            this.shadowRoot.querySelector('.fab.right').disabled = true;
+          } else {
+            this.shadowRoot.querySelector('.fab.right').disabled = false;
+          }
+          if (this.selected === 0) {
+            this.shadowRoot.querySelector('.fab.left').disabled = true;
+          } else {
+            this.shadowRoot.querySelector('.fab.left').disabled = false;
+          }
+        }
+      }
+      
+      _previousSlide() {
+        if (this.selected !== 0) {
+          this.selected--;
+          if (this.selected + 1 === this._pagesCount()) {
+            this.shadowRoot.querySelector('.fab.right').disabled = true;
+          } else {
+            this.shadowRoot.querySelector('.fab.right').disabled = false;
+          }
+          if (this.selected === 0) {
+            this.shadowRoot.querySelector('.fab.left').disabled = true;
+          } else {
+            this.shadowRoot.querySelector('.fab.left').disabled = false;
+          }
+        }
+      }
+      
       _fire(name, detail = null, bubbles = true, target) {
         target = target || this;
         const evt = new CustomEvent(name, { detail, bubbles });
@@ -530,295 +621,5 @@
     }
     
     customElements.define(Onboarding.is, Onboarding);
-    
-    // OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD  OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD
-    old = {
-      is: 'yta-onboarding',
-      
-      behaviors: [
-        Polymer.NeonAnimationRunnerBehavior,
-        Polymer.IronResizableBehavior
-      ],
-      
-      properties: {
-        
-        phoneLayout: {
-          type: Boolean,
-          notify: true
-        },
-        
-        desktopLayout: {
-          type: Boolean,
-          notify: true
-        },
-        
-        isActive: {
-          type: Boolean,
-          value: false
-        },
-        
-        selected: {
-          type: Number,
-          notify: true,
-          value: 0,
-          observer: '_selectedChanged'
-        },
-        
-        color: {
-          type: String,
-          notify: true,
-          reflectToAttribute: true,
-          value: '#FFFFFF',
-          observer: '_colorChanged'
-        },
-        
-        pages: {
-          type: Array,
-          notify: true
-        },
-        
-        signedIn: {
-          type: Boolean,
-          notify: true,
-          value: false
-        },
-        
-        animationConfig: {
-          value: function() { return {
-            'entry': {
-              name: 'slide-from-bottom-animation',
-              node: this,
-              timing: { duration: 300, easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)' }
-            },
-            'exit': {
-              name: 'slide-down-animation',
-              node: this,
-              timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 1, 1)' }
-            },
-            'closeLogin': [
-              {
-                name: 'slide-left-animation',
-                node: this.$.loginPage,
-                timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)' }
-              },
-              {
-                name: 'slide-from-right-animation',
-                node: this.$$('#carousel'),
-                timing: { duration: 300, easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)' }
-              }
-            ]
-          } }
-        }
-        
-      },
-      
-      listeners: {
-        'iron-resize': 'setLayout', // To set the layout when screen size changes
-        'dom-change': 'setLayout' // Little workaround dom-if rendering
-      },
-      
-      attached: function() {
-        onboarding = this;
-      },
-      
-      open: function() {
-        this.isActive = true;
-        this.selected = 0;
-      },
-      
-      close: function() {
-        this.isActive = false;
-        this.signedIn = false
-      },
-      
-      signIn: function(e) {
-        e.target.style.backgroundColor = '#FFF';
-        var targetWidth = e.target.offsetWidth;
-        e.target.style.minWidth = targetWidth + 'px';
-        e.target.querySelector('#text').if = false;
-        e.target.querySelector('#spinner').if = true;
-        this.fire('signing-in');
-        firebaseControl.signIn()
-          .then(() => {
-            // User signed in!
-            firebaseControl.isFirstTimeVisit().then(resp => {
-              if(resp) {
-                this.importHref('bower_components/iron-swipeable-pages/iron-swipeable-pages.html', () => {
-                  this.signedIn = true;
-                  this.$.intro.render();
-                  this._selectedChanged(0);
-                  this.setLayout();
-                  this.set('animationConfig.closeLogin.1.node', this.$$('#carousel'));
-                  this.playAnimation('closeLogin');
-                  this.notifyPath('color')
-                });
-              } else {
-                this.fire('switch-page', { action: 'closeOnboarding' })
-              }
-            })
-          }).catch(function(err) {
-            // Sign in failed!
-            console.warn('Sign in failed', err);
-            e.target.style.backgroundColor = '#4885ed';
-            e.target.querySelector('#text').if = true;
-            e.target.querySelector('#spinner').if = false;
-          })
-      },
-      
-      testDrive: function() {
-        firebaseControl.signInAnonymously()
-          .then(() => {
-            // Signed in anonymously
-            //  Powerup the carousel
-            this.signedIn = true;
-            this.$.intro.render();
-            this._selectedChanged(0);
-            this.setLayout();
-            this.set('animationConfig.closeLogin.1.node', this.$$('#carousel'));
-            this.playAnimation('closeLogin');
-            this.notifyPath('color');
-            //  Set a timeout for data
-            if(isChrome()) {
-              // For Chrome
-              window.onbeforeunload = function() {
-                firebaseControl.signOut();
-                return null;
-              };
-            } else {
-              // For other browsers
-              window.onbeforeunload = function() {
-                return "If you will leve now your data will be lost! Sign in before leaving to save it."
-              };
-              window.onunload = function() {
-                firebaseControl.signOut();
-              };
-            }
-            this.async(function() {
-              firebaseControl.signOut();
-            }, 1.8e+6)
-          }).catch(function(err) {
-            // Sign in failed!
-            console.warn('Sign in failed', err)
-          })
-      },
-      
-      showHelpTooltip: function() {
-        var tooltip = this.$$('#loginPage paper-tooltip');
-        tooltip.show();
-        this.async(function() {
-          tooltip.hide()
-        }, 5000)
-      },
-      
-      setLayout: function() {
-        if(this.$$('#carousel')) {
-          var textsNL = this.$$('#carousel').querySelectorAll('div[text] > p');
-          var texts = Array.prototype.slice.call(textsNL);
-          texts.forEach(function(item) {
-            var output = 56;
-            output -= item.offsetHeight - 24;
-            item.style.marginBottom = output + 'px'
-          });
-          var pager = this.$$('#pager');
-          var pagerPosLeft, pagerPosBottom;
-          if(Onboarding.desktopLayout) {
-            pager.style.position = 'fixed';
-            var main = this.$.main;
-            var mainLeft = main.offsetLeft;
-            var mainCenter = mainLeft + main.offsetWidth / 2;
-            pagerPosLeft = mainCenter - pager.offsetWidth / 2;
-            pagerPosBottom = windowOffsetBottom(main) - 24 - pager.offsetHeight;
-          } else if(!this.phoneLayout || this.offsetWidth < this.offsetHeight) {
-            pager.style.position = 'absolute';
-            pagerPosLeft = this.offsetWidth / 2 - pager.offsetWidth / 2 - 5;
-            pagerPosBottom = 10;
-          } else {
-            pager.style.position = 'absolute';
-            var textDiv = this.$$('#carousel div[text] paper-button');
-            pagerPosLeft = textDiv.offsetLeft + (textDiv.offsetWidth / 2 - pager.offsetWidth / 2 - 5);
-            var buttonBottom = this.offsetHeight - (textDiv.offsetTop + textDiv.offsetHeight);
-            pagerPosBottom = buttonBottom - 20 - pager.offsetHeight - 10;
-          }
-          pager.style.left = pagerPosLeft + 'px';
-          pager.style.bottom = pagerPosBottom + 'px';
-          if(this.desktopLayout) {
-            var arrowLeftPos, arrowRightPos;
-            var mainLeft = this.$.main.offsetLeft;
-            var mainRight = mainLeft + this.$.main.offsetWidth;
-            arrowLeftPos = mainLeft - 56 - 48;
-            arrowRightPos = mainRight + 48;
-            this.$$('#arrowLeft').style.left = arrowLeftPos + 'px';
-            this.$$('#arrowRight').style.left = arrowRightPos + 'px';
-          }
-        };
-        var textsNL = this.root.querySelectorAll('#loginPage > div[text] > p');
-        var texts = Array.prototype.slice.call(textsNL);
-        texts.forEach(function(item) {
-          var output = 56;
-          output -= item.offsetHeight - 24;
-          item.style.marginBottom = output + 'px'
-        });
-      },
-      
-      _selectedChanged: function(selected) {
-        if(this.$$('#carousel')) {
-          var el = this.$$(['div[index="', selected, '"]'].join(''));
-          this.color = el.getAttribute('color');
-        }
-      },
-      
-      _colorChanged: function(color) {
-        document.head.querySelector('#themeColor').setAttribute('content', color);
-        if(this.signedIn) {
-          if(this.desktopLayout) {
-            this.$$('#pager').customStyle['--paper-pager-color'] = color;
-          } else {
-            this.$$('#pager').customStyle['--paper-pager-color'] = 'white';
-          }
-          this.$$('#pager').updateStyles();
-        }
-      },
-      
-      _isOfflineReady: function() {
-        return 'serviceWorker' in navigator
-      },
-      
-      _proceed: function() {
-        this.fire('switch-page', { action: 'closeOnboarding' });
-        this.fire('switch-page', { action: 'openSetupDialog' });
-      },
-      
-      _tapArrowRight: function(e) {
-        /*if(this.selected == (this.pages.length - 2)) {
-          e.target.icon = 'check'
-        } else {
-          e.target.icon = 'arrow-forward'
-        };*/
-        if(this.selected != (this.pages.length - 1)) {
-          this.selected++
-        } else {
-          this._proceed()
-        }
-      },
-      
-      _tapArrowLeft: function() {
-        /*if(this.selected == 1) {
-          e.target.disabled = true
-        } else {
-          e.target.disabled = false
-        };*/
-        if(this.selected != 0) {
-          this.selected--
-        }
-      }
-    }
-    
-    // Nescessary one
-    function windowOffsetBottom(item) {
-      var elemHeight = item.offsetHeight;
-      var elemTop = item.offsetTop;
-      var windowHeight = window.innerHeight;
-      return windowHeight - (elemTop + elemHeight);
-    }
   </script>
 </dom-module>

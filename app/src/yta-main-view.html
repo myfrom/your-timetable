@@ -1,5 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="/bower_components/polymer/src/templatizer/dom-if.html">
+<link rel="import" href="/bower_components/polymer/src/data-elements/dom-if.html">
 
 <link rel="import" href="/bower_components/app-layout/app-layout.html">
 <link rel="import" href="/bower_components/app-layout/app-scroll-effects/effects/waterfall.html">
@@ -525,7 +525,9 @@
         
         // FirebaseController says data needs init
         this.$.firebase.addEventListener('FIREBASE-setup-requested', () => {
-          this._fire('switch-page', { action: 'openSetupDialog' }, true, this._shell);
+          setTimeout(() => {
+            this._fire('switch-page', { action: 'openSetupDialog' }, true, this._shell);
+          }, 500);
         });
         
         // FirebaseController reports no user signed in

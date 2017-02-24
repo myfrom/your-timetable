@@ -20,6 +20,8 @@
     "sw-runner.js",
     "manifest.json",
     "bower_components/webcomponentsjs/webcomponents-lite.min.js",
-    "src/polyfills/array-from-polyfill.js"
+    "src/polyfills/array-from-polyfill.js",
+    "src/polyfills/request-idle-callback.js",
+    "privacy-policy.html"
   ]
 }

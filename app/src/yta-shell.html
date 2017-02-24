@@ -4,9 +4,7 @@
 <link rel="import" href="/bower_components/app-route/app-route.html">
 
 <link rel="import" href="/bower_components/iron-media-query/iron-media-query.html">
-
-<link rel="import" href="/bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
-<link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
 
 <link rel="import" href="yta-main-view.html">
 
@@ -49,7 +47,7 @@
                       query-matches="{{tabletLayout}}"></iron-media-query>
     
     <!-- Switch between views -->
-    <neon-animated-pages selected="[[selected]]" attr-for-selected="key">
+    <iron-pages selected="[[selected]]" attr-for-selected="key">
       <yta-main-view key="main"
                      phone-layout="[[phoneLayout]]"
                      data="{{appData}}"
@@ -60,7 +58,7 @@
       
       <yta-onboarding key="onboarding" desktop-layout="[[desktopLayout]]" tablet-layout="[[tabletLayout]]"></yta-onboarding>
                       
-      <yta-setup-dialog key="setup" phone-layout="[[phoneLayout]]"></yta-setup-dialog>
+      <yta-setup-dialog key="setup" desktop-layout="[[desktopLayout]]" tablet-layout="[[tabletLayout]]" app-data="{{appData}}"></yta-setup-dialog>
       
       <yta-add-dialog key="add"
                       app-data="{{appData}}"
@@ -69,7 +67,7 @@
       <yta-feedback-dialog key="feedback"></yta-feedback-dialog>
       
       <yta-about-page key="about"></yta-about-page>
-    </neon-animated-pages>
+    </iron-pages>
   </template>
   
   <script>
@@ -190,7 +188,7 @@
             this.routeData = this.routeData;
             break;
           case 'openSetupDialog':
-              importHref('src/yta-onboarding.html').then(() => {
+            importHref('src/yta-setup-dialog.html').then(() => {
               this._fire('open-setup-dialog');
               this.selected = 'setup';
               this.routeData.page = 'app';

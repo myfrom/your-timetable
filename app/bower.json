@@ -71,7 +71,8 @@
     "app-datepicker": "motss/app-datepicker#2.0-preview",
     "pouchdb": "^6.0.6",
     "polymerfire": "firebase/Polymerfire#2.0-preview",
-    "paper-pager": "Witus13/paper-pager#^0.1.0"
+    "paper-pager": "Witus13/paper-pager#^0.1.0",
+    "paper-steps": "Witus13/paper-steps#2.0-preview"
   },
   "_dependencies": {
     "polymer": "Polymer/polymer#2.0-preview",
