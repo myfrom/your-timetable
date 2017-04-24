@@ -1,14 +1,15 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html">
 
-<link rel="import" href="yta-common-styles.html">
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html">
 
 <dom-module id="yta-timetable-page">
   <template>
-    <style include="yta-common-styles">
+    <style>
       
       #topPlaceholder {
-        @apply(--layout-horizontal);
-        @apply(--layout-wrap);
+        @apply --layout-horizontal;
+        @apply --layout-wrap;
       }
       
       .dayPlaceholder {
@@ -16,8 +17,8 @@
       }
       
       .lesson {
-        @apply(--layout-vertical);
-        @apply(--layout-center-justified);
+        @apply --layout-vertical;
+        @apply --layout-center-justified;
         border-bottom: 1px solid rgba(0,0,0,0.12);
         border-left-style: solid;
         border-left-width: 3px;
@@ -26,13 +27,13 @@
       }
       
       .day-name {
-        @apply(--paper-font-menu);
+        @apply --paper-font-menu;
         color: #fbc02d;
         margin: 8px 0 8px 16px;
       }
       
       p.secondary {
-        @apply(--paper-font-body1);
+        @apply --paper-font-body1;
         color: var(--secondary-text-color);
       }
       
@@ -55,7 +56,7 @@
       @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
         
         .dayPlaceholder {
-          @apply(--layout-flex);
+          @apply --layout-flex;
         }
         
       }
@@ -63,49 +64,59 @@
     </style>
     
     <div id="topPlaceholder">
-      <template is="dom-repeat" items="[[data.timetable]]">
-        <div class="dayPlaceholder">
-          <h6 class="day-name">[[_computeDayName(index)]]</h6>
-          <div class="lessonsPlaceholder">
-            <template is="dom-repeat" items="[[item]]" as="lesson">
-              <div class="lesson" style="border-left-color: [[_pickLessonColor(lesson.name)]];">
-                <p>[[lesson.name]]</p>
-                <p class="secondary">[[viewReadable(lesson.startTime)]] - [[viewReadable(lesson.endTime)]]</p>
-              </div>
-            </template>
+      <dom-repeat items="[[data.timetable]]">
+        <template>
+          <div class="dayPlaceholder">
+            <h6 class="day-name">[[_computeDayName(index)]]</h6>
+            <div class="lessonsPlaceholder">
+              <dom-repeat items="[[item]]" as="lesson">
+                <template>
+                  <div class="lesson" style="border-left-color: [[_pickLessonColor(lesson.name)]];">
+                    <p>[[lesson.name]]</p>
+                    <p class="secondary">[[viewReadable(lesson.startTime)]] - [[viewReadable(lesson.endTime)]]</p>
+                  </div>
+                </template>
+              </dom-repeat>
+            </div>
           </div>
-        </div>
-      </template>
+        </template>
+      </dom-repeat>
     </div>
     <div id="spacer"></div>
   </template>
   
   <script>
-    Polymer({
-      is: 'yta-timetable-page',
+    class TimetablePage extends Polymer.Element {
+      static get is() { return 'yta-timetable-page'; }
+      static get properties() {
+        return {
+          
+          // Inherited from MainView
+          data: {
+            type: Object,
+            notify: true
+          }
+          
+        };
+      }
       
-      properties: {
-        
-        data: {
-          type: Object,
-          notify: true
-        }
-        
-      },
+      constructor() {
+        super();
+      }
       
-      viewReadable: function(time) {
+      viewReadable(time) {
         let input = new Date(time);
         let output = [null, ':', null];
         output[0] = input.getHours();
         output[2] = input.getMinutes();
-        if(output[2].toString().length == 1) {
-          output[2] = '0' + output[2]
+        if (output[2].toString().length == 1) {
+          output[2] = '0' + output[2];
         };
         return output.join('')
-      },
+      }
       
-      _computeDayName: function(day) {
-        let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+      _computeDayName(day) {
+        let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         /*
         let daysLocalised = [];
         for(i=0; i>5; i++) {
@@ -113,25 +124,20 @@
         };
         days = daysLocalised;
         */
-        return days[day]
-      },
+        return days[day];
+      }
       
-      _pickLessonColor: function(name) {
+      _pickLessonColor(name) {
         let config = this.data.config;
         return config[name].color;
-      },
+      }
       
-      _pickClassroom: function(name) {
+      _pickClassroom(name) {
         let config = this.data.config;
         return config[name].class;
       }
-    })
-    
-    function hoursTimer(date) {
-      let output = new Date();
-      let input = new Date(date);
-      output.setHours(input.getHours(), input.getMinutes())
-      return output.getTime()
     }
+    
+    customElements.define(TimetablePage.is, TimetablePage);
   </script>
 </dom-module>

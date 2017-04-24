@@ -1,6 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer-element.html">
-<link rel="import" href="/bower_components/polymer/src/data-elements/dom-if.html">
-<link rel="import" href="/bower_components/polymer/src/data-elements/dom-repeat.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html">
 
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
 
@@ -43,7 +43,7 @@
                            start-time="[[viewReadable(item.startTime)]]"
                            end-time="[[viewReadable(item.endTime)]]"
                            color="[[_pickLessonColor(item.name)]]"
-                           classroom="[[_pickClassroom(item.name)]]"
+                           classroom="[[item.classroom]]"
                            phone-layout="[[phoneLayout]]"
                            ></yta-lesson-card>
           </template>
@@ -59,26 +59,24 @@
   </template>
   
   <script>
-  class OverviewPage extends Polymer.Element {
+    class OverviewPage extends Polymer.Element {
       static get is() { return 'yta-overview-page'; }
-      static get config() {
+      static get properties() {
         return {
-          properties: {
-            
-            // Inherited from Shell
-            phoneLayout: {
-              type: Boolean,
-              notify: true,
-              reflectToAttribute: true
-            },
-            
-            // Inherited from MainView
-            data: {
-              type: Object,
-              notify: true
-            }
-            
+          
+          // Inherited from Shell
+          phoneLayout: {
+            type: Boolean,
+            notify: true,
+            reflectToAttribute: true
+          },
+          
+          // Inherited from MainView
+          data: {
+            type: Object,
+            notify: true
           }
+          
         };
       }
       
@@ -132,13 +130,9 @@
       }
       
       _pickLessonColor(name) {
-        const config = this.data.config;
-        return config[name].color;
-      }
-      
-      _pickClassroom(name) {
-        const config = this.data.config;
-        return config[name].class;
+        /*const config = this.data.config;
+        return config[name].color;*/
+        return '#2196F3'
       }
       
       _fire(name, detail = null, bubbles = true, target) {

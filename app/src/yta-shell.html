@@ -8,7 +8,7 @@
 
 <link rel="import" href="yta-main-view.html">
 
-<link rel="preload" href="yta-add-dialog.html">
+<link rel="prefetch" href="yta-add-dialog.html">
 
 <dom-module id="yta-shell">
   <template>
@@ -73,46 +73,46 @@
   <script>
     class Shell extends Polymer.Element {
       static get is() { return 'yta-shell'; }
-      static get config() {
+      static get properties() {
         return {
-          properties: {
-          
-            // Currently selected view
-            selected: {
-              type: String,
-              notify: true,
-              value: 'main'
-            },
-            
-            // Sharing the user data between views
-            appData: {
-              type: Object,
-              notify: true
-            },
-            
-            // Layout indicators
-            phoneLayout: {
-              type: Boolean,
-              notify: true
-            },
-            
-            tabletLayout: {
-              type: Boolean,
-              notify: true
-            },
-            
-            desktopLayout: {
-              type: Boolean,
-              notify: true,
-              computed: '_isFalse(phoneLayout, tabletLayout)'
-            }
-            
+        
+          // Currently selected view
+          selected: {
+            type: String,
+            notify: true,
+            value: 'main'
           },
           
-          observers: [
-            '_resolveRoute(routeData.page)'
-          ],
+          // Sharing the user data between views
+          appData: {
+            type: Object,
+            notify: true
+          },
+          
+          // Layout indicators
+          phoneLayout: {
+            type: Boolean,
+            notify: true
+          },
+          
+          tabletLayout: {
+            type: Boolean,
+            notify: true
+          },
+          
+          desktopLayout: {
+            type: Boolean,
+            notify: true,
+            computed: '_isFalse(phoneLayout, tabletLayout)'
+          }
+          
         };
+      }
+      
+      static get observers() {
+        return [
+          '_resolveRoute(routeData.page)'
+        ];
       }
       
       constructor() {

@@ -23,5 +23,20 @@
     "src/polyfills/array-from-polyfill.js",
     "src/polyfills/request-idle-callback.js",
     "privacy-policy.html"
-  ]
+  ],
+  "lint": {
+    "rules": ["polymer-2"]
+  },
+  "builds": [{
+    "name": "bundled",
+    "bundle": true,
+    "js": {"minify": true},
+    "css": {"minify": true},
+    "html": {"minify": true}
+  },{
+    "name": "unbundled",
+    "js": {"minify": true},
+    "css": {"minify": true},
+    "html": {"minify": true}
+  }]
 }

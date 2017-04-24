@@ -1,5 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer-element.html">
-<link rel="import" href="/bower_components/polymer/src/data-elements/dom-if.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-if.html">
 
 <link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
 
@@ -345,12 +345,10 @@
     </style>
     
     <div id="main">
-      <dom-if if="[[desktopLayout]]">
-        <template>
-          <paper-fab class="fab right" icon="icons:arrow-forward" on-tap="_nextSlide"></paper-fab>
-          <paper-fab class="fab left" disabled icon="icons:arrow-back" on-tap="_previousSlide"></paper-fab>
-        </template>
-      </dom-if>
+      <template is="dom-if" if="[[desktopLayout]]">
+        <paper-fab class="fab right" icon="icons:arrow-forward" on-tap="_nextSlide"></paper-fab>
+        <paper-fab class="fab left" disabled icon="icons:arrow-back" on-tap="_previousSlide"></paper-fab>
+      </template>
       <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle threshold="0.2">
         <div class="page" i="1" color="#9575cd">
           <div class="image" style="background-image: url(/images/welcome.svg);"></div>
@@ -366,17 +364,15 @@
             <p>At home using computer or in bus using a phone, your timetable has can be viewed everywhere</p>
           </div>
         </div>
-        <dom-if if="[[_isSW()]]">
-          <template>
-            <div class="page" i="3" color="#64B5F6">
-              <div class="image" style="background-image: url(/images/offline.svg);"></div>
-              <div class="text">
-                <h1>Without connection</h1>
-                <p>You don't need internet to browse it, just like a paper one</p>
-              </div>
+        <template is="dom-if" if="[[_isSW()]]">
+          <div class="page" i="3" color="#64B5F6">
+            <div class="image" style="background-image: url(/images/offline.svg);"></div>
+            <div class="text">
+              <h1>Without connection</h1>
+              <p>You don't need internet to browse it, just like a paper one</p>
             </div>
-          </template>
-        </dom-if>
+          </div>
+        </template>
         <div class="page login" i$="[[_pagesCount()]]" color="#FFFFFF">
           <div class="image" style="background-image: url(/images/login-page.svg);"></div>
           <div class="text">
@@ -398,53 +394,47 @@
   <script>
     class Onboarding extends Polymer.Element {
       static get is() { return 'yta-onboarding'; }
-      static get config() {
+      static get properties() {
         return {
-          properties: {
-            
-            // Inherited from shell
-            desktopLayout: {
-              type: Boolean
-            },
-            
-            // Inherited from shell
-            tabletLayout: {
-              type: Boolean
-            },
-            
-            /* NOT SURE IF NESSCESSARY
-            // Boolean indicating state of element
-            isActive: {
-              type: Boolean,
-              value: false
-            },*/
-            
-            // Selected page
-            selected: {
-              type: Number,
-              value: 0,
-              observer: '_selectedChanged'
-            },
-            
-            // Color of current page
-            color: {
-              type: String,
-              notify: true,
-              reflectToAttribute: true,
-              value: '#FFFFFF',
-              observer: '_colorChanged'
-            }
-            
+          
+          // Inherited from shell
+          desktopLayout: {
+            type: Boolean
+          },
+          
+          // Inherited from shell
+          tabletLayout: {
+            type: Boolean
+          },
+          
+          /* NOT SURE IF NESSCESSARY
+          // Boolean indicating state of element
+          isActive: {
+            type: Boolean,
+            value: false
+          },*/
+          
+          // Selected page
+          selected: {
+            type: Number,
+            value: 0,
+            observer: '_selectedChanged'
+          },
+          
+          // Color of current page
+          color: {
+            type: String,
+            notify: true,
+            reflectToAttribute: true,
+            value: '#FFFFFF',
+            observer: '_colorChanged'
           }
+          
         };
       }
       
       constructor() {
         super();
-      }
-      
-      ready() {
-        super.ready();
       }
       
       connectedCallback() {

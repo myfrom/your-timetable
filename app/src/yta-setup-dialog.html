@@ -1,11 +1,17 @@
 <link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html">
 
-<link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
+<link rel="import" href="/bower_components/iron-selector/iron-selector.html">
 
-<link rel="import" href="/bower_components/paper-steps/paper-steps.html">
-<link rel="import" href="/bower_components/paper-steps/paper-steps.html">
+<!--<link rel="import" href="/bower_components/paper-steps/paper-steps.html">
+<link rel="import" href="/bower_components/paper-steps/paper-step.html">-->
+<link rel="import" href="/bower_components/paper-expansion-panel/paper-expansion-panel.html">
 <link rel="import" href="/bower_components/paper-styles/paper-styles.html"> <!-- Replace with smaller package -->
-<link rel="import" href="/bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="/bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
 <link rel="import" href="icons.html">
 
@@ -73,6 +79,7 @@
         transform: translateY(100vh);
         background: rgba(0, 0, 0, 0.3);
         z-index: 999;
+        @apply --paper-font-common-base;
       }
       
       :host(.open) {
@@ -85,62 +92,227 @@
       
       #main {
         background-color: white;
+        padding: 15px;
+        overflow-y: scroll;
+      }
+      
+      #weekDays {
+        display: inline-block;
+      }
+      
+      #weekDays .selectable-item {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        border-radius: 50%;
+        background-color: var(--paper-grey-200);
+        color: black;
+        opacity: var(--dark-primary-opacity);
+        transition: background-color 150ms;
+        padding: 0;
+        margin: 3px;
+        vertical-align: middle;
+        text-align: center;
+      }
+      
+      #weekDays .selectable-item:focus {
+        background-color: var(--paper-grey-400);
+        outline: none;
+      }
+      
+      #weekDays .selectable-item.iron-selected:focus {
+        background-color: var(--dark-primary-color);
+      }
+      
+      #weekDays .selectable-item.iron-selected {
+        color: white;
+        opacity: 1;
+        background-color: var(--primary-color);
+      }
+      
+      h2 {
+        @apply  --paper-font-title;
+      }
+      
+      h3 {
+        @apply --paper-font-subhead;
+      }
+      
+      paper-expansion-panel {
+        --paper-expansion-panel-content: {
+          background-color: #fafafa;
+          position: relative;
+          left: -15px;
+          width: calc(100% + 40px);
+          padding: 0 15px;
+        };
+      }
+      
+      .lesson {
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        border-bottom: 1px var(--light-theme-divider-color) solid;
+        @apply --layout-horizontal;
+      }
+      
+      .lesson > .remove-lesson {
+        position: relative;
+        top: 4px;
+        opacity: 0.54;
+      }
+      
+      .add-lesson {
+        margin-top: 2px;
+      }
+      
+      .lesson > paper-expansion-panel {
+        @apply --layout-flex;
+      }
+      
+      .day {
+        position: relative;
+        left: -15px;
+        width: 100%;
+        padding: 15px;
+        @apply --shadow-transition;
+      }
+      
+      .day:hover {
+        @apply --shadow-elevation-4dp;
+      }
+      
+      #finish {
+        @apply --layout-horizontal;
+        @apply --layout-end-justified;
+      }
+      
+      #finish > paper-button {
+        color: var(--primary-color);
+        font-weight: 500;
+      }
+      
+      hr {
+        border: 0;
+        border-bottom: 1px var(--light-theme-divider-color) solid;
+        position: relative;
+        left: -15px;
+        width: calc(100% + 40px);
       }
       
     </style>
     
     <div id="main">
-      
+      <section>
+        <h2>Let's get started</h2>
+        <h3>Which days do you go to school?</h3>
+        <iron-selector multi id="weekDays" selected-values="{{weekDays}}">
+          <div tabindex="0" class="selectable-item">M</div>
+          <div tabindex="0" class="selectable-item">T</div>
+          <div tabindex="0" class="selectable-item">W</div>
+          <div tabindex="0" class="selectable-item">T</div>
+          <div tabindex="0" class="selectable-item">F</div>
+          <div tabindex="0" class="selectable-item">S</div>
+          <div tabindex="0" class="selectable-item">S</div>
+        </iron-selector>
+      </section>
+      <hr noshadow>
+      <section>
+        <h2>Add your lessons</h2>
+        <template is="dom-repeat" items="[[weekDays]]" id="daysPlaceholder" as="day">
+          <div class="day">
+            <h3>[[_computeDayName(day)]]</h3>
+            <template is="dom-repeat" items="[[_lessonsOn(day)]]" class="lesson-placeholder d[[day]]" as="lesson" index-as="lessonIndex">
+              <div class="lesson" d="[[day]]" l="[[lessonIndex]]">
+                <paper-expansion-panel header="[[_computeHeading(day, lessonIndex)]]">
+                  <vaadin-combo-box class="lesson-name-input" label="Your lesson"
+                                    no-label-float allow-custom-value item-value-path="name"
+                                    on-custom-value-set="_processCustomLessonInputValue"
+                                    items="[[_lessonsInfo]]" item-label-path="name"></vaadin-combo-box>
+                  <span class="label-text">in</span>
+                  <paper-input class="class-input" label="class" no-label-float></paper-input>
+                  <span class="label-text">with</span>
+                  <paper-input class="teacher-input" label="teacher" no-label-float></paper-input>
+                  <span class="label-text">starts at</span>
+                  <paper-input type="time" class="time-input start-time-input" no-label-float></paper-input>
+                  <span class="label-text">and ends at</span>
+                  <paper-input type="time" class="time-input end-time-input" no-label-float></paper-input>
+                </paper-expansion-panel>
+                <paper-icon-button icon="icons:remove-circle" on-tap="_removeLesson"
+                                   class="remove-lesson"></paper-icon-button>
+              </div>
+            </template>
+            <paper-icon-button class="add-lesson"
+                               d="[[day]]" on-tap="_addLesson"
+                               icon="icons:add"></paper-icon-button>
+          </div>
+        </template>
+      </section>
+      <hr>
+      <section id="finish">
+        <paper-button on-tap="save">Save</paper-button>
+      </section>
     </div>
   </template>
   
   <script>
     class SetupDialog extends Polymer.Element {
       static get is() { return 'yta-setup-dialog'; }
-      static get config() {
+      static get properties() {
         return {
-          properties: {
-            
-            // Inherited from shell
-            desktopLayout: {
-              type: Boolean
-            },
-            
-            // Inherited from shell
-            tabletLayout: {
-              type: Boolean
-            },
-            
-            /* NOT SURE IF NESSCESSARY
-            // Boolean indicating state of element
-            isActive: {
-              type: Boolean,
-              value: false
-            },*/
-            
-            // Selected page
-            selected: {
-              type: Number,
-              value: 0,
-              observer: '_selectedChanged'
-            },
-            
-            // User data
-            appData: {
-              type: Object,
-              notify: true
-            }
-            
+          
+          // Inherited from shell
+          desktopLayout: {
+            type: Boolean
+          },
+          
+          // Inherited from shell
+          tabletLayout: {
+            type: Boolean
+          },
+          
+          /* NOT SURE IF NESSCESSARY
+          // Boolean indicating state of element
+          isActive: {
+            type: Boolean,
+            value: false
+          },*/
+          
+          // Days in which user goes to school
+          weekDays: {
+            type: Array,
+            value: () => [0,1,2,3,4]
+          },
+          
+          // User data
+          appData: {
+            type: Object,
+            notify: true
+          },
+          
+          // Arrays of lessons in certain days contained in array
+          _lessonsOnDays: {
+            type: Array,
+            value: () => []
+          },
+          
+          // Lesson names and their info that was used in any field
+          _lessonsInfo: {
+            type: Array,
+            value: () => []
           }
         };
       }
       
-      constructor() {
-        super();
+      static get observers() {
+        return [
+          '_sortWeekDays(weekDays.splices)'
+        ];
       }
       
-      ready() {
-        super.ready();
+      constructor() {
+        super();
       }
       
       connectedCallback() {
@@ -178,6 +350,39 @@
         this.classList.remove('open');
       }
       
+      // Read all values and save them
+      save() {                                                                  // Needs a color picker
+        //.. <-- A creative animation here
+        const lsDivList = this.shadowRoot.querySelectorAll('div.lesson');
+        const output = [];
+        lsDivList.forEach(div => {
+          const day = div.d, lesson = div.l;
+          while (output.length -1 < day) output.push(null);
+          output[day] = output[day] || [];
+          while (output[day].length -1 < lesson) output[day].push(null);
+          const name = div.querySelector('.lesson-name-input').value,
+                classroom = div.querySelector('.class-input').value,
+                teacher = div.querySelector('.teacher-input').value;
+          let startTime = div.querySelector('.start-time-input').value,
+              endTime = div.querySelector('.end-time-input').value;
+          let timeH = startTime.substr(0,1);
+          let timeM = startTime.substr(3,4);
+          startTime = new Date(`Thu Jan 01 1970 ${timeH}:${timeM}:00 GMT+0100 (CET)`).getTime();
+          timeH = endTime.substr(0,1);
+          timeM = endTime.substr(3,4);
+          endTime = new Date(`Thu Jan 01 1970 ${timeH}:${timeM}:00 GMT+0100 (CET)`).getTime();
+          output[day][lesson] = { name, classroom, teacher, startTime, endTime };
+        });
+        this.set('appData.timetable', output);
+        //.. <-- Close the dialog here
+      }
+      
+      _lessonsOn(day) {
+        while (this._lessonsOnDays.length - 1 <= day) this._lessonsOnDays.push([{}]);
+        if (this._lessonsOnDays[day].length === 0) this._lessonsOnDays[day].push({});
+        return this._lessonsOnDays[day];
+      }
+      
       _computeTransitionTimes() {
         if (this._lastTransTimeChange &&
             this._lastTransTimeChange[0] === this.tabletLayout &&
@@ -193,6 +398,73 @@
           this.style.transitionDuration = '200ms';
         }
         this._lastTransTimeChange = [this.tabletLayout, this.desktopLayout];
+      }
+      
+      _addLesson(e) {
+        const day = e.target.d;
+        this._lessonsOnDays[day].push({});
+        this.notifySplices('_lessonsOnDays');
+        this._refreshDayPlaceholder(day);
+      }
+      
+      _removeLesson(e) {
+        const day = e.target.parentElement.d;
+        const lesson = e.target.parentElement.l;
+        this._lessonsOnDays[day].splice(lesson, 1);
+        if (this._lessonsOnDays[day].length === 0) {
+          this.weekDays.splice(this.weekDays.indexOf(day), 1);
+          this._sortWeekDays();
+        }
+        this.notifySplices('_lessonsOnDays');
+        this._refreshDayPlaceholder(day);
+      }
+      
+      _refreshDayPlaceholder(day) {
+        const list = this.shadowRoot.querySelectorAll('dom-repeat[as="lesson"]');
+        for (let i in list) {
+          if (list[i].class.includes(`d${day}`)) {
+            setTimeout(() => list[i].render(), 0);
+            break;
+          }
+        }
+      }
+      
+      _computeDayName(day) {
+        const days = [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday'
+        ];
+        return days[day];
+      }
+      
+      _sortWeekDays() {
+        if (this._sortedWeekDays) {
+          this._sortedWeekDays = false;
+          return;
+        }
+        this.weekDays.sort();
+        this._sortedWeekDays = true;
+        this.notifySplices('weekDays');
+      }
+      
+      _computeHeading(day, lessonIndex) {                                       // NOT FINISHED
+        return "Add a lesson";
+      }
+      
+      _processCustomLessonInputValue(e) {
+        if (!e.detail) return;
+        const val = e.detail;
+        const capVal = val.charAt(0).toUpperCase() + val.slice(1);
+        if (val !== capVal) {
+          e.preventDefault();
+          e.target.value = capVal;
+        }
+        this.push('_lessonsInfo', { name: capVal });
       }
       
       _fire(name, detail = null, bubbles = true, target) {

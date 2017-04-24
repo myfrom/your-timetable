@@ -54,25 +54,23 @@
   <script>
     class LessonCard extends Polymer.Element {
       static get is() { return 'yta-lesson-card'; }
-      static get config() {
+      static get properties() {
         return {
-          properties: {
-        
-            phoneLayout: Boolean,
-            
-            blank: Boolean,
-            
-            color: String,
-            
-            name: String,
-            
-            startTime: String,
-            
-            endTime: String,
-            
-            classroom: String
-            
-          }
+      
+          phoneLayout: Boolean,
+          
+          blank: Boolean,
+          
+          color: String,
+          
+          name: String,
+          
+          startTime: String,
+          
+          endTime: String,
+          
+          classroom: String
+          
         };
       }
       
