@@ -12,7 +12,7 @@ importScripts('service-worker.js');
         break;
       } 
       db = new PouchDB(e.data.uid);
-      db.put({ _id: 'data' }).then(_ => e.ports[0].postMessage(true));
+      db.put({ _id: 'data' }).then(() => e.ports[0].postMessage(true));
       break;
     
     case 'checkPouch':
@@ -32,26 +32,7 @@ importScripts('service-worker.js');
       break;
     
     case 'pushToPouch':
-      const data = e.data.data;
-      db.get('data').catch(err => {
-        if (err.name === 'not_found') {
-          return data;
-        } else {
-          throw err;
-        }
-      }).then(resp => {
-        const output = resp;
-        output.config = data.config;
-        output.settings = data.settings;
-        output.timetable = data.timetable;
-        output._id = 'data';
-        output._rev = resp._rev || undefined;
-        db.put(output).then(() => {
-        });
-      }).catch(err => {
-        console.error('Error when pushing to Pouch', err);
-        e.ports[0].postMessage({ error: 'Unknown error occured, check console for details' });
-      });
+      pushToPouch(e);
       break;
       
     case 'deletePouch':
@@ -76,6 +57,33 @@ importScripts('service-worker.js');
     }
   };
 })();
+
+function pushToPouch(e) {
+  const data = e.data.data;
+  db.get('data').catch(err => {
+    if (err.name === 'not_found') {
+      return data;
+    } else {
+      throw err;
+    }
+  }).then(resp => {
+    const output = resp;
+    output.config = data.config;
+    output.settings = data.settings;
+    output.timetable = data.timetable;
+    output._id = 'data';
+    output._rev = resp._rev || undefined;
+    return db.put(output).catch(err => {
+      if (err.status === 409) {
+        pushToPouch(e);
+        console.log('Conflict when pushing to Pouch, retrying');
+      } else {
+        console.error('Error when pushing to Pouch', err);
+        e.ports[0].postMessage({ error: 'Unknown error occured, check console for details' });
+      }
+    });
+  });
+}
 
 // Import and use Firebase
 /*importScripts('https://www.gstatic.com/firebasejs/3.6.1/firebase-app.js');
