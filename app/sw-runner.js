@@ -12,12 +12,14 @@ importScripts('service-worker.js');
         break;
       } 
       db = new PouchDB(e.data.uid);
-      db.put({ _id: 'data' }).then(() => e.ports[0].postMessage(true));
+      db.get('data').then(() => e.ports[0].postMessage(true), err => {
+        db.put({ _id: 'data' }).then(() => e.ports[0].postMessage(true));
+      });
       break;
     
     case 'checkPouch':
       if (typeof db !== 'undefined') {
-        db.get('data').then(_ => e.ports[0].postMessage(true), err => e.ports[0].postMessage({ error: err }));
+        db.get('data').then(() => e.ports[0].postMessage(true), err => e.ports[0].postMessage({ error: err }));
       } else {
         e.ports[0].postMessage({ error: true });
       }
