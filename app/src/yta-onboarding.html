@@ -499,7 +499,7 @@
       }
       
       _requestSignIn(config) {
-        this._fire('FIREBASE-sign-in-required',
+        this._fire('firebasesigninrequired',
           { provider: config.annonymous ? 'annonymous'
                                         : 'google' },
           true,
@@ -557,8 +557,8 @@
       
       _listenFotSignIn() {
         return new Promise((resolve, reject) => {
-          window.addEventListener('FIREABSE-signed-in', resolve);
-          window.addEventListener('FIREBASE-sign-in-failed', reject);
+          window.addEventListener('firebasesignedin', resolve);
+          window.addEventListener('firebasesigninfailed', reject);
         });
       }
       
