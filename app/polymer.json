@@ -13,15 +13,14 @@
   ],
   "sources": [
    "src/*",
-   "images/**/*",
    "bower.json"
   ],
   "extraDependencies": [
     "sw-runner.js",
+    "images/**/*",
     "manifest.json",
     "bower_components/webcomponentsjs/webcomponents-lite.min.js",
-    "src/polyfills/array-from-polyfill.js",
-    "src/polyfills/request-idle-callback.js",
+    "src/polyfills/*.*",
     "privacy-policy.html"
   ],
   "lint": {
