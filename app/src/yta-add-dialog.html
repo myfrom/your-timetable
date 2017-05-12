@@ -1,8 +1,8 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
+<!--<link rel="import" href="/bower_components/polymer/polymer.html">
 
 <link rel="import" href="/bower_components/app-datepicker/app-datepicker-dialog.html">
 
-<!--<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">-->
+<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
@@ -11,7 +11,7 @@
 <link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
 
-<link rel="import" href="/bower_components/neon-animation/neon-animations.html"><!-- Pick only nescessary ones -->
+<link rel="import" href="/bower_components/neon-animation/neon-animations.html">
 <link rel="import" href="/bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
 
 <link rel="import" href="paper-expansion-panel.html">
@@ -39,19 +39,19 @@
       <h2>Add to calendar</h2>
       <paper-dialog-scrollable>
         <template is="dom-repeat" items="{{data}}">
-          <!--<paper-icon-item role="menuitem">-->
-          <!--  <paper-item-body two-line="[[_changeFromContent(item)]]">-->
-          <!--    <div>Change from</div>-->
-          <!--    <template is="dom-if" if="[[_changeFromContent(item)]]">-->
-          <!--      <div secondary>[[_changeFromContent(item)]]</div>-->
-          <!--    </template>-->
-          <!--  </paper-item-body>-->
-          <!--  <paper-icon-button icon="icons:arrow-drop-down"-->
-          <!--                     on-tap="collapseFrom"-->
-          <!--                     class="rotateable"></paper-icon-button>-->
-          <!--</paper-icon-item>-->
-          <!--<iron-collapse class="from">-->
-          <!--  <div>-->
+          <paper-icon-item role="menuitem">
+            <paper-item-body two-line="[[_changeFromContent(item)]]">
+              <div>Change from</div>
+              <template is="dom-if" if="[[_changeFromContent(item)]]">
+                <div secondary>[[_changeFromContent(item)]]</div>
+              </template>
+            </paper-item-body>
+            <paper-icon-button icon="icons:arrow-drop-down"
+                               on-tap="collapseFrom"
+                               class="rotateable"></paper-icon-button>
+          </paper-icon-item>
+          <iron-collapse class="from">
+            <div>
               <paper-dropdown-menu label="What to add?">
                 <paper-listbox attr-for-selected="key" selected="{{item.type}}" class="dropdown-content">
                   <paper-item key="change">Change in plan</paper-item>
@@ -68,8 +68,8 @@
                   </div>
                 </paper-expansion-panel>
               </template>
-          <!--  </div>-->
-          <!--</iron-collapse>-->
+            </div>
+          </iron-collapse>
         </template>
       </paper-dialog-scrollable>
       <div class="buttons">
@@ -270,4 +270,4 @@
       return output.join('')
     }
   </script>
-</dom-module>
+</dom-module>-->
