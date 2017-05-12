@@ -50,7 +50,7 @@
       'use strict';
       if (!Array.from) importPolyfill('array-from-polyfill');
       if (!window.requestIdleCallback) importPolyfill('request-idle-callback');
-      if (!document.body.animate) importPolyfill('bower_components/web-animations-js/web-animations.min.js', true);
+      if (!Element.prototype.animate) importPolyfill('bower_components/web-animations-js/web-animations.min.js', true);
     })();
     
     // load pre-caching service worker
