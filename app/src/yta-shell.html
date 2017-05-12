@@ -528,7 +528,22 @@
         
         // Play animation after first render
         Polymer.RenderStatus.afterNextRender(this, () => {
-          this.$.header
+          requestAnimationFrame(() => {
+            this.$.header.animate([
+              { transform: 'translateY(-100%)' },
+              { transform: 'translateY(0)' }
+            ], {
+              duration: 500,
+              easing: 'ease-out'
+            });
+            this.$.fab.animate([
+              { transform: 'scale(0)' },
+              { transform: 'scale(1)' }
+            ], {
+              duration: 500,
+              easing: 'ease-out'
+            });
+          });
         });
         
         // Add event listeners
@@ -547,11 +562,9 @@
       }
       
       _addEventListeners() {
-        // Show overview page after data received
-        this.addEventListener('data-changed', this._loadOverviewPage, { once: true });
-        
-        // Check if there are targets in URI
-        window.addEventListener('OVERIVIEW-PAGE-loaded', () => {
+        // Show overview page and check if there are targets in URI
+        window.addEventListener('firebasedataready', () => {
+          this._loadOverviewPage();
           this.checkForTargets().then(selected => {
             this.selectedView = selected;
           }).catch(err => {
@@ -671,12 +684,17 @@
           const selectedItemWaiter = this.shadowRoot.querySelector(`#${selectedString} > .waiter`);
           if (!selectedItemWaiter.hidden) {
             importHref(`/src/yta-${selectedString}-page.html`).then(() => {
-              this.animationConfig.fadeOut.node = selectedItemWaiter;
-              this.animationConfig = this.animationConfig;
-              this.addEventListener('neon-animation-finish', () => {
-                this._hideSelectedItemWaiter(selectedItemWaiter);
+              requestAnimationFrame(() => {
+                const anim = selectedItemWaiter.animate([
+                  { opacity: 1 },
+                  { opactiy: 0 }
+                ], {
+                  duration: 150
+                });
+                anim.onfinish = () => {
+                  this._hideSelectedItemWaiter(selectedItemWaiter);
+                };
               });
-              requestAnimationFrame(() => this.playAnimation('fadeOut'));
             });
           }
         }
@@ -699,18 +717,22 @@
         fab.classList.add('hidden');
       }
       
-      _loadOverviewPage(data) {
-        if (!data) return;
+      _loadOverviewPage() {
         const overviewPage = this.shadowRoot.querySelector('#overview yta-overview-page');
         const selectedItemWaiter = this.shadowRoot.querySelector('#overview > .waiter');
         if (!selectedItemWaiter.hidden) {
           importHref(`/src/yta-overview-page.html`).then(() => {
-            this.animationConfig.fadeOut.node = selectedItemWaiter;
-            this.animationConfig = this.animationConfig;
-            this.addEventListener('neon-animation-finish', () => {
-              this._hideSelectedItemWaiter(selectedItemWaiter);
+            requestAnimationFrame(() => {
+              const anim = selectedItemWaiter.animate([
+                { opacity: 1 },
+                { opactiy: 0 }
+              ], {
+                duration: 150
+              });
+              anim.onfinish = () => {
+                this._hideSelectedItemWaiter(selectedItemWaiter);
+              };
             });
-            requestAnimationFrame(() => this.playAnimation('fadeOut'));
           });
         }
       }

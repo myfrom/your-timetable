@@ -163,11 +163,14 @@
       
       newData(changeRecord) {
         //requestIdleCallback(deadline => {
-          console.log('New data came', changeRecord.base);                                 // Debugger included
           const upload = this.data;
           upload.lastEdit = Date.now();
           this.cloudData = upload;
           this.localData = upload;
+          if (!this._dataReady && this.data.config && this.data.settings && this.data.timetable) {
+            this._fire('firebasedataready');
+            this._dataReady = true;
+          }
         //});
       }
       
@@ -195,6 +198,9 @@
           }
           if (!this.data.config || !this.data.settings || !this.data.timetable) {
             this._fire('firebasesetuprequested');
+          } else {
+            this._fire('firebasedataready');
+            this._dataReady = true;
           }
           this._dataChangeAllowed = true;
         });
