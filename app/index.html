@@ -40,16 +40,17 @@
   
   <script>
     // Load nescessary polyfills
-    function importPolyfill(id) {
+    function importPolyfill(id, custom = false) {
       const script = document.createElement('script');
       script.async = true;
-      script.src = '/src/polyfills/' + id + '.js';
+      script.src = custom ? id : '/src/polyfills/' + id + '.js';
       document.head.appendChild(script);
     }
     (function() {
       'use strict';
-      if (!Array.from) importPolyfill('array-from-polyfill.js');
+      if (!Array.from) importPolyfill('array-from-polyfill');
       if (!window.requestIdleCallback) importPolyfill('request-idle-callback');
+      if (!document.body.animate) importPolyfill('bower_components/web-animations-js/web-animations.min.js', true);
     })();
     
     // load pre-caching service worker
@@ -69,6 +70,9 @@
   
   <!-- Less important scripts -->
   <script src="/src/index.js" async></script>
+  
+  <!-- App metrics thing -->
+  <script src="bower_components/appmetrics.js/dist/appmetrics.min.js"></script>
   
   <link rel="prefetch" href="/src/yta-shell.html">
   
