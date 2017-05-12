@@ -3,13 +3,12 @@
 
 <link rel="import" href="/bower_components/iron-selector/iron-selector.html">
 
-<!--<link rel="import" href="/bower_components/paper-steps/paper-steps.html">
-<link rel="import" href="/bower_components/paper-steps/paper-step.html">-->
 <link rel="import" href="/bower_components/paper-expansion-panel/paper-expansion-panel.html">
 <link rel="import" href="/bower_components/paper-styles/paper-styles.html"> <!-- Replace with smaller package -->
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
 
 <link rel="import" href="/bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
@@ -205,16 +204,41 @@
       }
       
       .label-text {
-        color: var(--primary-text-color);
+        opacity: var(--dark-primary-opacity);
         font-size: 16px;
         margin: 0 2px;
-        position: relative;
-        top: 5px;
       }
       
       .lesson-name-input, .class-input, .teacher-input, .time-input {
         margin: 0 2px;
         display: inline-block;
+      }
+      
+      #spinner {
+        @apply --layout-vertical;
+        @apply --layout-center;
+        @apply --layout-center-justified;
+        @apply --layout-fit;
+        transition: transform 250ms ease-out;
+        background: white;
+      }
+      
+      #spinner.hidden {
+        display: none;
+      }
+      
+      #spinner.transformed {
+        transform: translateY(100%);
+      }
+      
+      #spinner p {
+        @apply --paper-font-body;
+        opacity: var(--dark-secondary-opacity);
+        margin: 15px;
+      }
+      
+      #spinner paper-spinner-lite {
+        --paper-spinner-color: var(--primary-color);
       }
       
     </style>
@@ -269,6 +293,10 @@
       <section id="finish">
         <paper-button on-tap="save">Save</paper-button>
       </section>
+      <div id="spinner" class="hidden transformed">
+        <paper-spinner-lite active></paper-spinner-lite>
+        <p>Saving...</p>
+      </div>
     </div>
   </template>
   
@@ -368,7 +396,7 @@
       
       // Read all values and save them
       save() {                                                                  // Needs a color picker
-        //.. <-- A creative animation here
+        this._openSavingMessage();
         const lsDivList = this.shadowRoot.querySelectorAll('div.lesson');
         const output = [];
         lsDivList.forEach(div => {
@@ -481,6 +509,19 @@
           e.target.value = capVal;
         }
         this.push('_lessonsInfo', { name: capVal });
+      }
+      
+      _openSavingMessage() {
+        this.$.main.scrollTop = 0;
+        this.$.main.style.overflow = 'hidden';
+        this.$.spinner.classList.remove('hidden');
+        this.$.spinner.classList.remove('transformed');
+      }
+      
+      _closeSavingMessage() {
+        this.$.main.style.overflow = 'scroll';
+        this.$.spinner.classList.add('hidden');
+        this.$.spinner.classList.add('transformed');
       }
       
       _fire(name, detail = null, bubbles = true, target) {
