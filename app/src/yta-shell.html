@@ -454,7 +454,7 @@
   </template>
   
   <script>
-    class Shell extends Polymer.NeonAnimationRunnerBehavior(Polymer.Element) {
+    class Shell extends Polymer.Element {
       static get is() { return 'yta-shell'; }
       static get properties() {
         return {
@@ -527,7 +527,9 @@
         super.ready();
         
         // Play animation after first render
-        Polymer.RenderStatus.afterNextRender(this, () => this.playAnimation('ready'));
+        Polymer.RenderStatus.afterNextRender(this, () => {
+          this.$.header
+        });
         
         // Add event listeners
         this.addEventListener('switch-page', this._switchRoute);
@@ -542,40 +544,6 @@
         }
         
         this._addEventListeners();
-        
-        // Set up animation config
-        this.animationConfig = {
-          'ready': [
-            {
-              name: 'fade-in-animation',
-              node: this.$.pages,
-              timing: {
-                duration: 500,
-                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-              }
-            },
-            {
-              name: 'scale-up-animation',
-              node: this.$.fab,
-              timing: {
-                duration: 500,
-                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-              }
-            },
-            {
-              name: 'slide-from-top-animation',
-              node: this.$.header,
-              timing: {
-                duration: 500,
-                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-              }
-            }
-          ],
-          // This one is being configured on the fly
-          'fadeOut': {
-            name: 'fade-out-animation'
-          }
-        };
       }
       
       _addEventListeners() {
