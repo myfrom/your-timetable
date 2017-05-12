@@ -650,12 +650,12 @@
             this.routeData = this.routeData;
             break;
           case 'openSetupDialog':
-            importHref('src/yta-setup-dialog.html').then(() => {
+            /*importHref('src/yta-setup-dialog.html').then(() => {
               this._fire('open-setup-dialog');
               this.selected = 'setup';
               this.routeData.page = 'app';
               this.routeData = this.routeData;
-            });
+            });*/
             break;
           default:
             console.error('`switch-page` event fired without or with unknown action!', e);
@@ -682,17 +682,17 @@
       resolveSelected(selectedString) {
         if (selectedString !== 'overview') {
           const selectedItemWaiter = this.shadowRoot.querySelector(`#${selectedString} > .waiter`);
-          if (!selectedItemWaiter.hidden) {
+          if (selectedItemWaiter) {
             importHref(`/src/yta-${selectedString}-page.html`).then(() => {
               requestAnimationFrame(() => {
                 const anim = selectedItemWaiter.animate([
                   { opacity: 1 },
-                  { opactiy: 0 }
+                  { opacity: 0 }
                 ], {
                   duration: 150
                 });
                 anim.onfinish = () => {
-                  this._hideSelectedItemWaiter(selectedItemWaiter);
+                  this._removeSelectedItemWaiter(selectedItemWaiter);
                 };
               });
             });
@@ -700,11 +700,8 @@
         }
       }
       
-      _hideSelectedItemWaiter(selectedItemWaiter) {
+      _removeSelectedItemWaiter(selectedItemWaiter) {
         selectedItemWaiter.remove();
-        this.removeEventListener('neon-animation-finish', () => {
-          this._hideSelectedItemWaiter(selectedItemWaiter);
-        });
       }
       
       _openAddDialog() {
@@ -718,19 +715,18 @@
       }
       
       _loadOverviewPage() {
-        const overviewPage = this.shadowRoot.querySelector('#overview yta-overview-page');
         const selectedItemWaiter = this.shadowRoot.querySelector('#overview > .waiter');
-        if (!selectedItemWaiter.hidden) {
+        if (selectedItemWaiter) {
           importHref(`/src/yta-overview-page.html`).then(() => {
             requestAnimationFrame(() => {
               const anim = selectedItemWaiter.animate([
                 { opacity: 1 },
-                { opactiy: 0 }
+                { opacity: 0 }
               ], {
                 duration: 150
               });
               anim.onfinish = () => {
-                this._hideSelectedItemWaiter(selectedItemWaiter);
+                this._removeSelectedItemWaiter(selectedItemWaiter);
               };
             });
           });
