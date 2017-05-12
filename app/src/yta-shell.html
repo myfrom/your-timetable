@@ -295,7 +295,7 @@
         @apply --layout-flex;
       }
       
-      #pages {
+      #sections {
         position: absolute;
         top: 0;
         bottom: 0;
@@ -303,7 +303,7 @@
         left: 0;
       }
       
-      :host([selected="main"]) #pages {
+      :host([selected="main"]) #sections {
         display: none;
       }
       
@@ -435,8 +435,8 @@
       </template>
     </dom-if>
     
-    <!-- Switch between views -->
-    <iron-pages selected="[[selected]]" attr-for-selected="key" id="pages">
+    <!-- Switch between sections -->
+    <iron-pages selected="[[selected]]" attr-for-selected="key" id="sections">
       <yta-settings key="settings"></yta-settings>
       
       <yta-onboarding key="onboarding" desktop-layout="[[desktopLayout]]" tablet-layout="[[tabletLayout]]"></yta-onboarding>
