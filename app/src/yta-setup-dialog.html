@@ -3,14 +3,19 @@
 
 <link rel="import" href="/bower_components/iron-selector/iron-selector.html">
 
-<link rel="import" href="/bower_components/paper-expansion-panel/paper-expansion-panel.html">
 <link rel="import" href="/bower_components/paper-styles/paper-styles.html"> <!-- Replace with smaller package -->
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-toggle-button/paper-toggle-button.html">
 
 <link rel="import" href="/bower_components/vaadin-combo-box/vaadin-combo-box.html">
+
+<script defer src="/bower_components/moment/moment.js"></script>
 
 <link rel="import" href="icons.html">
 
@@ -24,6 +29,10 @@
         #main {
           @apply --layout-fit;
         }
+        
+        .lesson-inputs .grid {
+          width: 100%;
+        }
       }
       
       @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
@@ -31,6 +40,10 @@
         
         #main {
           @apply --layout-fit;
+        }
+        
+        .lesson-inputs .grid {
+          width: 100%;
         }
       }
       
@@ -40,6 +53,10 @@
         #main {
           @apply --layout-fit;
         }
+        
+        .lesson-inputs .grid {
+          width: 50`%;
+        }
       }
       
       @media (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {
@@ -47,6 +64,10 @@
         
         #main {
           @apply --layout-fit;
+        }
+        
+        .lesson-inputs .grid {
+          width: 50%;
         }
       }
       
@@ -74,6 +95,10 @@
         
         #main, .page {
           border-radius: 25px;
+        }
+        
+        .lesson-inputs .grid {
+          width: 50%;
         }
       }
       
@@ -134,21 +159,19 @@
       }
       
       h2 {
-        @apply  --paper-font-title;
+        @apply --paper-font-display1;
       }
       
       h3 {
-        @apply --paper-font-subhead;
+        @apply --paper-font-headline;
+        margin-top: 17px !important;
       }
       
-      paper-expansion-panel {
-        --paper-expansion-panel-content: {
-          background-color: #f5f5f5;
-          position: relative;
-          left: -15px;
-          width: calc(100% + 40px);
-          padding: 13px;
-        };
+      .lesson-inputs {
+        position: relative;
+        left: -15px;
+        width: calc(100% + 40px);
+        padding: 13px;
       }
       
       .lesson {
@@ -169,7 +192,7 @@
         margin-top: 2px;
       }
       
-      .lesson > paper-expansion-panel {
+      .lesson > .lesson-inputs {
         @apply --layout-flex;
       }
       
@@ -185,12 +208,18 @@
         @apply --shadow-elevation-4dp;
       }
       
-      #finish {
+      .next {
+        position: sticky;
+        bottom: 0;
+        padding: 6px;
+        margin: 0px -15px;
+        border-top: 1px var(--light-theme-divider-color) solid;
+        background-color: white;
         @apply --layout-horizontal;
         @apply --layout-end-justified;
       }
       
-      #finish > paper-button {
+      .next > paper-button {
         color: var(--primary-color);
         font-weight: 500;
       }
@@ -201,6 +230,7 @@
         position: relative;
         left: -15px;
         width: calc(100% + 30px);
+        margin: 12px 0;
       }
       
       .label-text {
@@ -219,16 +249,19 @@
         @apply --layout-center;
         @apply --layout-center-justified;
         @apply --layout-fit;
-        transition: transform 250ms ease-out;
         background: white;
       }
       
-      #spinner.hidden {
-        display: none;
+      #spinner.animate {
+        transition: all 250ms ease-out;
       }
       
-      #spinner.transformed {
-        transform: translateY(100%);
+      #spinner.hidden {
+        opacity: 0;
+      }
+      
+      #spinner.right {
+        transform: translateX(100%);
       }
       
       #spinner p {
@@ -241,24 +274,95 @@
         --paper-spinner-color: var(--primary-color);
       }
       
+      section .margin {
+        margin: 10px 6px;
+      }
+      
+      section .margin-sides {
+        margin: 0 6px;
+      }
+      
+      #init paper-toggle-button {
+        margin: 0 0 16px 4px;
+        --paper-toggle-button-label-color: var(--light-theme-secondary-color);
+      }
+      
+      .lesson-input {
+        @apply --layout-vertical;
+        @apply --layout-wrap;
+      }
+      
+      .lesson-inputs .grid {
+        @apply --layout-inline
+        @apply --layout-horizontal;
+        @apply --layout-center;
+      }
+      
     </style>
     
     <div id="main">
-      <section>
-        <h2>Let's get started</h2>
-        <h3>Which days do you go to school?</h3>
-        <iron-selector multi id="weekDays" selected-values="{{weekDays}}">
-          <div tabindex="0" class="selectable-item">M</div>
-          <div tabindex="0" class="selectable-item">T</div>
-          <div tabindex="0" class="selectable-item">W</div>
-          <div tabindex="0" class="selectable-item">T</div>
-          <div tabindex="0" class="selectable-item">F</div>
-          <div tabindex="0" class="selectable-item">S</div>
-          <div tabindex="0" class="selectable-item">S</div>
+      <section id="init">
+        <h2 class="margin">Let's get started</h2>
+        <h3 class="margin">Which days do you go to school?</h3>
+        <iron-selector multi id="weekDays" selected-values="{{weekDays}}" class="margin" attr-for-selected="i">
+          <div tabindex="0" i="0" class="selectable-item">M</div>
+          <div tabindex="0" i="1" class="selectable-item">T</div>
+          <div tabindex="0" i="2" class="selectable-item">W</div>
+          <div tabindex="0" i="3" class="selectable-item">T</div>
+          <div tabindex="0" i="4" class="selectable-item">F</div>
+          <div tabindex="0" i="5" class="selectable-item">S</div>
+          <div tabindex="0" i="6" class="selectable-item">S</div>
         </iron-selector>
+        <hr noshadow>
+        <h3 class="margin">
+          Now setup some preferences<br>
+        </h3>
+        <paper-dropdown-menu label="First day of the week" id="firstDayOfWeek" class="margin" on-value-changed="_changeFirstDayOfWeek">
+          <paper-listbox slot="dropdown-content" class="dropdown-content" attr-for-selected="i">
+            <paper-item i="1">Monday</paper-item>
+            <paper-item i="6">Saturday</paper-item>
+            <paper-item i="0">Sunday</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+        <paper-toggle-button class="margin" id="clock12">Use 12 hour clock</paper-toggle-button>
+        <div class="next">
+          <paper-button on-tap="_afterInit">Continue</paper-button>
+        </div>
       </section>
-      <hr noshadow>
-      <section>
+      <section id="daySection" style="display:none;">
+        <h3 class="margin"></h3>
+        <template is="dom-repeat" class="lesson-placeholder" initial-count="2" as="lesson" index-as="lessonIndex">
+          <div class="lesson" l$="[[lessonIndex]]">
+            <div class="lesson-inputs">
+              <vaadin-combo-box class="lesson-name-input grid" label="Your lesson"
+                                no-label-float allow-custom-value item-value-path="name"
+                                on-custom-value-set="_processCustomLessonInputValue"
+                                on-change="_lessonSet" items="[[_lessonsInfo]]"
+                                item-label-path="name"></vaadin-combo-box>
+              <div class="grid">
+                <span class="label-text">in</span>
+                <paper-input class="class-input" label="class" no-label-float on-change="_computeNewInputClass"></paper-input>
+              </div>
+              <div class="grid">
+                <span class="label-text">with</span>
+                <paper-input class="teacher-input" label="teacher" no-label-float on-change="_computeNewInputTeacher"></paper-input>
+              </div>
+              <div class="grid">
+                <span class="label-text">starts at</span>
+                <paper-input type="time" class="time-input start-time-input" no-label-float></paper-input>
+                <span class="label-text">and ends at</span>
+                <paper-input type="time" class="time-input end-time-input" no-label-float on-change="_computeNewInputTime"></paper-input>
+              </div>
+            </div>
+            <paper-icon-button icon="icons:remove-circle" on-tap="_removeLesson"
+                               class="remove-lesson"></paper-icon-button>
+          </div>
+        </template>
+        <paper-icon-button class="add-lesson"
+                           d="[[day]]" on-tap="_addLesson"
+                           icon="icons:add"></paper-icon-button>
+      </section>
+      <!--<section>
         <h2>Add your lessons</h2>
         <template is="dom-repeat" items="[[weekDays]]" id="daysPlaceholder" as="day">
           <div class="day">
@@ -288,14 +392,9 @@
                                icon="icons:add"></paper-icon-button>
           </div>
         </template>
-      </section>
-      <hr>
-      <section id="finish">
-        <paper-button on-tap="save">Save</paper-button>
-      </section>
-      <div id="spinner" class="hidden transformed">
-        <paper-spinner-lite active></paper-spinner-lite>
-        <p>Saving...</p>
+      </section>-->
+      <div id="spinner" class="right">
+        <paper-spinner-lite></paper-spinner-lite>
       </div>
     </div>
   </template>
@@ -326,7 +425,7 @@
           // Days in which user goes to school
           weekDays: {
             type: Array,
-            value: () => [0,1,2,3,4]
+            value: () => []
           },
           
           // User data
@@ -349,14 +448,13 @@
         };
       }
       
-      static get observers() {
-        return [
-          '_sortWeekDays(weekDays.splices)'
-        ];
-      }
-      
       constructor() {
         super();
+      }
+      
+      ready() {
+        super.ready();
+        this.weekDays = [0,1,2,3,4];
       }
       
       connectedCallback() {
@@ -370,6 +468,25 @@
         // Add event listeners
         this._shell.addEventListener('open-setup-dialog', () => this.open());
         this._shell.addEventListener('close-setup-dialog', () => this.close());
+        
+        // Init worker
+        this._worker = new Worker('/src/setup-dialog-worker.js');
+        
+        // Async check l10n
+        setTimeout(async () => {
+          // Start loading locale ahaed of time
+          if (navigator.language !== 'en-US') var localeDownload = this._loadLocale(navigator.language);
+          // Reference menu elements
+          const firstDayOfWeekEl = this.shadowRoot.querySelector('#firstDayOfWeek > paper-listbox'),
+                clock12El = this.$.clock12;
+          // Make sure correct locale is loaded
+          if (navigator.language !== 'en-US') {
+            await localeDownload;
+          }
+          // Read l10n
+          firstDayOfWeekEl.selected = moment.localeData().firstDayOfWeek();
+          clock12El.checked = new Date().toLocaleString().slice(-1) === 'M';
+        }, 0);
       }
       
       disconnectedCallback() {
@@ -378,6 +495,9 @@
         // Remove event listeners
         this._shell.removeEventListener('open-setup-dialog', () => this.open());
         this._shell.removeEventListener('close-setup-dialog', () => this.close());
+        
+        // Kill worker
+        this._worker.terminate();
       }
       
       open() {
@@ -394,11 +514,35 @@
         this.classList.remove('open');
       }
       
+      _afterInit() {
+        const firstDayOfWeek = this.shadowRoot.querySelector('#firstDayOfWeek > paper-listbox').selected;
+        if (!firstDayOfWeek) {
+          this.$.firstDayOfWeek.invalid = true;
+          return;
+        }
+        this.appData.settings = { settings: {
+          use12hoursClock: this.$.clock12.checked,
+          firstDayOfWeek
+        } };
+        requestAnimationFrame(() => this._openWaiter());
+        this.$.init.style.display = 'none';
+        this.$.daySection.style.display = 'block';
+        this._currentEditedDay = this.weekDays.shift();
+        const dayReadable = moment().day(this._currentEditedDay + 1).format('dddd');
+        this.$.daySection.children[0].textContent = `Enter your lessons on ${dayReadable}`;
+        this.$.daySection.children[1].items = this._lessonsOn(this._currentEditedDay);
+        requestAnimationFrame(() => this._closeWaiter());
+      }
+      
       // Read all values and save them
-      save() {                                                                  // Needs a color picker
-        this._openSavingMessage();
+      save() {
+        /*this._openSavingMessage();
+        const colorsPalette = [];
+        let availableColors = colorsPalette;
         const lsDivList = this.shadowRoot.querySelectorAll('div.lesson');
         const output = [];
+        const config = {};
+        const settings = {};
         lsDivList.forEach(div => {
           const day = div.d, lesson = div.l;
           while (output.length -1 < day) output.push(null);
@@ -416,14 +560,38 @@
           timeM = endTime.substr(3,4);
           endTime = new Date(`Thu Jan 01 1970 ${timeH}:${timeM}:00 GMT+0100 (CET)`).getTime();
           output[day][lesson] = { name, classroom, teacher, startTime, endTime };
+          if (!config[name]) {
+            if (availableColors.length === 0) availableColors = colorsPalette;
+            config[name].color = availableColors.pop();
+          }
         });
-        this.set('appData.timetable', output);
+        this.appData = { config, settings, timetable: output };*/
         //.. <-- Close the dialog here
       }
       
+      _openWaiter() {
+        const waiter = this.$.spinner,
+              spinner = waiter.children[0];
+        spinner.active = true;
+        waiter.setAttribute('class', 'right');
+        waiter.style.display = 'block';
+        waiter.classList.add('animate');
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          waiter.classList.remove('right');
+        }));
+      }
+      
+      _closeWaiter() {
+        const waiter = this.$.spinner,
+              spinner = waiter.children[0];
+        spinner.active = false;
+        waiter.setAttribute('class', 'animate hidden');
+        setTimeout(() => waiter.style.display = 'none', 250);
+      }
+      
       _lessonsOn(day) {
-        while (this._lessonsOnDays.length - 1 <= day) this._lessonsOnDays.push([{}]);
-        if (this._lessonsOnDays[day].length === 0) this._lessonsOnDays[day].push({});
+        while (this._lessonsOnDays.length - 1 <= day) this._lessonsOnDays.push([{},{},{},{},{},{},{},{}]);
+        if (this._lessonsOnDays[day].length === 0) this._lessonsOnDays[day] = [{},{},{},{},{},{},{},{}];
         return this._lessonsOnDays[day];
       }
       
@@ -445,32 +613,22 @@
       }
       
       _addLesson(e) {
-        const day = e.target.d;
+        const day = this._currentEditedDay;
         this._lessonsOnDays[day].push({});
         this.notifySplices('_lessonsOnDays');
         this._refreshDayPlaceholder(day);
       }
       
       _removeLesson(e) {
-        const day = e.target.parentElement.d;
+        const day = this._currentEditedDay;
         const lesson = e.target.parentElement.l;
         this._lessonsOnDays[day].splice(lesson, 1);
-        if (this._lessonsOnDays[day].length === 0) {
-          this.weekDays.splice(this.weekDays.indexOf(day), 1);
-          this._sortWeekDays();
-        }
         this.notifySplices('_lessonsOnDays');
         this._refreshDayPlaceholder(day);
       }
       
       _refreshDayPlaceholder(day) {
-        const list = this.shadowRoot.querySelectorAll('dom-repeat[as="lesson"]');
-        for (let i in list) {
-          if (list[i].class.includes(`d${day}`)) {
-            setTimeout(() => list[i].render(), 0);
-            break;
-          }
-        }
+        this.shadowRoot.querySelector('.lesson-placeholder').render();
       }
       
       _computeDayName(day) {
@@ -486,20 +644,6 @@
         return days[day];
       }
       
-      _sortWeekDays() {
-        if (this._sortedWeekDays) {
-          this._sortedWeekDays = false;
-          return;
-        }
-        this.weekDays.sort();
-        this._sortedWeekDays = true;
-        this.notifySplices('weekDays');
-      }
-      
-      _computeHeading(day, lessonIndex) {                                       // NOT FINISHED
-        return "Add a lesson";
-      }
-      
       _processCustomLessonInputValue(e) {
         if (!e.detail) return;
         const val = e.detail;
@@ -508,26 +652,86 @@
           e.preventDefault();
           e.target.value = capVal;
         }
-        this.push('_lessonsInfo', { name: capVal });
+        this.push('_lessonsInfo', { name: val });
       }
       
-      _openSavingMessage() {
-        this.$.main.scrollTop = 0;
-        this.$.main.style.overflow = 'hidden';
-        this.$.spinner.classList.remove('hidden');
-        this.$.spinner.classList.remove('transformed');
+      _changeFirstDayOfWeek(e) {
+        const weekDays = this.shadowRoot.querySelector('#weekDays'),
+              sat = this.shadowRoot.querySelector('#weekDays [i="5"]'),
+              sun = this.shadowRoot.querySelector('#weekDays [i="6"]');
+        switch (e.detail.value) {
+          case "Saturday":
+            weekDays.insertBefore(sun, weekDays.firstChild);
+            weekDays.insertBefore(sat, weekDays.firstChild);
+            break;
+          case "Sunday":
+            weekDays.appendChild(sat);
+            weekDays.insertBefore(sun, weekDays.firstChild);
+            break;
+          case "Monday":
+            weekDays.appendChild(sat);
+            weekDays.appendChild(sun);
+            break;
+        }
+        this.$.firstDayOfWeek.invalid = false;
       }
       
-      _closeSavingMessage() {
-        this.$.main.style.overflow = 'scroll';
-        this.$.spinner.classList.add('hidden');
-        this.$.spinner.classList.add('transformed');
+      async _lessonSet(e) {
+        const val = e.target.value;
+        if (!val) return;
+        const result = await this._askWorker([val, this._lessonsInfo]);
+        if (result.data.teacher) {
+          debugger;
+        }
+        if (result.data.class) {
+          debugger;
+        }
+      }
+      
+      _computeNewInputTeacher(e) {
+        this._updateLessonsInfo('teacher', e);
+      }
+      
+      _computeNewInputClass(e) {
+        this._updateLessonsInfo('class', e);
+      }
+      
+      _computeNewInputTime(e) {
+        //..
+      }
+      
+      _updateLessonsInfo(type, e) {
+        const val = e.target.value;
+        if (!val) return;
+        const lesson = e.target.parentElement.parentElement.firstElementChild.value;
+        this._askWorker([lesson, type, val, this._lessonsInfo], 'push').then(result => this._lessonsInfo = result.data.data);
+      }
+      
+      _loadLocale(locale) {
+        return new Promise((resolve, reject) => {
+          const el = document.createElement('script');
+          el.setAttribute('defer', true);
+          el.setAttribute('src', `/bower_components/moment/locale/${locale.toLowerCase()}.js`);
+          el.onload = resolve;
+          el.onerror = reject;
+          document.head.appendChild(el);
+        });
       }
       
       _fire(name, detail = null, bubbles = true, target) {
         target = target || this;
         const evt = new CustomEvent(name, { detail, bubbles });
         target.dispatchEvent(evt);
+      }
+      
+      _askWorker(details, job = 'find') {
+        return new Promise((resolve, reject) => {
+          if (job !== 'find' && job !== 'push') reject(new Error('Invalid job for Worker'));
+          const messageChannel = new MessageChannel();
+          details.unshift(job);
+          messageChannel.port1.onmessage = resolve;
+          this._worker.postMessage(details, [messageChannel.port2]);
+        });
       }
     }
     
