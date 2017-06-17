@@ -20,6 +20,11 @@ function importHref(href, isAsync = false) {
   });
 }
 
+// Well, it's self-describing
+function waitMs(time) {
+  return new Promise(r => setTimeout(r, time));
+}
+
 // Do we need this?
 
 // // Cookie reader
