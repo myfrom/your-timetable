@@ -2,7 +2,7 @@
   "name": "your-timetable",
   "description": "The Your Timetable app",
   "authors": [
-    "Witus13 <myfrom.13th@gmail.com>"
+    "myfrom <myfrom.13th@gmail.com>"
   ],
   "license": "GPL-3.0",
   "private": true,
@@ -65,15 +65,15 @@
     "app-pouchdb": "PolymerElements/app-pouchdb#^2",
     "app-route": "PolymerElements/app-route#^2",
     "app-storage": "PolymerElements/app-storage#^2",
-    "iron-swipeable-pages": "Witus13/iron-swipeable-pages#2.0-preview",
-    "pouchdb": "^6.0.6",
-    "polymerfire": "firebase/Polymerfire#^2",
-    "paper-pager": "Witus13/paper-pager#^1",
-    "paper-steps": "Witus13/paper-steps#2.0-preview",
-    "paper-expansion-panel": "Collaborne/paper-expansion-panel#master",
     "vaadin-combo-box": "vaadin/vaadin-combo-box#^2",
     "web-animations-js": "web-animations/web-animations-js#^2.2.5",
-    "appmetrics.js": "ebidel/appmetrics.js#^0.0.7"
+    "appmetrics.js": "ebidel/appmetrics.js#^0.0.7",
+    "iron-swipeable-pages": "GeoloeG/iron-swipeable-pages#2.0-preview",
+    "pouchdb": "^6.0.6",
+    "polymerfire": "firebase/Polymerfire#^2",
+    "paper-pager": "myfrom/paper-pager#^1",
+    "paper-expansion-panel": "Collaborne/paper-expansion-panel#master",
+    "moment": "^2.18.1"
   },
   "_dependencies": {
     "polymer": "Polymer/polymer#2.0.0-rc.8",
@@ -84,9 +84,40 @@
     "iron-swipeable-pages": "^1.2.6",
     "pouchdb": "^6.0.6",
     "polymerfire": "firebase/Polymerfire#^2",
-    "paper-pager": "Witus13/paper-pager#^0.1.0"
+    "paper-pager": "myfrom/paper-pager#^1.0.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
+  },
+  "resolutions": {
+    "polymer": "^2.0.0-rc.7",
+    "paper-styles": "^2",
+    "iron-a11y-keys-behavior": "^2",
+    "iron-behaviors": "^2",
+    "iron-collapse": "^2",
+    "iron-flex-layout": "^2",
+    "webcomponentsjs": "^v1.0.0",
+    "iron-resizable-behavior": "^2.0.0",
+    "iron-selector": "1 - 2",
+    "iron-autogrow-textarea": "^2",
+    "iron-meta": "1 - 2",
+    "iron-checked-element-behavior": "1 - 2",
+    "paper-ripple": "^2",
+    "iron-icons": "^2",
+    "iron-dropdown": "1 - 2",
+    "iron-overlay-behavior": "^2",
+    "iron-fit-behavior": "^2",
+    "iron-input": "^2.0.0",
+    "paper-input": "^2.0.0",
+    "paper-behaviors": "^2",
+    "iron-a11y-announcer": "^2",
+    "iron-form-element-behavior": "^2.0.0",
+    "iron-icon": "^2",
+    "iron-iconset-svg": "^2",
+    "iron-validatable-behavior": "^2.0.0",
+    "paper-button": "^2",
+    "web-animations-js": "^2.2.5",
+    "paper-item": "^2",
+    "paper-icon-button": "^2.0.0"
   }
 }
