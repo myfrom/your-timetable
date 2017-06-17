@@ -28,14 +28,9 @@
   },
   "builds": [{
     "name": "bundled",
-    "bundle": true,
-    "js": {"minify": true},
-    "css": {"minify": true},
-    "html": {"minify": true}
+    "preset": "es6-bundled"
   },{
     "name": "unbundled",
-    "js": {"minify": true},
-    "css": {"minify": true},
-    "html": {"minify": true}
+    "preset": "es6-unbundled"
   }]
 }
