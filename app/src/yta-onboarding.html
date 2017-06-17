@@ -364,7 +364,7 @@
             <p>At home using computer or in bus using a phone, your timetable has can be viewed everywhere</p>
           </div>
         </div>
-        <template is="dom-if" if="[[_isSW()]]">
+        <!--<template is="dom-if" if="[[_isSW()]]">-->
           <div class="page" i="3" color="#64B5F6">
             <div class="image" style="background-image: url(/images/offline.svg);"></div>
             <div class="text">
@@ -372,7 +372,7 @@
               <p>You don't need internet to browse it, just like a paper one</p>
             </div>
           </div>
-        </template>
+        <!--</template>-->
         <div class="page login" i$="[[_pagesCount()]]" color="#FFFFFF">
           <div class="image" style="background-image: url(/images/login-page.svg);"></div>
           <div class="text">
@@ -448,6 +448,11 @@
         // Add event listeners
         this._shell.addEventListener('open-onboarding', () => this.open());
         this._shell.addEventListener('close-onboarding', () => this.close());
+        
+        // #64 of GeoloeG/iron-swipeable-pages fix
+        if (!this._isSW()) {
+          this.shadowRoot.querySelector('[color="#64B5F6"]').delete();
+        }
       }
       
       disconnectedCallback() {
