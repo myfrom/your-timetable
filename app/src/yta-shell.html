@@ -455,6 +455,8 @@
       connectedCallback() {
         super.connectedCallback();
         
+        document.body.removeAttribute('unresolved');
+        
         // Set route if null
         if (!this.route.path || this.route.path == '/') {
           this.set('route.path', '/app');
@@ -552,12 +554,12 @@
             this.routeData = this.routeData;
             break;
           case 'openSetupDialog':
-            /*importHref('src/yta-setup-dialog.html').then(() => {
+            importHref('src/yta-setup-dialog.html').then(() => {
               this._fire('open-setup-dialog');
               this.selected = 'setup';
               this.routeData.page = 'app';
               this.routeData = this.routeData;
-            });*/
+            });
             break;
           default:
             console.error('`switch-page` event fired without or with unknown action!', e);
