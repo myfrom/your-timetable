@@ -216,7 +216,15 @@
         border-top: 1px var(--light-theme-divider-color) solid;
         background-color: white;
         @apply --layout-horizontal;
-        @apply --layout-end-justified;
+        @apply --layout-center;
+      }
+      
+      .next > .add-lesson {
+        opacity: var(--dark-secondary-opacity);
+      }
+
+      .next > .spacer {
+        @apply --layout-flex;
       }
       
       .next > paper-button {
@@ -361,6 +369,7 @@
         <div class="next">
           <paper-icon-button class="add-lesson" on-tap="_addLesson"
                             icon="icons:add"></paper-icon-button>
+          <span class="spacer"></span>
           <paper-button on-tap="_proceed">Continue</paper-button>
         </div>
       </section>
@@ -717,7 +726,7 @@
         const val = e.target.value;
         if (!val) return;
         const lesson = e.target.parentElement.parentElement.firstElementChild.value;
-        this._askWorker([lesson, type, val, this._lessonsInfo], 'push').then(result => this._lessonsInfo = result.data.data);
+        this._askWorker([lesson, type, val, this._lessonsInfo], 'push').then(result => this._lessonsInfo = result.data);
       }
       
       _loadLocale(locale) {
