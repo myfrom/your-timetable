@@ -55,7 +55,7 @@
         }
         
         .lesson-inputs .grid {
-          width: 50`%;
+          width: 50%;
         }
       }
       
@@ -293,7 +293,7 @@
       }
       
       .lesson-inputs .grid {
-        @apply --layout-inline
+        @apply --layout-inline;
         @apply --layout-horizontal;
         @apply --layout-center;
       }
@@ -358,9 +358,11 @@
                                class="remove-lesson"></paper-icon-button>
           </div>
         </template>
-        <paper-icon-button class="add-lesson"
-                           d="[[day]]" on-tap="_addLesson"
-                           icon="icons:add"></paper-icon-button>
+        <div class="next">
+          <paper-icon-button class="add-lesson" on-tap="_addLesson"
+                            icon="icons:add"></paper-icon-button>
+          <paper-button on-tap="_proceed">Continue</paper-button>
+        </div>
       </section>
       <!--<section>
         <h2>Add your lessons</h2>
@@ -686,6 +688,17 @@
         if (result.data.class) {
           debugger;
         }
+      }
+
+      _proceed() {
+        const day = this._currentEditedDay,
+              output = [],
+              inputs = this.shadowRoot.querySelectorAll('.lesson');
+        this._openWaiter();
+        inputs.forEach((item, index) => {
+          const endTime = 'foo';
+          //..
+        });
       }
       
       _computeNewInputTeacher(e) {
