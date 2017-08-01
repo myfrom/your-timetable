@@ -1,0 +1,273 @@
+<!--<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<link rel="import" href="/bower_components/app-datepicker/app-datepicker-dialog.html">
+
+<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+
+<link rel="import" href="/bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="/bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+
+<link rel="import" href="paper-expansion-panel.html">
+<link rel="import" href="yta-common-styles.html">
+
+<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
+
+<dom-module id="yta-add-dialog">
+  <template>
+    <style include="yta-common-styles">
+      
+      #content {
+        /*@apply --layout-fit;*/
+        background-color: white;
+      }
+      
+      app-toolbar {
+        background-color: var(--paper-yellow-500);
+        color: rgba(0,0,0,0.87);
+      }
+      
+    </style>
+    
+    <paper-dialog id="dialog" with-backdrop>
+      <h2>Add to calendar</h2>
+      <paper-dialog-scrollable>
+        <template is="dom-repeat" items="{{data}}">
+          <paper-icon-item role="menuitem">
+            <paper-item-body two-line="[[_changeFromContent(item)]]">
+              <div>Change from</div>
+              <template is="dom-if" if="[[_changeFromContent(item)]]">
+                <div secondary>[[_changeFromContent(item)]]</div>
+              </template>
+            </paper-item-body>
+            <paper-icon-button icon="icons:arrow-drop-down"
+                               on-tap="collapseFrom"
+                               class="rotateable"></paper-icon-button>
+          </paper-icon-item>
+          <iron-collapse class="from">
+            <div>
+              <paper-dropdown-menu label="What to add?">
+                <paper-listbox attr-for-selected="key" selected="{{item.type}}" class="dropdown-content">
+                  <paper-item key="change">Change in plan</paper-item>
+                  <paper-item key="test">Test</paper-item>
+                  <paper-item key="reminder">Reminder</paper-item>
+                </paper-listbox>
+              </paper-dropdown-menu>
+              <br>
+              <template is="dom-if" if="{{_isChangeSelected(item.type)}}">
+                <paper-checkbox checked="{{item.pernament}}" class="change">Pernament change</paper-checkbox><br>
+                <paper-expansion-panel header-content="[[_changeFromContent(item.from)]]" header-title="Change from">
+                  <div>
+                    Hello world!
+                  </div>
+                </paper-expansion-panel>
+              </template>
+            </div>
+          </iron-collapse>
+        </template>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Discard</paper-button>
+        <paper-button dialog-confirm>Save</paper-button>
+      </div>
+    </paper-dialog>
+    
+    <app-datepicker-dialog id="datepicker"
+                           show-long-date
+                           disable-days="{{_computeIgnoredDays(appData.timetable)}}"></app-datepicker-dialog>
+    
+    <paper-dialog id="cancel">
+      <p>Discard edits?</p>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Discard</paper-button>
+        <paper-button dialog-confirm>Keep editing</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+  
+  <script>
+    Polymer({
+      is: 'yta-add-dialog',
+      
+      behaviors: [
+        Polymer.NeonSharedElementAnimatableBehavior,
+        Polymer.IronResizableBehavior
+      ],
+      
+      properties: {
+        
+        data: {
+          type: Object,
+          notify: true,
+          reflectToAttribute: true,
+          value: function() { return [ {
+            type: 'change',
+            name: null,
+            lesson: { day: null, number: null },
+            reminder: false,
+            subject: null,
+            pernament: false,
+          } ] }
+        },
+        
+        appData: {
+          type: Object,
+          notify: true
+        },
+        
+        phoneLayout: {
+          type: Boolean,
+          notify: true
+        },
+        
+        isActive: {
+          type: Boolean,
+          value: false
+        },
+        
+        /*animationConfig: {
+          value: function() { return {
+            'entry': null,
+            'exit': null
+          } }
+        },*/
+        
+        sharedElements: {
+          value: function() { return {
+            'hero': this.$.dialog
+          } }
+        }
+        
+      },
+      
+      listeners: {
+        //'iron-resize': 'setLayout', // To set the layout when screen size changes
+        'dialog.iron-overlay-canceled': '_onDialogCanceled'
+      },
+      
+      attached: function() {
+        addDialog = this;
+        this.$.cancel.animationConfig = {
+          'entry': [
+            {
+              name: 'slide-from-bottom-animation',
+              node: this.$.cancel,
+              timing: {
+                duration: 225,
+                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
+              }
+            },
+            {
+              name: 'fade-in-animation',
+              node: this.$.cancel,
+              timing: {
+                duration: 225,
+                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
+              }
+            }
+          ],
+          'exit': [
+            {
+              name: 'slide-down-animation',
+              node: this.$.cancel,
+              timing: {
+                duration: 195,
+                easing: 'cubic-bezier(0.4, 0.0, 1, 1)'
+              }
+            },
+            {
+              name: 'fade-out-animation',
+              node: this.$.cancel,
+              timing: {
+                duration: 195,
+                easing: 'cubic-bezier(0.4, 0.0, 1, 1)'
+              }
+            }
+          ],
+        };
+      },
+      
+      _isChangeSelected: function(selected) {
+        if(selected == 'change') {
+          return true
+        }
+      },
+      
+      open: function() {
+        this.isActive = true;
+        this.$.dialog.open()
+      },
+      
+      _computeIgnoredDays: function(timetable) {
+        var output = [0,1,2,3,4,5,6];
+        for(var i = 0; i < timetable.length; i++) {
+          if(i == 6) {
+            output.splice(0, 1)
+          } else {
+            output.splice(1, 1)
+          }
+        };
+        return output
+      },
+      
+      _onDialogCanceled: function(e) {
+        if(e.target == this.$.dialog) {
+          e.preventDefault();
+          this.$.cancel.open();
+          this.listen(this.$.cancel, 'iron-overlay-closed', '_onCancelClosed');
+        }
+      },
+      
+      _onCancelClosed: function(e) {
+        if(!e.detail.confirmed) {
+          this.isActive = false;
+          this.unlisten(this.$.cancel, 'iron-overlay-closed', '_onCancelClosed');
+          this.fire('switch-page', { action: 'closeAddDialog' });
+        }
+      },
+      
+      _changeFromContent: function(from) {
+        if(from) {
+          const output = this.appData.timetable[from.day][from.lesson]
+          const name = output.name;
+          const timeStart = viewReadableTime(output.startTime);
+          const timeEnd = viewReadableTime(output.endTime);
+          const time = `${timeStart} - ${timeEnd}`;
+          const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+          /*
+          const daysLocalised = [];
+          for(i=0; i>5; i++) {
+            daysLocalized[i] = this.localize(days[i])
+          };
+          days = daysLocalised;
+          */
+          const day = days[from.day];
+          if(!this.$$('iron-collapse.from').opened) {
+            return `${day}, ${name} ${time}`
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      }
+    })
+    
+    function viewReadableTime(time) {
+      const input = new Date(time);
+      const output = [null, ':', null];
+      output[0] = input.getHours();
+      output[2] = input.getMinutes();
+      if(output[2].toString().length == 1) {
+        output[2] = '0' + output[2]
+      };
+      return output.join('')
+    }
+  </script>
+</dom-module>-->

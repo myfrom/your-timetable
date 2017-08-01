@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+  <title>Your Timetable</title>
+  <meta name="description" content="A timetable that works for you">
+
+  <link rel="icon" href="/favicon.ico">
+
+  <!-- Web manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Style status bar on Chrome -->
+  <meta name="theme-color" id="themeColor" content="#673ab7">
+
+  <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Your Timetable">
+
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Your Timetable">
+
+  <!-- Homescreen icons -->
+  <!--<link rel="apple-touch-icon" href="/images/icons/icon-48x48.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/images/icons/icon-72x72.png">     404
+  <link rel="apple-touch-icon" sizes="96x96" href="/images/icons/icon-96x96.png">-->
+  <!--<link rel="apple-touch-icon" sizes="144x144" href="/images/icons/icon-144x144.png">-->
+  <!--<link rel="apple-touch-icon" sizes="192x192" href="/images/icons/icon-192x192.png">-->
+
+  <!-- Tile icon for Windows 8 (144x144 + tile color) -->
+  <!--<meta name="msapplication-TileImage" content="/images/icons/icon-144x144.png">-->
+  <!--<meta name="msapplication-TileColor" content="#673ab7">-->
+  <!--<meta name="msapplication-tap-highlight" content="no">-->
+  
+  <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
+  
+  <script>
+    // Load nescessary polyfills
+    function importPolyfill(id, custom = false) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = custom ? id : '/src/polyfills/' + id + '.js';
+      document.head.appendChild(script);
+    }
+    (function() {
+      'use strict';
+      if (!Array.from) importPolyfill('array-from-polyfill');
+      if (!window.requestIdleCallback) importPolyfill('request-idle-callback');
+      if (!Element.prototype.animate) importPolyfill('bower_components/web-animations-js/web-animations.min.js', true);
+    })();
+    
+    // load pre-caching service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw-runner.js');
+      });
+    }
+    
+    window.addEventListener('WebComponentsReady', () => {
+      const link = document.createElement('link');
+      link.rel = 'import';
+      link.href = '/src/yta-shell.html';
+      document.head.appendChild(link);
+    });
+  </script>
+  
+  <!-- Less important scripts -->
+  <script src="/src/index.js" async></script>
+  
+  <!-- App metrics thing -->
+  <script src="bower_components/appmetrics.js/dist/appmetrics.min.js"></script>
+  
+  <link rel="prefetch" href="/src/yta-shell.html">
+  
+  <style>
+    body {
+      /* --paper-font-common-base */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    body[unresolved] {
+      display: block;
+    }
+    
+    vaadin-combo-box-overlay {
+      z-index: 999;
+      /* --paper-font-common-base */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+</head>
+<body unresolved>
+  <yta-shell></yta-shell>
+</body>
+</html>

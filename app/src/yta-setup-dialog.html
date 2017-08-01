@@ -1,0 +1,762 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html">
+
+<link rel="import" href="/bower_components/iron-selector/iron-selector.html">
+
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html"> <!-- Replace with smaller package -->
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-toggle-button/paper-toggle-button.html">
+
+<link rel="import" href="/bower_components/vaadin-combo-box/vaadin-combo-box.html">
+
+<script defer src="/bower_components/moment/moment.js"></script>
+
+<link rel="import" href="icons.html">
+
+<dom-module id="yta-setup-dialog">
+  <template>
+    <style>
+      
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
+        /* Phone landscape styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+        
+        .lesson-inputs .grid {
+          width: 100%;
+        }
+      }
+      
+      @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        /* Phone portirait styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+        
+        .lesson-inputs .grid {
+          width: 100%;
+        }
+      }
+      
+      @media (min-width: 961px) and (max-width: 1279px) and (orientation: landscape) {
+        /* Tablet landscape styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+        
+        .lesson-inputs .grid {
+          width: 50%;
+        }
+      }
+      
+      @media (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {
+        /* Tablet portirait styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+        
+        .lesson-inputs .grid {
+          width: 50%;
+        }
+      }
+      
+      @media (min-width: 841px) and (orientation: portrait), (min-width: 1280px) and (orientation: landscape) {
+        /* Desktop styles */
+        
+        :host {
+          @apply --layout;
+          @apply --layout-center;
+          @apply --layout-center-justified;
+        }
+        
+        #main {
+          width: 750px;
+          height: 750px;
+          position: relative;
+        }
+        
+        /* Hide ugly scrollbar in Chrome on desktop */
+        #main::-webkit-scrollbar { width: 0 !important; }
+        
+        #main, .fab {
+          @apply --shadow-elevation-16dp;
+        }
+        
+        #main, .page {
+          border-radius: 25px;
+        }
+        
+        .lesson-inputs .grid {
+          width: 50%;
+        }
+      }
+      
+      :host {
+        transform: translateY(100vh);
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 999;
+        @apply --paper-font-common-base;
+      }
+      
+      :host(.open) {
+        transform: none;
+      }
+      
+      :host, iron-swipeable-pages {
+        @apply --layout-fit;
+      }
+      
+      #main {
+        background-color: white;
+        padding: 15px;
+        overflow-y: scroll;
+      }
+      
+      #weekDays {
+        display: inline-block;
+      }
+      
+      #weekDays .selectable-item {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        border-radius: 50%;
+        background-color: var(--paper-grey-200);
+        color: black;
+        opacity: var(--dark-primary-opacity);
+        transition: background-color 150ms;
+        padding: 0;
+        margin: 3px;
+        vertical-align: middle;
+        text-align: center;
+      }
+      
+      #weekDays .selectable-item:focus {
+        background-color: var(--paper-grey-400);
+        outline: none;
+      }
+      
+      #weekDays .selectable-item.iron-selected:focus {
+        background-color: var(--dark-primary-color);
+      }
+      
+      #weekDays .selectable-item.iron-selected {
+        color: white;
+        opacity: 1;
+        background-color: var(--primary-color);
+      }
+      
+      h2 {
+        @apply --paper-font-display1;
+      }
+      
+      h3 {
+        @apply --paper-font-headline;
+        margin-top: 17px !important;
+      }
+      
+      .lesson-inputs {
+        position: relative;
+        left: -15px;
+        width: calc(100% + 40px);
+        padding: 13px;
+      }
+      
+      .lesson {
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        border-bottom: 1px var(--light-theme-divider-color) solid;
+        @apply --layout-horizontal;
+      }
+      
+      .lesson > .remove-lesson {
+        position: relative;
+        top: 4px;
+        opacity: 0.54;
+      }
+      
+      .add-lesson {
+        margin-top: 2px;
+      }
+      
+      .lesson > .lesson-inputs {
+        @apply --layout-flex;
+      }
+      
+      .day {
+        position: relative;
+        left: -15px;
+        width: 100%;
+        padding: 15px;
+        @apply --shadow-transition;
+      }
+      
+      .day:hover {
+        @apply --shadow-elevation-4dp;
+      }
+      
+      .next {
+        position: sticky;
+        bottom: 0;
+        padding: 6px;
+        margin: 0px -15px;
+        border-top: 1px var(--light-theme-divider-color) solid;
+        background-color: white;
+        @apply --layout-horizontal;
+        @apply --layout-center;
+      }
+      
+      .next > .add-lesson {
+        opacity: var(--dark-secondary-opacity);
+      }
+
+      .next > .spacer {
+        @apply --layout-flex;
+      }
+      
+      .next > paper-button {
+        color: var(--primary-color);
+        font-weight: 500;
+      }
+      
+      hr {
+        border: 0;
+        border-bottom: 1px var(--light-theme-divider-color) solid;
+        position: relative;
+        left: -15px;
+        width: calc(100% + 30px);
+        margin: 12px 0;
+      }
+      
+      .label-text {
+        opacity: var(--dark-primary-opacity);
+        font-size: 16px;
+        margin: 0 2px;
+      }
+      
+      .lesson-name-input, .class-input, .teacher-input, .time-input {
+        margin: 0 2px;
+        display: inline-block;
+      }
+      
+      #spinner {
+        @apply --layout-vertical;
+        @apply --layout-center;
+        @apply --layout-center-justified;
+        @apply --layout-fit;
+        background: white;
+      }
+      
+      #spinner.animate {
+        transition: all 250ms ease-out;
+      }
+      
+      #spinner.hidden {
+        opacity: 0;
+      }
+      
+      #spinner.right {
+        transform: translateX(100%);
+      }
+      
+      #spinner p {
+        @apply --paper-font-body;
+        opacity: var(--dark-secondary-opacity);
+        margin: 15px;
+      }
+      
+      #spinner paper-spinner-lite {
+        --paper-spinner-color: var(--primary-color);
+      }
+      
+      section .margin {
+        margin: 10px 6px;
+      }
+      
+      section .margin-sides {
+        margin: 0 6px;
+      }
+      
+      #init paper-toggle-button {
+        margin: 0 0 16px 4px;
+        --paper-toggle-button-label-color: var(--light-theme-secondary-color);
+      }
+      
+      .lesson-input {
+        @apply --layout-vertical;
+        @apply --layout-wrap;
+      }
+      
+      .lesson-inputs .grid {
+        @apply --layout-inline;
+        @apply --layout-horizontal;
+        @apply --layout-center;
+      }
+      
+    </style>
+    
+    <div id="main">
+      <section id="init">
+        <h2 class="margin">Let's get started</h2>
+        <h3 class="margin">Which days do you go to school?</h3>
+        <iron-selector multi id="weekDays" selected-values="{{weekDays}}" class="margin" attr-for-selected="i">
+          <div tabindex="0" i="0" class="selectable-item">M</div>
+          <div tabindex="0" i="1" class="selectable-item">T</div>
+          <div tabindex="0" i="2" class="selectable-item">W</div>
+          <div tabindex="0" i="3" class="selectable-item">T</div>
+          <div tabindex="0" i="4" class="selectable-item">F</div>
+          <div tabindex="0" i="5" class="selectable-item">S</div>
+          <div tabindex="0" i="6" class="selectable-item">S</div>
+        </iron-selector>
+        <hr noshadow>
+        <h3 class="margin">
+          Now setup some preferences<br>
+        </h3>
+        <paper-dropdown-menu label="First day of the week" id="firstDayOfWeek" class="margin" on-value-changed="_changeFirstDayOfWeek">
+          <paper-listbox slot="dropdown-content" class="dropdown-content" attr-for-selected="i">
+            <paper-item i="1">Monday</paper-item>
+            <paper-item i="6">Saturday</paper-item>
+            <paper-item i="0">Sunday</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+        <paper-toggle-button class="margin" id="clock12">Use 12 hour clock</paper-toggle-button>
+        <div class="next">
+          <paper-button on-tap="_afterInit">Continue</paper-button>
+        </div>
+      </section>
+      <section id="daySection" style="display:none;">
+        <h3 class="margin"></h3>
+        <template is="dom-repeat" class="lesson-placeholder" initial-count="2" as="lesson" index-as="lessonIndex">
+          <div class="lesson" l$="[[lessonIndex]]">
+            <div class="lesson-inputs">
+              <vaadin-combo-box class="lesson-name-input grid" label="Your lesson"
+                                no-label-float allow-custom-value item-value-path="name"
+                                on-custom-value-set="_processCustomLessonInputValue"
+                                on-change="_lessonSet" items="[[_lessonsInfo]]"
+                                item-label-path="name"></vaadin-combo-box>
+              <div class="grid">
+                <span class="label-text">in</span>
+                <paper-input class="class-input" label="class" no-label-float on-change="_computeNewInputClass"></paper-input>
+              </div>
+              <div class="grid">
+                <span class="label-text">with</span>
+                <paper-input class="teacher-input" label="teacher" no-label-float on-change="_computeNewInputTeacher"></paper-input>
+              </div>
+              <div class="grid">
+                <span class="label-text">starts at</span>
+                <paper-input type="time" class="time-input start-time-input" no-label-float></paper-input>
+                <span class="label-text">and ends at</span>
+                <paper-input type="time" class="time-input end-time-input" no-label-float on-change="_computeNewInputTime"></paper-input>
+              </div>
+            </div>
+            <paper-icon-button icon="icons:remove-circle" on-tap="_removeLesson"
+                               class="remove-lesson"></paper-icon-button>
+          </div>
+        </template>
+        <div class="next">
+          <paper-icon-button class="add-lesson" on-tap="_addLesson"
+                            icon="icons:add"></paper-icon-button>
+          <span class="spacer"></span>
+          <paper-button on-tap="_proceed">Continue</paper-button>
+        </div>
+      </section>
+      <!--<section>
+        <h2>Add your lessons</h2>
+        <template is="dom-repeat" items="[[weekDays]]" id="daysPlaceholder" as="day">
+          <div class="day">
+            <h3>[[_computeDayName(day)]]</h3>
+            <template is="dom-repeat" items="[[_lessonsOn(day)]]" class="lesson-placeholder d[[day]]" as="lesson" index-as="lessonIndex">
+              <div class="lesson" d="[[day]]" l="[[lessonIndex]]">
+                <paper-expansion-panel header="[[_computeHeading(day, lessonIndex)]]">
+                  <vaadin-combo-box class="lesson-name-input" label="Your lesson"
+                                    no-label-float allow-custom-value item-value-path="name"
+                                    on-custom-value-set="_processCustomLessonInputValue"
+                                    items="[[_lessonsInfo]]" item-label-path="name"></vaadin-combo-box>
+                  <span class="label-text">in</span>
+                  <paper-input class="class-input" label="class" no-label-float></paper-input>
+                  <span class="label-text">with</span>
+                  <paper-input class="teacher-input" label="teacher" no-label-float></paper-input>
+                  <span class="label-text">starts at</span>
+                  <paper-input type="time" class="time-input start-time-input" no-label-float></paper-input>
+                  <span class="label-text">and ends at</span>
+                  <paper-input type="time" class="time-input end-time-input" no-label-float></paper-input>
+                </paper-expansion-panel>
+                <paper-icon-button icon="icons:remove-circle" on-tap="_removeLesson"
+                                   class="remove-lesson"></paper-icon-button>
+              </div>
+            </template>
+            <paper-icon-button class="add-lesson"
+                               d="[[day]]" on-tap="_addLesson"
+                               icon="icons:add"></paper-icon-button>
+          </div>
+        </template>
+      </section>-->
+      <div id="spinner" class="right">
+        <paper-spinner-lite></paper-spinner-lite>
+      </div>
+    </div>
+  </template>
+  
+  <script>
+    class SetupDialog extends Polymer.Element {
+      static get is() { return 'yta-setup-dialog'; }
+      static get properties() {
+        return {
+          
+          // Inherited from shell
+          desktopLayout: {
+            type: Boolean
+          },
+          
+          // Inherited from shell
+          tabletLayout: {
+            type: Boolean
+          },
+          
+          /* NOT SURE IF NESSCESSARY
+          // Boolean indicating state of element
+          isActive: {
+            type: Boolean,
+            value: false
+          },*/
+          
+          // Days in which user goes to school
+          weekDays: {
+            type: Array,
+            value: () => []
+          },
+          
+          // User data
+          appData: {
+            type: Object,
+            notify: true
+          },
+          
+          // Arrays of lessons in certain days contained in array
+          _lessonsOnDays: {
+            type: Array,
+            value: () => []
+          },
+          
+          // Lesson names and their info that was used in any field
+          _lessonsInfo: {
+            type: Array,
+            value: () => []
+          }
+        };
+      }
+      
+      constructor() {
+        super();
+      }
+      
+      ready() {
+        super.ready();
+        this.weekDays = [0,1,2,3,4];
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+        
+        // Complicated? parentElement is neon-animated-pages, parentNode is ShadowRoot and we need it's host
+        //              But if it's not Shadow DOM, pick just parentElement
+        if (!this._shell) this._shell = Polymer.Settings.useShadow ? this.parentElement.parentNode.host
+                                                                   : this.parentElement.parentElement;
+        
+        // Add event listeners
+        this._shell.addEventListener('open-setup-dialog', () => this.open());
+        this._shell.addEventListener('close-setup-dialog', () => this.close());
+        
+        // Init worker
+        this._worker = new Worker('/src/setup-dialog-worker.js');
+        
+        // Async check l10n
+        setTimeout(async () => {
+          // Start loading locale ahaed of time
+          if (navigator.language !== 'en-US') var localeDownload = this._loadLocale(navigator.language);
+          // Reference menu elements
+          const firstDayOfWeekEl = this.shadowRoot.querySelector('#firstDayOfWeek > paper-listbox'),
+                clock12El = this.$.clock12;
+          // Make sure correct locale is loaded
+          if (navigator.language !== 'en-US') {
+            await localeDownload;
+          }
+          // Read l10n
+          firstDayOfWeekEl.selected = moment.localeData().firstDayOfWeek();
+          clock12El.checked = new Date().toLocaleString().slice(-1) === 'M';
+        }, 0);
+      }
+      
+      disconnectedCallback() {
+        if (!this._shell) return;
+        
+        // Remove event listeners
+        this._shell.removeEventListener('open-setup-dialog', () => this.open());
+        this._shell.removeEventListener('close-setup-dialog', () => this.close());
+        
+        // Kill worker
+        this._worker.terminate();
+      }
+      
+      open() {
+        this.style.transition = 'transform 200ms ease-out';
+        this._computeTransitionTimes();
+        Polymer.RenderStatus.afterNextRender(this, () => { 
+          this.classList.add('open');
+        });
+      }
+      
+      close() {
+        this.style.transition = 'transform 200ms ease-in';
+        this._computeTransitionTimes();
+        this.classList.remove('open');
+      }
+      
+      _afterInit() {
+        const firstDayOfWeek = this.shadowRoot.querySelector('#firstDayOfWeek > paper-listbox').selected;
+        if (!firstDayOfWeek) {
+          this.$.firstDayOfWeek.invalid = true;
+          return;
+        }
+        this.appData.settings = { settings: {
+          use12hoursClock: this.$.clock12.checked,
+          firstDayOfWeek
+        } };
+        requestAnimationFrame(() => this._openWaiter());
+        this.$.init.style.display = 'none';
+        this.$.daySection.style.display = 'block';
+        this._currentEditedDay = this.weekDays.shift();
+        const dayReadable = moment().day(this._currentEditedDay + 1).format('dddd');
+        this.$.daySection.children[0].textContent = `Enter your lessons on ${dayReadable}`;
+        this.$.daySection.children[1].items = this._lessonsOn(this._currentEditedDay);
+        requestAnimationFrame(() => this._closeWaiter());
+      }
+      
+      // Read all values and save them
+      save() {
+        /*this._openSavingMessage();
+        const colorsPalette = [];
+        let availableColors = colorsPalette;
+        const lsDivList = this.shadowRoot.querySelectorAll('div.lesson');
+        const output = [];
+        const config = {};
+        const settings = {};
+        lsDivList.forEach(div => {
+          const day = div.d, lesson = div.l;
+          while (output.length -1 < day) output.push(null);
+          output[day] = output[day] || [];
+          while (output[day].length -1 < lesson) output[day].push(null);
+          const name = div.querySelector('.lesson-name-input').value,
+                classroom = div.querySelector('.class-input').value,
+                teacher = div.querySelector('.teacher-input').value;
+          let startTime = div.querySelector('.start-time-input').value,
+              endTime = div.querySelector('.end-time-input').value;
+          let timeH = startTime.substr(0,1);
+          let timeM = startTime.substr(3,4);
+          startTime = new Date(`Thu Jan 01 1970 ${timeH}:${timeM}:00 GMT+0100 (CET)`).getTime();
+          timeH = endTime.substr(0,1);
+          timeM = endTime.substr(3,4);
+          endTime = new Date(`Thu Jan 01 1970 ${timeH}:${timeM}:00 GMT+0100 (CET)`).getTime();
+          output[day][lesson] = { name, classroom, teacher, startTime, endTime };
+          if (!config[name]) {
+            if (availableColors.length === 0) availableColors = colorsPalette;
+            config[name].color = availableColors.pop();
+          }
+        });
+        this.appData = { config, settings, timetable: output };*/
+        //.. <-- Close the dialog here
+      }
+      
+      _openWaiter() {
+        const waiter = this.$.spinner,
+              spinner = waiter.children[0];
+        spinner.active = true;
+        waiter.setAttribute('class', 'right');
+        waiter.style.display = 'block';
+        waiter.classList.add('animate');
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          waiter.classList.remove('right');
+        }));
+      }
+      
+      _closeWaiter() {
+        const waiter = this.$.spinner,
+              spinner = waiter.children[0];
+        spinner.active = false;
+        waiter.setAttribute('class', 'animate hidden');
+        setTimeout(() => waiter.style.display = 'none', 250);
+      }
+      
+      _lessonsOn(day) {
+        while (this._lessonsOnDays.length - 1 <= day) this._lessonsOnDays.push([{},{},{},{},{},{},{},{}]);
+        if (this._lessonsOnDays[day].length === 0) this._lessonsOnDays[day] = [{},{},{},{},{},{},{},{}];
+        return this._lessonsOnDays[day];
+      }
+      
+      _computeTransitionTimes() {
+        if (this._lastTransTimeChange &&
+            this._lastTransTimeChange[0] === this.tabletLayout &&
+            this._lastTransTimeChange[1] === this.desktopLayout)
+        {
+          return;
+        }
+        if (this.tabletLayout) {
+          this.style.transitionDuration = '260ms';
+        } else if (this.desktopLayout) {
+          this.style.transitionDuration = '150ms';
+        } else {
+          this.style.transitionDuration = '200ms';
+        }
+        this._lastTransTimeChange = [this.tabletLayout, this.desktopLayout];
+      }
+      
+      _addLesson(e) {
+        const day = this._currentEditedDay;
+        this._lessonsOnDays[day].push({});
+        this.notifySplices('_lessonsOnDays');
+        this._refreshDayPlaceholder(day);
+      }
+      
+      _removeLesson(e) {
+        const day = this._currentEditedDay;
+        const lesson = e.target.parentElement.l;
+        this._lessonsOnDays[day].splice(lesson, 1);
+        this.notifySplices('_lessonsOnDays');
+        this._refreshDayPlaceholder(day);
+      }
+      
+      _refreshDayPlaceholder(day) {
+        this.shadowRoot.querySelector('.lesson-placeholder').render();
+      }
+      
+      _computeDayName(day) {
+        const days = [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday'
+        ];
+        return days[day];
+      }
+      
+      _processCustomLessonInputValue(e) {
+        if (!e.detail) return;
+        const val = e.detail;
+        const capVal = val.charAt(0).toUpperCase() + val.slice(1);
+        if (val !== capVal) {
+          e.preventDefault();
+          e.target.value = capVal;
+        }
+        this.push('_lessonsInfo', { name: val });
+      }
+      
+      _changeFirstDayOfWeek(e) {
+        const weekDays = this.shadowRoot.querySelector('#weekDays'),
+              sat = this.shadowRoot.querySelector('#weekDays [i="5"]'),
+              sun = this.shadowRoot.querySelector('#weekDays [i="6"]');
+        switch (e.detail.value) {
+          case "Saturday":
+            weekDays.insertBefore(sun, weekDays.firstChild);
+            weekDays.insertBefore(sat, weekDays.firstChild);
+            break;
+          case "Sunday":
+            weekDays.appendChild(sat);
+            weekDays.insertBefore(sun, weekDays.firstChild);
+            break;
+          case "Monday":
+            weekDays.appendChild(sat);
+            weekDays.appendChild(sun);
+            break;
+        }
+        this.$.firstDayOfWeek.invalid = false;
+      }
+      
+      async _lessonSet(e) {
+        const val = e.target.value;
+        if (!val) return;
+        const result = await this._askWorker([val, this._lessonsInfo]);
+        if (result.data.teacher) {
+          debugger;
+        }
+        if (result.data.class) {
+          debugger;
+        }
+      }
+
+      _proceed() {
+        const day = this._currentEditedDay,
+              output = [],
+              inputs = this.shadowRoot.querySelectorAll('.lesson');
+        this._openWaiter();
+        inputs.forEach((item, index) => {
+          const endTime = 'foo';
+          //..
+        });
+      }
+      
+      _computeNewInputTeacher(e) {
+        this._updateLessonsInfo('teacher', e);
+      }
+      
+      _computeNewInputClass(e) {
+        this._updateLessonsInfo('class', e);
+      }
+      
+      _computeNewInputTime(e) {
+        //..
+      }
+      
+      _updateLessonsInfo(type, e) {
+        const val = e.target.value;
+        if (!val) return;
+        const lesson = e.target.parentElement.parentElement.firstElementChild.value;
+        this._askWorker([lesson, type, val, this._lessonsInfo], 'push').then(result => this._lessonsInfo = result.data);
+      }
+      
+      _loadLocale(locale) {
+        return new Promise((resolve, reject) => {
+          const el = document.createElement('script');
+          el.setAttribute('defer', true);
+          el.setAttribute('src', `/bower_components/moment/locale/${locale.toLowerCase()}.js`);
+          el.onload = resolve;
+          el.onerror = reject;
+          document.head.appendChild(el);
+        });
+      }
+      
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
+      }
+      
+      _askWorker(details, job = 'find') {
+        return new Promise((resolve, reject) => {
+          if (job !== 'find' && job !== 'push') reject(new Error('Invalid job for Worker'));
+          const messageChannel = new MessageChannel();
+          details.unshift(job);
+          messageChannel.port1.onmessage = resolve;
+          this._worker.postMessage(details, [messageChannel.port2]);
+        });
+      }
+    }
+    
+    customElements.define(SetupDialog.is, SetupDialog);
+  </script>
+</dom-module>

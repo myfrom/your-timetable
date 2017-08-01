@@ -1,0 +1,147 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html">
+
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="yta-lesson-card.html">
+
+<dom-module id="yta-overview-page">
+  <template>
+    <style>
+      
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        
+        #placeholder {
+          @apply --layout-vertical;
+        }
+        
+      }
+      
+      @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+        
+        #placeholder {
+          @apply --layout-horizontal;
+          @apply --layout-wrap;
+          @apply --layout-center-justified;
+          padding-top: 12px !important;
+        }
+        
+      }
+      
+      #placeholder {
+         padding: 8px;
+      }
+    
+    </style>
+    
+    <div id="placeholder">
+      <dom-repeat items="[[lessonsToday(data.timetable)]]">
+        <template>
+          <yta-lesson-card i="[[index]]"
+                           name="[[item.name]]"
+                           start-time="[[viewReadable(item.startTime)]]"
+                           end-time="[[viewReadable(item.endTime)]]"
+                           color="[[_pickLessonColor(item.name)]]"
+                           classroom="[[item.classroom]]"
+                           phone-layout="[[phoneLayout]]"
+                           ></yta-lesson-card>
+          </template>
+      </dom-repeat>
+      <template is="dom-if" if="[[phoneLayout]]">
+        <template>
+          <yta-lesson-card blank
+                           phone-layout="[[phoneLayout]]"
+                           ></yta-lesson-card>
+        </template>
+      </dom-repeat>
+    </div>
+  </template>
+  
+  <script>
+    class OverviewPage extends Polymer.Element {
+      static get is() { return 'yta-overview-page'; }
+      static get properties() {
+        return {
+          
+          // Inherited from Shell
+          phoneLayout: {
+            type: Boolean,
+            notify: true,
+            reflectToAttribute: true
+          },
+          
+          // Inherited from MainView
+          data: {
+            type: Object,
+            notify: true
+          }
+          
+        };
+      }
+      
+      constructor() {
+        super();
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+        const evt = new CustomEvent('OVERIVIEW-PAGE-loaded');
+        this.dispatchEvent(evt, { bubbles: true });
+      }
+      
+      lessonsToday(tt) {
+        if (tt == null) {
+          this._fire('err-no-data');
+          return [];
+        } else {
+          const now = new Date();
+          const todayTt = tt[now.getDay() - 1];
+          if (now.getDay() > tt.length || now.getDay() == 0) {
+            return tt[0];
+          } else if (this.hoursTimer(now) >= this.hoursTimer(todayTt[todayTt.length - 1].endTime)) {
+            if (now.getDay() + 1 > tt.length) {
+              return tt[0];
+            } else {
+              return tt[now.getDay()];
+            }
+          } else {
+            return todayTt;
+          }
+        }
+      }
+      
+      viewReadable(time) {
+        const input = new Date(time);
+        const output = [null, ':', null];
+        output[0] = input.getHours();
+        output[2] = input.getMinutes();
+        if (output[2].toString().length == 1) {
+          output[2] = '0' + output[2];
+        }
+        return output.join('');
+      }
+      
+      hoursTimer(date) {
+        const output = new Date();
+        const input = new Date(date);
+        output.setHours(input.getHours(), input.getMinutes());
+        return output.getTime();
+      }
+      
+      _pickLessonColor(name) {
+        /*const config = this.data.config;
+        return config[name].color;*/
+        return '#2196F3'
+      }
+      
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
+      }
+    }
+    
+    customElements.define(OverviewPage.is, OverviewPage);
+  </script>
+</dom-module>

@@ -1,0 +1,620 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-if.html">
+
+<link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
+
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-fab/paper-fab.html"><!-- Should be loaded on demand -->
+<link rel="import" href="/bower_components/paper-pager/paper-pager.html">
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html">
+
+<link rel="import" href="icons.html">
+
+<dom-module id="yta-onboarding">
+  <template>
+    <style>
+      
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
+        /* Phone landscape styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+        
+        .page {
+          @apply --layout-horizontal;
+          height: 100vh;
+          width: 100vw;
+        }
+        
+        .page > .image {
+          @apply --layout-flex;
+        }
+        
+        .page > .text {
+          @apply --layout-flex;
+          @apply --layout-start
+        }
+        
+        #pager {
+          position: absolute;
+          bottom: calc(50vh - 100px);
+          left: 50vw;
+        }
+      }
+      
+      @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        /* Phone portirait styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+        
+        .page {
+          @apply --layout-vertical;
+          height: 100vh;
+          width: 100vw;
+        }
+        
+        .page > .image {
+          @apply --layout-flex-3;
+        }
+        
+        .page > .text {
+          @apply --layout-flex-2;
+          @apply --layout-center;
+        }
+        
+        .page > .text > p {
+          text-align: center;
+          margin: 0 50px;
+        }
+        
+        #signinBtn {
+          margin: 0 auto;
+        }
+        
+        #pager {
+          position: absolute;
+          bottom: 24px;
+          left: 50vw;
+          transform: translateX(calc(-50% - 5px));
+        }
+      }
+      
+      @media (min-width: 961px) and (max-width: 1279px) and (orientation: landscape) {
+        /* Tablet landscape styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+        
+        .page {
+          @apply --layout-horizontal;
+          height: 100vh;
+          width: 100vw;
+        }
+        
+        .page > .image {
+          @apply --layout-flex-2;
+        }
+        
+        .page > .text {
+          @apply --layout-start;
+          @apply --layout-flex;
+        }
+        
+        #pager {
+          position: absolute;
+          bottom: calc(50vh - 100px);
+          left: 66vw;
+        }
+      }
+      
+      @media (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {
+        /* Tablet portirait styles */
+        
+        #main {
+          @apply --layout-fit;
+        }
+        
+        .page {
+          @apply --layout-vertical;
+          height: 100vh;
+          width: 100vw;
+        }
+        
+        .page > .image {
+          @apply --layout-flex-2;
+        }
+        
+        .page > .text {
+          @apply --layout-flex;
+          @apply --layout-center;
+        }
+        
+        .page > .text > p {
+          text-align: center;
+          margin: 0 70px;
+        }
+        
+        #signinBtn {
+          margin: 0 auto;
+        }
+        
+        #pager {
+          position: absolute;
+          bottom: 24px;
+          left: 50vw;
+          transform: translateX(calc(-50% - 5px));
+        }
+      }
+      
+      @media (min-width: 841px) and (orientation: portrait), (min-width: 1280px) and (orientation: landscape) {
+        /* Desktop styles */
+        
+        :host {
+          @apply --layout;
+          @apply --layout-center;
+          @apply --layout-center-justified;
+        }
+        
+        #main {
+          width: 750px;
+          height: 750px;
+          position: relative;
+        }
+        
+        #main, .fab {
+          @apply --shadow-elevation-16dp;
+        }
+        
+        #main, .page {
+          border-radius: 25px;
+        }
+        
+        .page {
+          @apply --layout-vertical;
+          width: 750px;
+          height: 750px;
+        }
+        
+        .page > .image {
+          @apply --layout-flex-2;
+        }
+        
+        .page > .text {
+          @apply --layout-flex;
+          @apply --layout-center;
+        }
+        
+        .page > .text > p {
+          text-align: center;
+        }
+        
+        #signinBtn {
+          margin: 0 auto;
+        }
+        
+        #pager {
+          position: absolute;
+          bottom: -40px;
+          left: 50%;
+          transform: translateX(calc(-50% - 5px));
+        }
+        
+        .fab {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          --paper-fab-background: white;
+          --paper-fab-keyboard-focus-background: var(--paper-grey-200);
+          --paper-fab-disabled-background: var(--paper-grey-300);
+          --paper-fab-iron-icon: {
+            opacity: var(--secondary-opacity);
+          };
+        }
+        
+        .fab.right {
+          right: -108px;
+        }
+        
+        .fab.left {
+          left: -108px;
+        }
+      }
+      
+      :host {
+        transform: translateY(100vh);
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 999;
+      }
+      
+      :host(.open) {
+        transform: none;
+      }
+      
+      :host, iron-swipeable-pages {
+        @apply --layout-fit;
+      }
+      
+      .page {
+        @apply --layout;
+        @apply --layout-center;
+      }
+      
+      .page > .text {
+        @apply --layout;
+        @apply --layout-vertical;
+      }
+      
+      .image {
+        background-position: center;
+        background-size: contain;
+        background-repeat: no-repeat;
+        width: 100%;
+        height: 100%;
+      }
+      
+      #main {
+        background-color: white;
+      }
+      
+      #signinBtn {
+        height: 40px;
+        padding: 1px 16px 1px 1px;
+        background-color: #4285F4;
+        border-radius: 2px;
+        font-family: 'Roboto', 'Noto', sans-serif !important;
+        font-weight: 500 !important;
+        color: white;
+        font-size: 14px !important;
+        text-transform: none !important;
+        transition: background 150ms;
+      }
+      
+      #signinBtn img, #signinBtn .logo-placeholder {
+        width: 18px;
+        height: 18px;
+      }
+      
+      #signinBtn .logo-placeholder {
+        padding: 10px;
+        background: white;
+        margin-right: 14px;
+      }
+      
+      #signinBtn.waiting {
+        background: white;
+      }
+      
+      #signinBtn.failed {
+        background: #ff5722;
+      }
+      
+      #signinBtn.waiting > *, #signinBtn.failed > * {
+        opacity: 0;
+        color: rgba(0,0,0,0);
+      }
+      
+      .text > h1 {
+        @apply --paper-font-headline;
+        margin: 0 0 16px 0;
+        font-weight: 500 !important;
+      }
+      
+      .text > p {
+        @apply --paper-font-subhead;
+        height: 72px;
+        margin: 0;
+      }
+      
+      /* Page specific styles */
+      
+      .page.login h1 {
+        opacity: 0.87;
+      }
+      .page.login p {
+        opacity: 0.54;
+      }
+      
+      .page[i="3"] {
+        color: white;
+        background: #64B5F6;
+      }
+      .page[i="3"] p {
+        opacity: 0.7;
+      }
+      
+      .page[i="2"] {
+        color: white;
+        background: #f9a825;
+      }
+      .page[i="2"] p {
+        opacity: 0.7;
+      }
+      
+      .page[i="1"] {
+        color: white;
+        background: #9575cd;
+      }
+      .page[i="1"] p {
+        opacity: 0.7;
+      }
+      
+    </style>
+    
+    <div id="main">
+      <template is="dom-if" if="[[desktopLayout]]">
+        <paper-fab class="fab right" icon="icons:arrow-forward" on-tap="_nextSlide"></paper-fab>
+        <paper-fab class="fab left" disabled icon="icons:arrow-back" on-tap="_previousSlide"></paper-fab>
+      </template>
+      <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle threshold="0.2">
+        <div class="page" i="1" color="#9575cd">
+          <div class="image" style="background-image: url(/images/welcome.svg);"></div>
+          <div class="text">
+            <h1>Everything in one place</h1>
+            <p>Easily view your timetable, assigments and tests in one place</p>
+          </div>
+        </div>
+        <div class="page" i="2" color="#f9a825">
+          <div class="image" style="background-image: url(/images/sync.svg);"></div>
+          <div class="text">
+            <h1>On all of your devices</h1>
+            <p>At home using computer or in bus using a phone, your timetable has can be viewed everywhere</p>
+          </div>
+        </div>
+        <!--<template is="dom-if" if="[[_isSW()]]">-->
+          <div class="page" i="3" color="#64B5F6">
+            <div class="image" style="background-image: url(/images/offline.svg);"></div>
+            <div class="text">
+              <h1>Without connection</h1>
+              <p>You don't need internet to browse it, just like a paper one</p>
+            </div>
+          </div>
+        <!--</template>-->
+        <div class="page login" i$="[[_pagesCount()]]" color="#FFFFFF">
+          <div class="image" style="background-image: url(/images/login-page.svg);"></div>
+          <div class="text">
+            <h1>Sign in with Google</h1>
+            <p>To let the app work everywhere you need to sign in with your Google account.</p>
+            <paper-button on-tap="_signIn" id="signinBtn" raised>
+              <div class="logo-placeholder">
+                <img src="/images/google-g-logo.svg">
+              </div>
+              Sign in with Google
+            </paper-button>
+          </div>
+        </div>
+      </iron-swipeable-pages>
+      <paper-pager id="pager" selected="{{selected}}" items-count="[[_pagesCount()]]"></paper-pager>
+    </div>
+  </template>
+  
+  <script>
+    class Onboarding extends Polymer.Element {
+      static get is() { return 'yta-onboarding'; }
+      static get properties() {
+        return {
+          
+          // Inherited from shell
+          desktopLayout: {
+            type: Boolean
+          },
+          
+          // Inherited from shell
+          tabletLayout: {
+            type: Boolean
+          },
+          
+          /* NOT SURE IF NESSCESSARY
+          // Boolean indicating state of element
+          isActive: {
+            type: Boolean,
+            value: false
+          },*/
+          
+          // Selected page
+          selected: {
+            type: Number,
+            value: 0,
+            observer: '_selectedChanged'
+          },
+          
+          // Color of current page
+          color: {
+            type: String,
+            notify: true,
+            reflectToAttribute: true,
+            value: '#FFFFFF',
+            observer: '_colorChanged'
+          }
+          
+        };
+      }
+      
+      constructor() {
+        super();
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+        
+        // Complicated? parentElement is neon-animated-pages, parentNode is ShadowRoot and we need it's host
+        //              But if it's not Shadow DOM, pick just parentElement
+        if (!this._shell) this._shell = Polymer.Settings.useShadow ? this.parentElement.parentNode.host
+                                                                   : this.parentElement.parentElement;
+        
+        // Add event listeners
+        this._shell.addEventListener('open-onboarding', () => this.open());
+        this._shell.addEventListener('close-onboarding', () => this.close());
+        
+        // #64 of GeoloeG/iron-swipeable-pages fix
+        if (!this._isSW()) {
+          this.shadowRoot.querySelector('[color="#64B5F6"]').delete();
+        }
+      }
+      
+      disconnectedCallback() {
+        if (!this._shell) return;
+        
+        // Remove event listeners
+        this._shell.removeEventListener('open-onboarding', () => this.open());
+        this._shell.removeEventListener('close-onboarding', () => this.close());
+      }
+      
+      open() {
+        this.style.transition = 'transform 200ms ease-out';
+        this._computeTransitionTimes();
+        Polymer.RenderStatus.afterNextRender(this, () => { 
+          this.classList.add('open');
+          this.$.pager._selectedChanged(0, this._isSW() ? 3 : 2);
+        });
+      }
+      
+      close() {
+        this.style.transition = 'transform 200ms ease-in';
+        this._computeTransitionTimes();
+        this.classList.remove('open');
+      }
+      
+      _computeTransitionTimes() {
+        if (this._lastTransTimeChange &&
+            this._lastTransTimeChange[0] === this.tabletLayout &&
+            this._lastTransTimeChange[1] === this.desktopLayout)
+        {
+          return;
+        }
+        if (this.tabletLayout) {
+          this.style.transitionDuration = '260ms';
+        } else if (this.desktopLayout) {
+          this.style.transitionDuration = '150ms';
+        } else {
+          this.style.transitionDuration = '200ms';
+        }
+        this._lastTransTimeChange = [this.tabletLayout, this.desktopLayout];
+      }
+      
+      _signIn() {
+        this._requestSignIn({ annonymous: false });
+      }
+      
+      _signInAnonymously() {
+        this._requestSignIn({ annonymous: true });
+      }
+      
+      _requestSignIn(config) {
+        this._fire('firebasesigninrequired',
+          { provider: config.annonymous ? 'annonymous'
+                                        : 'google' },
+          true,
+          window
+        );
+        this.$.signinBtn.classList.add('waiting');
+        this._listenFotSignIn().then(() => {
+          // Sign in successful - proceed
+          this.color = '#673ab7';
+          this._fire('switch-page', { action: 'closeOnboarding' }, true, this._shell);
+        }, () => {
+          // Sign in failed, reset
+          requestAnimationFrame(() => {
+            this.$.signinBtn.classList.remove('waiting');
+            this.$.signinBtn.classList.add('failed');
+          });
+          setTimeout(() => {
+            requestAnimationFrame(() => {
+              this.$.signinBtn.classList.remove('failed');
+            });
+          }, 500);
+        });
+      }
+      
+      _selectedChanged(selected) {
+        if (selected === null) {
+          this.selected = 0;
+          return;
+        }
+        if (!this.shadowRoot) return;
+        const selectedEl = this.shadowRoot.querySelector(`.page[i="${selected + 1}"]`);
+        this.color = selectedEl.getAttribute('color');
+        if (!this.desktopLayout && selected === this._pagesCount() - 1) {
+          this.$.pager.style.display = 'none';
+        } else {
+          if (this.$.pager.style.display === 'initial') return;
+          this.$.pager.style.display = 'initial';
+        }
+      }
+      
+      _colorChanged(color) {
+        document.head.querySelector('#themeColor').setAttribute('content', color);
+        if (!this.shadowRoot) return;
+        const pager = this.shadowRoot.querySelector('#pager');
+        pager.updateStyles({ '--paper-pager-color': this.desktopLayout ? color
+                                                                       : '#FFFFFF' });
+        if (this.desktopLayout) {
+          const nextFab = this.shadowRoot.querySelector('.fab.right');
+          const previousFab = this.shadowRoot.querySelector('.fab.left');
+          color = color === '#FFFFFF' ? 'black' : color; 
+          nextFab.style.color = color;
+          previousFab.style.color = color;
+        }
+      }
+      
+      _listenFotSignIn() {
+        return new Promise((resolve, reject) => {
+          window.addEventListener('firebasesignedin', resolve);
+          window.addEventListener('firebasesigninfailed', reject);
+        });
+      }
+      
+      _isSW() {
+        return 'serviceWorker' in navigator;
+      }
+      
+      _pagesCount() {
+        return this._isSW() ? 4
+                            : 3;
+      }
+      
+      _nextSlide() {
+        if (this.selected + 1 !== this._pagesCount()) {
+          this.selected++;
+          if (this.selected + 1 === this._pagesCount()) {
+            this.shadowRoot.querySelector('.fab.right').disabled = true;
+          } else {
+            this.shadowRoot.querySelector('.fab.right').disabled = false;
+          }
+          if (this.selected === 0) {
+            this.shadowRoot.querySelector('.fab.left').disabled = true;
+          } else {
+            this.shadowRoot.querySelector('.fab.left').disabled = false;
+          }
+        }
+      }
+      
+      _previousSlide() {
+        if (this.selected !== 0) {
+          this.selected--;
+          if (this.selected + 1 === this._pagesCount()) {
+            this.shadowRoot.querySelector('.fab.right').disabled = true;
+          } else {
+            this.shadowRoot.querySelector('.fab.right').disabled = false;
+          }
+          if (this.selected === 0) {
+            this.shadowRoot.querySelector('.fab.left').disabled = true;
+          } else {
+            this.shadowRoot.querySelector('.fab.left').disabled = false;
+          }
+        }
+      }
+      
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
+      }
+    }
+    
+    customElements.define(Onboarding.is, Onboarding);
+  </script>
+</dom-module>

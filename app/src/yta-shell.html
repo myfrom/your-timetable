@@ -1,0 +1,687 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-if.html">
+
+<link rel="import" href="/bower_components/app-layout/app-layout.html">
+<link rel="import" href="/bower_components/app-layout/app-scroll-effects/effects/waterfall.html">
+<link rel="import" href="/bower_components/app-route/app-location.html">
+<link rel="import" href="/bower_components/app-route/app-route.html">
+
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/iron-image/iron-image.html">
+<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="/bower_components/iron-swipeable-pages/iron-swipeable-pages.html">
+<link rel="import" href="/bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
+
+<link rel="import" href="/bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html">
+
+<link rel="import" href="yta-firebase.html" async>
+<link rel="import" href="yta-overview-page.html" async>
+
+<link rel="import" href="icons.html">
+
+<link rel="import" href="yta-theme.html">
+
+<link rel="import" href="yta-add-dialog.html" async>
+
+<dom-module id="yta-shell">
+  <template>
+    <style>
+      
+      :host > * {
+        /* Turn off selection */
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        /* Phone styles */
+        
+        #fab {
+          position: fixed;
+          bottom: 16px;
+          right: 16px;
+        }
+        
+        app-toolbar {
+          height: 56px;
+          padding-left: 8px;
+        }
+        
+        app-toolbar [title] {
+          margin-left: 24px;
+        }
+        
+        iron-swipeable-pages {
+          top: 112px !important;
+        }
+      }
+      
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
+        /* Phone landscape styles */
+        
+        app-toolbar {
+          height: 48px !important;
+        }
+        
+        iron-swipeable-pages {
+          top: 96px !important;
+        }
+      }
+      
+      @media (min-width: 601px) and (max-width: 840px) and (orientation: portrait), (min-width: 961px) and (max-width: 1279px) and (orientation: landscape) {
+        /* Tablet styles */ /* A bit wider than standart tablet */
+         
+        #fab {
+          position: fixed;
+          right: 24px;
+          bottom: 24px;
+        }
+        
+        app-toolbar {
+          /*height: 64px; # Not nescessary since this is the default*/
+          padding: 0 8px 0 60px;
+        }
+        
+        iron-swipeable-pages {
+          top: 128px !important;
+        }
+        
+        paper-tabs {
+          padding: 0 60px;
+        }
+        
+        .avatar-menu {
+          margin-right: 152px;
+        }
+      }
+      
+      @media (min-width: 1280px) and (orientation: landscape), (min-width: 841px) and (orientation: portrait) {
+        /* Desktop styles */
+        
+        paper-tabs {
+          padding: 0 180px !important;
+        }
+        
+        #fab {
+          position: fixed;
+          top: 96px;
+          right: 52px;
+        }
+        
+        app-toolbar {
+          /*height: 64px; # Not nescessary since this is the default*/
+          padding: 0 8px 0 60px;
+        }
+        
+        iron-swipeable-pages {
+          top: 128px !important;
+        }
+        
+        .avatar-menu {
+          margin-right: 152px;
+        }
+      }
+      
+      /* Cross-device styles */
+      
+      hr {
+        border-width: 1px 0 0 0;
+        border-color: var(--divider-color);
+      }
+      
+      iron-swipeable-pages,
+      iron-swipeable-pages > div {
+        @apply --layout-fit;
+      }
+      
+      app-drawer {
+        z-index: 11;
+        --app-drawer-content-container: {
+          @apply --shadow-elevation-16dp;
+          max-width: 280px;
+          width: calc(100% - 56px);
+        };
+      }
+      
+      paper-tab {
+        @apply --paper-font-button;
+        font-weight: 500;
+      }
+      
+      app-toolbar {
+        background-color: var(--primary-color);
+        color: white;
+        /* opacity: var(--light-primary-opacity); No need to include this since it defaults to 1 */
+      }
+      
+      app-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 9;
+      }
+      
+      [title] {
+        @apply --paper-font-title;
+      }
+      
+      paper-menu > paper-item {
+        --paper-item-selected-weight: 400 !important;
+        --paper-item-focused-before: {
+          background: var(--light-theme-secondary-color) !important;
+        };
+      }
+      paper-menu > paper-item:focus:after {
+        background: none !important;
+      }
+      
+      #fab {
+        @apply --shadow-transition;
+        color: black;
+        z-index: 10;
+        --paper-fab-iron-icon: {
+          opacity: var(--dark-primary-opacity);
+        };
+        --paper-fab-keyboard-focus-background: var(--dark-accent-color);
+      }
+      
+      iron-swipeable-pages > div {
+        background-color: var(--primary-background-color);
+      }
+      
+      iron-swipeable-pages > div > * {
+        @apply --layout-fit;
+      }
+      
+      iron-swipeable-pages > div > .waiter {
+        @apply --layout-fit;
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        @apply --layout-center-justified;
+        background-color: var(--primary-body-color);
+      }
+      
+      iron-swipeable-pages > div > .waiter > paper-spinner {
+        --paper-spinner-stroke-width: 4px;
+        position: relative;
+        width: 44px;
+        height: 44px;
+      }
+      
+      .hidden {
+        display: none;
+      }
+      
+      .spacer {
+        @apply --layout-flex;
+      }
+      
+      #sections {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+      }
+      
+      .avatar-menu {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        padding: 0;
+        overflow: hidden;
+        margin-right: 16px;
+      }
+      
+      :host([selected="main"]) #sections {
+        display: none;
+      }
+      
+    </style>
+    
+    <!-- Router -->
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}"
+               pattern="/:page"
+               data="{{routeData}}"
+               id="router"></app-route>
+    
+    <!-- Database controller -->
+    <yta-firebase id="firebase" data="{{data}}" user="{{user}}"></yta-firebase>
+    
+    <!-- Set layout indicators -->
+    <iron-media-query query="(min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait)"
+                      query-matches="{{phoneLayout}}"></iron-media-query>
+    <iron-media-query query="(min-width: 601px) and (max-width: 840px) and (orientation: portrait), (min-width: 961px) and (max-width: 1279px) and (orientation: landscape)"
+                      query-matches="{{tabletLayout}}"></iron-media-query>
+    
+    <!-- Display the main view of the app -->
+    <app-header id="header" condenses effects="waterfall">
+      <app-toolbar>
+        <div title>Your Timetable</div>
+        <span class="spacer"></span>
+        <paper-menu-button horizontal-align="right">
+          <paper-icon-button src="[[user.photoURL]]" slot="dropdown-trigger" class="avatar-menu"></paper-icon-button>
+          <paper-listbox slot="dropdown-content" on-tap="_menuItemClicked">
+            <paper-item role="menuitem" key="settings">Settings</paper-item>
+            <paper-item role="menuitem" key="feedback">Feedback</paper-item>
+            <paper-item role="menuitem" key="about">About</paper-item>
+            <paper-item role="menuitem" key="signout">Sign out</paper-item>
+            <!--<paper-item role="menuitem" key="help">Help</paper-item> # Think of help section -->
+          </paper-listbox>
+        </paper-menu-button>
+      </app-toolbar>
+      <app-toolbar sticky>
+        <paper-tabs selected="[[selectedView]]" attr-for-selected="key" bottom-item>
+          <paper-tab key="overview">
+            <template is="dom-if" if="[[!phoneLayout]]">overview</template>
+            <template is="dom-if" if="[[phoneLayout]]"><iron-icon icon="icons:home"></iron-icon></template>
+          </paper-tab>
+          <paper-tab key="timetable">
+            <template is="dom-if" if="[[!phoneLayout]]">timetable</template>
+            <template is="dom-if" if="[[phoneLayout]]"><iron-icon icon="icons:view-list"></iron-icon></template>
+          </paper-tab>
+          <paper-tab key="teachers">
+            <template is="dom-if" if="[[!phoneLayout]]">search</template>
+            <template is="dom-if" if="[[phoneLayout]]"><iron-icon icon="icons:search"></iron-icon></template>
+          </paper-tab>
+          <paper-tab key="calendar">
+            <template is="dom-if" if="[[!phoneLayout]]">calendar</template>
+            <template is="dom-if" if="[[phoneLayout]]"><iron-icon icon="icons:event"></iron-icon></template>
+          </paper-tab>
+        </paper-tabs>
+      </app-toolbar>
+    </app-header>
+    
+    <paper-fab id="fab" icon="icons:add" on-tap="_openAddDialog"></paper-fab>
+    
+    <iron-swipeable-pages id="pages"
+                          edge-swipe-sensitivity="30"
+                          selected="[[selectedView]]"
+                          attr-for-selected="id">
+      <div id="overview">
+        <yta-overview-page phone-layout="[[phoneLayout]]" data="[[data]]"></yta-overview-page>
+        <div class="waiter">
+          <paper-spinner active></paper-spinner>
+        </div>
+      </div>
+      <div id="timetable">
+        <yta-timetable-page data="[[data]]"></yta-timetable-page>
+        <div class="waiter">
+          <paper-spinner active></paper-spinner>
+        </div>
+      </div>
+      <div id="teachers">
+        <yta-teachers-page></yta-teachers-page>
+        <div class="waiter">
+          <paper-spinner active></paper-spinner>
+        </div>
+      </div>
+      <div id="calendar">
+        <yta-calendar-page></yta-calendar-page>
+        <div class="waiter">
+          <paper-spinner active></paper-spinner>
+        </div>
+      </div>
+    </iron-swipeable-pages>
+    
+    <!-- Switch between sections -->
+    <iron-pages selected="[[selected]]" attr-for-selected="key" id="sections">
+      <yta-settings key="settings"></yta-settings>
+      
+      <yta-onboarding key="onboarding" desktop-layout="[[desktopLayout]]" tablet-layout="[[tabletLayout]]"></yta-onboarding>
+                      
+      <yta-setup-dialog key="setup" desktop-layout="[[desktopLayout]]" tablet-layout="[[tabletLayout]]" app-data="{{data}}"></yta-setup-dialog>
+      
+      <yta-add-dialog key="add"
+                      app-data="{{data}}"
+                      phone-layout="[[phoneLayout]]"></yta-add-dialog>
+                      
+      <yta-feedback-dialog key="feedback"></yta-feedback-dialog>
+      
+      <yta-about-page key="about"></yta-about-page>
+    </iron-pages>
+  </template>
+  
+  <script>
+    class Shell extends Polymer.Element {
+      static get is() { return 'yta-shell'; }
+      static get properties() {
+        return {
+        
+          // Currently selected view
+          selected: {
+            type: String,
+            notify: true,
+            value: 'main',
+            reflectToAttribute: true // A hack - look at line 311
+          },
+          
+          // Sharing the user data between views
+          data: {
+            type: Object,
+            notify: true
+          },
+          
+          // Layout indicators
+          phoneLayout: {
+            type: Boolean,
+            notify: true
+          },
+          
+          tabletLayout: {
+            type: Boolean,
+            notify: true
+          },
+          
+          desktopLayout: {
+            type: Boolean,
+            notify: true,
+            computed: '_isFalse(phoneLayout, tabletLayout)'
+          },
+          
+          // Selected page
+          selectedView: {
+            type: String,
+            value: 'overview',
+            observer: 'resolveSelected'
+          },
+
+          routeData: Object,
+          
+          // Basic info about the user
+          user: {
+            type: Object,
+            notify: true,
+            value: function() { return {
+              displayName: 'Your name',
+              email: 'you@example.com',
+              photoURL: '/images/portrait-placeholder.png',
+              isDefault: true
+            }; }
+            
+          }
+          
+        };
+      }
+      
+      static get observers() {
+        return [
+          '_resolveRoute(routeData.page)'
+        ];
+      }
+      
+      constructor() {
+        super();
+      }
+      
+      ready() {
+        super.ready();
+        
+        // Play animation after first render
+        Polymer.RenderStatus.afterNextRender(this, () => {
+          requestAnimationFrame(() => {
+            this.$.header.animate([
+              { transform: 'translateY(-100%)' },
+              { transform: 'translateY(0)' }
+            ], {
+              duration: 500,
+              easing: 'ease-out'
+            });
+            this.$.fab.animate([
+              { transform: 'scale(0)' },
+              { transform: 'scale(1)' }
+            ], {
+              duration: 500,
+              easing: 'ease-out'
+            });
+          });
+        });
+        
+        // Add event listeners
+        this.addEventListener('switch-page', this._switchRoute);
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+        
+        document.body.removeAttribute('unresolved');
+        
+        // Set route if null
+        if (!this.route.path || this.route.path == '/') {
+          this.set('route.path', '/app');
+        }
+        
+        this._addEventListeners();
+      }
+      
+      _addEventListeners() {
+        // Show overview page and check if there are targets in URI
+        window.addEventListener('firebasedataready', () => {
+          this._loadOverviewPage();
+          this.checkForTargets().then(selected => {
+            this.selectedView = selected;
+          }).catch(err => {
+            if (err !== 'invalid-target' && err !== 'no-targets') {
+              console.error(new Error('Shell.checkForTargets() returned error: ' + err));
+            }
+          });
+        }, { once: true});
+        
+        // Show FAB after goin back from AddDialog
+        this.addEventListener('close-add-dialog', () => {
+          let time = 375;
+          if (this.desktopLayout) time = 0;
+          if (this.tabletLayout) time = 490;
+          setTimeout(() => requestAnimationFrame(() => {
+            this.$.fab.classList.remove('hidden');
+          }), time);
+        });
+        
+        // FirebaseController says data needs init
+        this.$.firebase.addEventListener('firebasesetuprequested', () => {
+          setTimeout(() => {
+            this._fire('switch-page', { action: 'openSetupDialog' }, true, this);
+          }, 500);
+        });
+        
+        // FirebaseController reports no user signed in
+        this.$.firebase.addEventListener('firebasenouser', () => {
+          this._fire('switch-page', { action: 'openOnboarding' }, true, this);
+        }, { once: true });
+      }
+      
+      checkForTargets() {
+        return new Promise((resolve, reject) => {
+          const output = this.$.router.queryParams.target;
+          if (output) {
+            const validTargets = ['main', 'timetable', 'teachers', 'calendar'];
+            if (validTargets.include(output)) {
+              resolve(output);
+            } else {
+              reject('invalid-target');
+            }
+          } else {
+            reject('no-targets');
+          }
+        });
+      }
+      
+      _switchRoute(e) {
+        switch (e.detail.action) {                                              // @TODO (@Witus): All child elements must implement event listening for parent open/close-name events
+          case 'openAddDialog':
+            importHref('src/yta-add-dialog.html').then(() => {
+              const withAnimation = this.selected === 'main' ? true
+                                                             : false;
+              const clientRect = this.desktopLayout ? null :
+                                                      e.detail.clientRect;
+              this._fire('open-add-dialog', { clientRect, withAnimation });
+              this.selected = 'add';
+              this.routeData.page = 'add';
+              this.routeData = this.routeData;
+            });
+            break;
+          case 'closeAddDialog':
+            const clientRect = this.desktopLayout ? null :
+                                                    e.detail.clientRect;
+            this._fire('close-add-dialog', { clientRect: clientRect });
+            this.selected = 'main';
+            this.routeData.page = 'app';
+            this.routeData = this.routeData;
+            break;
+          case 'openOnboarding':
+            importHref('src/yta-onboarding.html').then(() => {
+              this._fire('open-onboarding');
+              this.selected = 'onboarding';
+              this.routeData.page = 'welcome';
+              this.routeData = this.routeData;
+            });
+            break;
+          case 'closeOnboarding':
+            this._fire('close-onboarding');
+            this.selected = 'main';
+            this.routeData.page = 'app';
+            this.routeData = this.routeData;
+            break;
+          case 'openSetupDialog':
+            importHref('src/yta-setup-dialog.html').then(() => {
+              this._fire('open-setup-dialog');
+              this.selected = 'setup';
+              this.routeData.page = 'app';
+              this.routeData = this.routeData;
+            });
+            break;
+          default:
+            console.error('`switch-page` event fired without or with unknown action!', e);
+        }
+      }
+      
+      _resolveRoute(toPage) {
+        /* EXTREMLY BUGGY
+        if (toPage == 'app') {
+          if (addDialog && addDialog.isActive) {
+            this.set('routeData.page', 'add');
+            addDialog.$.dialog.fire('iron-overlay-canceled', 'page redirect', { cancelable: true });
+          } else if (onboarding && onboarding.isActive) {
+            this.set('routeData.page', 'welcome');
+          }
+        };*/
+      }
+      
+      signOut() {
+        if (!this._firebase) this._firebase = this.$.firebase;
+        this._firebase.signOut();
+      }
+      
+      resolveSelected(selectedString) {
+        if (selectedString !== 'overview') {
+          const selectedItemWaiter = this.shadowRoot.querySelector(`#${selectedString} > .waiter`);
+          if (selectedItemWaiter) {
+            importHref(`/src/yta-${selectedString}-page.html`).then(() => {
+              requestAnimationFrame(() => {
+                const anim = selectedItemWaiter.animate([
+                  { opacity: 1 },
+                  { opacity: 0 }
+                ], {
+                  duration: 150
+                });
+                anim.onfinish = () => {
+                  this._removeSelectedItemWaiter(selectedItemWaiter);
+                };
+              });
+            });
+          }
+        }
+      }
+      
+      _removeSelectedItemWaiter(selectedItemWaiter) {
+        selectedItemWaiter.remove();
+      }
+      
+      _openAddDialog() {
+        const fab = this.$.fab;
+        const clientRect = fab.getBoundingClientRect();
+        this._fire('switch-page', {
+          action: 'openAddDialog',
+          clientRect: clientRect
+        });
+        fab.classList.add('hidden');
+      }
+      
+      _loadOverviewPage() {
+        const selectedItemWaiter = this.shadowRoot.querySelector('#overview > .waiter');
+        if (selectedItemWaiter) {
+          importHref(`/src/yta-overview-page.html`).then(() => {
+            requestAnimationFrame(() => {
+              const anim = selectedItemWaiter.animate([
+                { opacity: 1 },
+                { opacity: 0 }
+              ], {
+                duration: 150
+              });
+              anim.onfinish = () => {
+                this._removeSelectedItemWaiter(selectedItemWaiter);
+              };
+            });
+          });
+        }
+      }
+      
+      _menuItemClicked(e) {
+        const cmd = e.target.key;
+        switch (cmd) {
+          case 'settings':
+            // open settings page
+            break;
+          
+          case 'feedback':
+            // open feedback dialog
+            break;
+          
+          case 'about':
+            // open about section
+            break;
+          
+          case 'help':
+            console.warn(new Error('Help isn\'t available yet'));
+            break;
+            
+          case 'signout':
+            this.signOut();
+            break;
+          
+          default:
+            console.error(new Error('_menuItemClicked fired without key'));
+        }
+      }
+      
+      _closeDrawer() {
+        this.shadowRoot.querySelector('#drawer').close();
+      }
+      
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
+      }
+        
+      _isFalse(arg1, arg2) {
+        return !arg1 && !arg2;
+      }
+    }
+    
+    customElements.define(Shell.is, Shell);
+  </script>
+</dom-module>

@@ -1,0 +1,92 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="/bower_components/paper-styles/color.html">
+
+<dom-module id="yta-lesson-card">
+  <template>
+    <style include="layout color">
+  
+      :host {
+        margin: 4px;
+        --paper-item-body-secondary: {
+          color: white;
+          opacity: var(--light-secondary-opacity);
+        };
+        --paper-item-focused-before: {
+          background: none;
+        };
+      }
+      
+      :host([phone-layout]) {
+        @apply --layout-flex;
+      }
+      
+      #main {
+        border-radius: 5px;
+      }
+      
+      paper-item {
+        color: white;
+        --paper-item-body-secondary: {
+          opacity: var(--light-secondary-opacity);
+        }
+      }
+    
+    </style>
+    
+    <div id="main" style$="background-color:[[color]];">
+      <paper-item>
+        <paper-item-body two-line>
+          <div>[[name]]</div>
+          <div secondary>
+            [[startTime]] - [[endTime]]
+            <i hidden$="[[_isClassNull(classroom)]]"> in [[classroom]]</i>
+          </div>
+        </paper-item-body>
+      </paper-item>
+    </div>
+  </template>
+  
+  <script>
+    class LessonCard extends Polymer.Element {
+      static get is() { return 'yta-lesson-card'; }
+      static get properties() {
+        return {
+      
+          phoneLayout: Boolean,
+          
+          blank: Boolean,
+          
+          color: String,
+          
+          name: String,
+          
+          startTime: String,
+          
+          endTime: String,
+          
+          classroom: String
+          
+        };
+      }
+      
+      constructor() {
+        super();
+      }
+      
+      _isClassNull(classroom) {
+        if (classroom === "" || classroom === undefined || classroom === null) {
+          return true
+        } else {
+          return false
+        }
+      }
+    }
+    
+    customElements.define(LessonCard.is, LessonCard);
+  </script>
+</dom-module>
