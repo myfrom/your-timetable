@@ -73,6 +73,7 @@ function pushToPouch(e) {
     output.config = data.config;
     output.settings = data.settings;
     output.timetable = data.timetable;
+    output.lastEdit = data.lastEdit;
     output._id = 'data';
     output._rev = resp._rev || undefined;
     return db.put(output).catch(err => {
