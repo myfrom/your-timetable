@@ -1,0 +1,205 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html">
+
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="/bower_components/paper-item/paper-item-body.html">
+
+<link rel="import" href="ycons.html">
+
+<dom-module id="yta-search-page">
+  <template>
+    <style>
+      
+      :host {
+        overflow-y: scroll;
+      }
+
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        /* Phone styles */
+        
+        #search, #results {
+          @apply --layout-flex;
+          padding: 15px;
+          background-color: white;
+        }
+
+        .result-card {
+          @apply --layout-flex;
+          border-bottom: 1px solid var(--divider-color);
+          height: 72px;
+          padding: 0;
+        }
+      }
+
+      @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+        /* Other than phone */
+
+        #search, #results {
+          margin: 15px auto;
+          max-width: 800px;
+        }
+
+        .result-card {
+          @apply --shadow-elevation-2dp;
+          margin: 4px;
+          width: 189px;
+          height: 100px;
+          display: inline-block;
+        }
+      }
+
+      #search {
+        padding-bottom: 24px;
+      }
+
+      .result-card {
+        background-color: white;
+      }
+
+      .paper-secondary-text {
+        opacity: var(--dark-secondary-opacity);
+      }
+
+      paper-icon-item iron-icon {
+        opacity: var(--dark-secondary-opacity);
+      }
+    
+    </style>
+    
+    <div id="search">
+      <paper-input placeholder="Search" type="search" no-label-float
+                   on-change="searchEvent"></paper-input>
+    </div>
+    <div id="results">
+      <template is="dom-repeat" items="[[_results]]">
+        <template is="dom-if" if="[[item.isEvent]]">
+          <paper-icon-item class="result-card">
+            <iron-icon icon="ycons:event" slot="item-icon"></iron-icon>
+            <paper-item-body two-line>
+              <span>name</span>
+              <span secondary>day, hours</span>
+            </paper-item-body>
+          </paper-icon-item>
+        </template>
+        <template is="dom-if" if="[[!item.isEvent]]">
+          <paper-item class="result-card">
+            <paper-item-body three-line>
+              <span>
+                <span class="paper-secondary-text">[[_readIndex(item.lesson)]]. </span>
+                <span>[[item.name]]</span>
+              </span>
+              <span secondary>[[_displayReadable(item.day, item.startTime, item.endTime)]]</span>
+              <span secondary>
+                <template is="dom-if" if="[[item.classroom]]">
+                  in [[item.classroom]] 
+                </template>
+                <template is="dom-if" if="[[item.teacher]]">
+                  with [[item.teacher]]
+                </template> 
+              </span>
+            </paper-item-body>
+          </paper-item>
+        </template>
+      </template>
+    </div>
+
+  </template>
+  
+  <script>
+    class SearchPage extends Polymer.Element {
+      static get is() { return 'yta-search-page'; }
+      static get properties() {
+        return {
+          
+          _results: Object
+          
+        };
+      }
+      
+      constructor() {
+        super();
+      }
+
+      searchEvent(e) {
+        if (this._runningSearch) clearTimeout(this._runningSearch);
+        this._runningSearch = setTimeout(() => {
+          const data = this.parentElement.parentElement.parentNode.host.data
+          const query = this.shadowRoot.querySelector('#search paper-input').value;
+          if (query === '') {
+            this._results = [];
+            return;
+          };
+          const results = [];
+          data.timetable.forEach((day, dayIndex) => {
+            day.forEach((lesson, lessonIndex) => {
+              if (lesson.name.includes(query) || (lesson.teacher && lesson.teacher.includes(query)) || (lesson.classroom && lesson.classroom.includes(query))) {
+                lesson.day = dayIndex;
+                lesson.lesson = lessonIndex;
+                results.push(lesson);
+              }
+            });
+          });
+          if (data.calendar) {
+            data.calendar.forEach(event => {
+              if (event.name.inlcudes(query) || (event.lesson && event.lesson.includes(query)) || (event.notes && event.notes.includes(query))) {
+                event.isEvent = true;
+                results.unshift(event);
+              }
+            });
+          }
+          this._results = results;
+        }, 0);
+      }
+
+      _displayReadable(day, startTime, endTime) {
+        const firstDayOfWeek = this.parentElement.parentElement.parentNode.host.data.settings.firstDayOfWeek;
+        let output = new String();
+        switch (firstDayOfWeek) {
+          case 1:
+            day = day == 6 ? 0 : day + 1;
+            break;
+          case 6:
+            day = day == 0 ? 6 : day - 1;
+        }
+        return this._readDay(day) + ', ' + this._readTime(startTime) + ' - ' + this._readTime(endTime);
+      }
+
+      _readTime(time, use12hoursClock = false) {
+        const date = new Date(time);
+        let hours = date.getUTCHours(),
+            minutes = date.getUTCMinutes(),
+            pm = false;
+        if (use12hoursClock && hours > 12) {
+          hours -= 12;
+          pm = true;
+        }
+        if (minutes.toString().length === 1) minutes = '0' + minutes;
+        let output = hours + ':' + minutes;
+        if (use12hoursClock) {
+          output += pm ? ' AM' : ' PM'; 
+        }
+        return output;
+      }
+
+      _readIndex(i) {
+        return i + 1;
+      }
+
+      _readDay(day) {
+        const days = [
+          'Sunday', 'Monday', 'Tuesday', 'Wednesday',
+          'Thursday', 'Friday', 'Satruday'
+        ];
+        return days[day];
+      }
+    }
+    
+    customElements.define(SearchPage.is, SearchPage);
+  </script>
+</dom-module>
