@@ -1,0 +1,118 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<!-- <link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html"> -->
+
+<!-- <link rel="import" href="/bower_components/paper-styles/paper-styles.html"> -->
+
+
+<link rel="import" href="paper-calendar.html">
+
+
+<dom-module id="yta-calendar-page">
+  <template>
+    <style>
+
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        /* Phone styles */
+        
+        #calendar {
+          position: fixed;
+          top: 15px;
+          bottom: 15px;
+          right: 15px;
+          left: 15px;
+        }
+      }
+
+      @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+        /* Other than phone */
+
+        #calendar {
+          height: 600px;
+          max-width: 500px;
+          margin: 30px auto;
+        }
+      }
+
+      #calendar {
+        --paper-calendar-selected-background: var(--accent-color);
+        --paper-calendar-selected-color: rgba(0,0,0,.87);
+        --paper-calendar-table: {
+          width: 100%;
+        };
+      }
+
+    </style>
+    
+    <div id="header">
+      <span>[[_selectedMonth]]</span>
+    </div>
+    <paper-calendar id="calendar" selectable
+                    swipeable swipe-direction="vertical"
+                    first-day="[[data.settings.firstDayOfWeek]]"
+                    selected-month="[[_selectedMonth]]"></paper-calendar>
+  </template>
+  
+  <script>
+    class CalendarPage extends Polymer.Element {
+      static get is() { return 'yta-calendar-page'; }
+      static get properties() {
+        return {
+          
+          // Inherited from MainView
+          data: {
+            type: Object,
+            notify: true
+          },
+
+          _selectedMonth: Number
+          
+        };
+      }
+      
+      constructor() {
+        super();
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+        
+        // Set scroll target
+        this.scrollTarget = document.body;
+      }
+      
+      viewReadable(time) {
+        let input = new Date(time);
+        let output = [null, ':', null];
+        output[0] = input.getHours();
+        output[2] = input.getMinutes();
+        if (output[2].toString().length == 1) {
+          output[2] = '0' + output[2];
+        };
+        return output.join('')
+      }
+      
+      _computeDayName(day) {
+        let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        /*
+        let daysLocalised = [];
+        for(i=0; i>5; i++) {
+          daysLocalized[i] = this.localize(days[i])
+        };
+        days = daysLocalised;
+        */
+        return days[day];
+      }
+      
+      _pickLessonColor(name) {
+        let config = this.data.config;
+        return config[name].color;
+      }
+      
+      _pickClassroom(name) {
+        let config = this.data.config;
+        return config[name].class;
+      }
+    }
+    
+    customElements.define(CalendarPage.is, CalendarPage);
+  </script>
