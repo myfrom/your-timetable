@@ -7,6 +7,11 @@
   <template>
     <style>
       
+      :host, #topPlaceholder {
+        overflow-y: visible;
+        position: relative;
+      }
+      
       #topPlaceholder {
         @apply --layout-horizontal;
         @apply --layout-wrap;
@@ -64,23 +69,21 @@
     </style>
     
     <div id="topPlaceholder">
-      <dom-repeat items="[[data.timetable]]">
-        <template>
-          <div class="dayPlaceholder">
-            <h6 class="day-name">[[_computeDayName(index)]]</h6>
-            <div class="lessonsPlaceholder">
-              <dom-repeat items="[[item]]" as="lesson">
-                <template>
-                  <div class="lesson" style="border-left-color: [[_pickLessonColor(lesson.name)]];">
-                    <p>[[lesson.name]]</p>
-                    <p class="secondary">[[viewReadable(lesson.startTime)]] - [[viewReadable(lesson.endTime)]]</p>
-                  </div>
-                </template>
-              </dom-repeat>
-            </div>
+      <template is="dom-repeat" items="[[data.timetable]]">
+        <div class="dayPlaceholder">
+          <h6 class="day-name">[[_computeDayName(index)]]</h6>
+          <div class="lessonsPlaceholder">
+            <dom-repeat items="[[item]]" as="lesson">
+              <template>
+                <div class="lesson" style="border-left-color: [[_pickLessonColor(lesson.name)]];">
+                  <p>[[lesson.name]]</p>
+                  <p class="secondary">[[viewReadable(lesson.startTime)]] - [[viewReadable(lesson.endTime)]]</p>
+                </div>
+              </template>
+            </dom-repeat>
           </div>
-        </template>
-      </dom-repeat>
+        </div>
+      </template>
     </div>
     <div id="spacer"></div>
   </template>
@@ -102,6 +105,13 @@
       
       constructor() {
         super();
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+        
+        // Set scroll target
+        this.scrollTarget = document.body;
       }
       
       viewReadable(time) {
