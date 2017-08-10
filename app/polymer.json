@@ -12,16 +12,17 @@
     "src/yta-setup-dialog.html"
   ],
   "sources": [
-   "src/*",
-   "bower.json"
+    "src/*",
+    "images/**/*",
+    "src/polyfills/*.*",
+    "bower.json"
   ],
   "extraDependencies": [
     "sw-runner.js",
-    "images/**/*",
     "manifest.json",
     "bower_components/webcomponentsjs/webcomponents-lite.min.js",
-    "src/polyfills/*.*",
-    "privacy-policy.html"
+    "privacy-policy.html",
+    "images/offline-avatar.svg"
   ],
   "lint": {
     "rules": ["polymer-2"]
