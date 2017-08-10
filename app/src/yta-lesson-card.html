@@ -8,7 +8,7 @@
 
 <dom-module id="yta-lesson-card">
   <template>
-    <style include="layout color">
+    <style>
   
       :host {
         margin: 4px;
@@ -21,8 +21,16 @@
         };
       }
       
+      :host([blank]) {
+        visibility: hidden;
+      }
+      
       :host([phone-layout]) {
         @apply --layout-flex;
+      }
+      
+      i[hidden] {
+        display: none !important;
       }
       
       #main {
@@ -31,9 +39,10 @@
       
       paper-item {
         color: white;
+        --paper-item-body-secondary-color: white;
         --paper-item-body-secondary: {
           opacity: var(--light-secondary-opacity);
-        }
+        };
       }
     
     </style>
@@ -59,7 +68,10 @@
       
           phoneLayout: Boolean,
           
-          blank: Boolean,
+          blank: {
+            type: Boolean,
+            reflectToAttribute: true
+          },
           
           color: String,
           
@@ -79,11 +91,7 @@
       }
       
       _isClassNull(classroom) {
-        if (classroom === "" || classroom === undefined || classroom === null) {
-          return true
-        } else {
-          return false
-        }
+        return classroom === "" || classroom === undefined || classroom === null;
       }
     }
     
