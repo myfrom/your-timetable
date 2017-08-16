@@ -115,14 +115,20 @@
       }
       
       viewReadable(time) {
-        let input = new Date(time);
-        let output = [null, ':', null];
-        output[0] = input.getHours();
-        output[2] = input.getMinutes();
-        if (output[2].toString().length == 1) {
-          output[2] = '0' + output[2];
-        };
-        return output.join('')
+        const date = new Date(time);
+        let hours = date.getUTCHours(),
+            minutes = date.getUTCMinutes(),
+            pm = false;
+        if (this.data.settings.use12hoursClock && hours > 12) {
+          hours -= 12;
+          pm = true;
+        }
+        if (minutes.toString().length === 1) minutes = '0' + minutes;
+        let output = hours + ':' + minutes;
+        if (this.data.settings.use12hoursClock) {
+          output += pm ? ' PM' : ' AM'; 
+        }
+        return output;
       }
       
       _computeDayName(day) {

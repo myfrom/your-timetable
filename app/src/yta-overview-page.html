@@ -122,7 +122,7 @@
         if (minutes.toString().length === 1) minutes = '0' + minutes;
         let output = hours + ':' + minutes;
         if (this.data.settings.use12hoursClock) {
-          output += pm ? ' AM' : ' PM'; 
+          output += pm ? ' PM' : ' AM'; 
         }
         return output;
       }

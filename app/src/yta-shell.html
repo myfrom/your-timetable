@@ -223,6 +223,10 @@
         position: relative !important;
       }
       
+      iron-pages {
+        @apply --layout-fit;
+      }
+
       iron-swipeable-pages > div > .waiter {
         @apply --layout-fit;
         @apply --layout-horizontal;
@@ -357,7 +361,7 @@
     
     <!-- Switch between sections -->
     <iron-pages selected="[[selected]]" attr-for-selected="key" id="sections">
-      <yta-settings key="settings"></yta-settings>
+      <yta-settings key="settings" desktop-layout="[[desktopLayout]]" tablet-layout="[[tabletLayout]]" app-data="{{data}}"></yta-settings>
       
       <yta-onboarding key="onboarding" desktop-layout="[[desktopLayout]]" tablet-layout="[[tabletLayout]]"></yta-onboarding>
                       
@@ -603,6 +607,20 @@
             this._fire('close-setup-dialog');
             this.selected = 'main';
             break;
+          case 'openSettings':
+            importHref('src/yta-settings.html').then(() => {
+              this._fire('open-settings');
+              this.selected = 'settings';
+              this.routeData.page = 'settings';
+              this.routeData = this.routeData;
+            });
+            break;
+          case 'closeSettings':
+            this._fire('close-settings');
+            this.selected = 'main';
+            this.routeData.page = 'app';
+            this.routeData = this.routeData;
+            break;
           default:
             console.error('`switch-page` event fired without or with unknown action!', e);
         }
@@ -683,7 +701,7 @@
         const cmd = e.target.getAttribute('key');
         switch (cmd) {
           case 'settings':
-            // open settings page
+            this._fire('switch-page', { action: 'openSettings' });
             break;
           
           case 'feedback':
