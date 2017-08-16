@@ -1,6 +1,5 @@
 app/node_modules
 app/bower_components
 app/build
-jsconfig.json
 cert.pem
 key.pem

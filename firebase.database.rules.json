@@ -5,12 +5,6 @@
         ".read": "$uid === auth.uid",
         ".write": "$uid === auth.uid"
       }
-    },
-    "notifications": {
-      "$uid": {
-        ".read": "$uid === auth.uid",
-        ".write": "$uid === auth.uid"
-      }
     }
   }
 }
