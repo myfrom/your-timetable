@@ -11,6 +11,8 @@
 <link rel="import" href="/bower_components/paper-item/paper-item.html">
 <link rel="import" href="/bower_components/paper-toggle-button/paper-toggle-button.html">
 
+<link rel="import" href="app-localize-behavior-mixin.html">
+
 
 <dom-module id="yta-settings">
   <template>
@@ -163,24 +165,30 @@
       <app-header shadow fixed>
         <app-toolbar>
           <paper-icon-button icon="back-arrow" on-tap="_sendClose"></paper-icon-button>
-          <div main-title class="spacer">Settings</div>
+          <div main-title class="spacer">[[localize('set_h')]]</div>
         </app-toolbar>
       </app-header>
       <div id="content">
-        <paper-toggle-button checked="{{appData.settings.use12hoursClock}}">Use 12 hours clock</paper-toggle-button>
+          <paper-dropdown-menu label="[[localize('set_lang')]]" selected="{{language}}">
+          <paper-listbox slot="dropdown-content" attr-for-selected="key" fallback-selection="en">
+            <paper-item key="en">English</paper-item>
+            <paper-item key="pl">Polski</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+        <paper-toggle-button checked="{{appData.settings.use12hoursClock}}">[[localize('set_12h')]]</paper-toggle-button>
+        <paper-dropdown-menu label="[[localize('set_firstDay')]]" selected="{{appData.settings.firstDayOfWeek}}">
+          <paper-listbox slot="dropdown-content" attr-for-selected="i">
+            <paper-item i="1">[[localize('weekDays','d','1')]]</paper-item>
+            <paper-item i="6">[[localize('weekDays','d','6')]]</paper-item>
+            <paper-item i="0">[[localize('weekDays','d','0')]]</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
       </div>
-      <paper-dropdown-menu label="First day of the week" value="{{appData.settings.firstDayOfWeek}}">
-        <paper-listbox slot="dropdown-content" class="dropdown-content" attr-for-selected="i">
-          <paper-item i="1">Monday</paper-item>
-          <paper-item i="6">Saturday</paper-item>
-          <paper-item i="0">Sunday</paper-item>
-        </paper-listbox>
-      </paper-dropdown-menu>
     </div>
   </template>
 
   <script>
-    class Settings extends Polymer.Element {
+    class Settings extends Polymer.AppLocalizeBehaviorMixin(Polymer.Element) {
       static get is() { return 'yta-settings'; }
       static get properties() {
         return {
@@ -199,7 +207,12 @@
           // Inherited from shell
           tabletLayout: {
             type: Boolean
-          }
+          },
+
+          language: {
+            value: () => window.appLang,
+            observer: '_langChanged'
+          },
 
         };
       }
@@ -243,6 +256,10 @@
 
       _sendClose() {
         this._fire('switch-page', { action: 'closeSettings' }, false, this._shell);
+      }
+
+      _langChanged(language) {
+        window.appLang = language;
       }
 
       _computeTransitionTimes() {
