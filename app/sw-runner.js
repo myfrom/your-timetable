@@ -19,7 +19,7 @@ importScripts('service-worker.js');
     
     case 'checkPouch':
       if (typeof db !== 'undefined') {
-        db.get('data').then(() => e.ports[0].postMessage(true), err => e.ports[0].postMessage({ error: err }));
+        db.get('data').then(() => e.ports[0].postMessage(true), err => e.ports[0].postMessage({ error: err.toString() }));
       } else {
         e.ports[0].postMessage({ error: true });
       }
