@@ -170,15 +170,15 @@
         </app-toolbar>
       </app-header>
       <div id="content">
-          <paper-dropdown-menu label="[[localize('set_lang')]]" selected="{{language}}">
-          <paper-listbox slot="dropdown-content" attr-for-selected="key" fallback-selection="en">
+        <paper-dropdown-menu label="[[localize('set_lang')]]">
+          <paper-listbox slot="dropdown-content" attr-for-selected="key" fallback-selection="en" selected="{{language}}">
             <paper-item key="en">English</paper-item>
             <paper-item key="pl">Polski</paper-item>
           </paper-listbox>
         </paper-dropdown-menu>
         <paper-toggle-button checked="{{appData.settings.use12hoursClock}}">[[localize('set_12h')]]</paper-toggle-button>
-        <paper-dropdown-menu label="[[localize('set_firstDay')]]" selected="{{appData.settings.firstDayOfWeek}}">
-          <paper-listbox slot="dropdown-content" attr-for-selected="i">
+        <paper-dropdown-menu label="[[localize('set_firstDay')]]">
+          <paper-listbox slot="dropdown-content" attr-for-selected="i" selected="{{appData.settings.firstDayOfWeek}}">
             <paper-item i="1">[[localize('weekDays','d','1')]]</paper-item>
             <paper-item i="6">[[localize('weekDays','d','6')]]</paper-item>
             <paper-item i="0">[[localize('weekDays','d','0')]]</paper-item>

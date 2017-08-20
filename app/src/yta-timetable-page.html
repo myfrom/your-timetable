@@ -3,6 +3,8 @@
 
 <link rel="import" href="/bower_components/paper-styles/paper-styles.html">
 
+<link rel="import" href="app-localize-behavior-mixin.html">
+
 <dom-module id="yta-timetable-page">
   <template>
     <style>
@@ -89,7 +91,7 @@
   </template>
   
   <script>
-    class TimetablePage extends Polymer.Element {
+    class TimetablePage extends Polymer.AppLocalizeBehaviorMixin(Polymer.Element) {
       static get is() { return 'yta-timetable-page'; }
       static get properties() {
         return {
@@ -132,15 +134,14 @@
       }
       
       _computeDayName(day) {
-        let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        /*
-        let daysLocalised = [];
-        for(i=0; i>5; i++) {
-          daysLocalized[i] = this.localize(days[i])
-        };
-        days = daysLocalised;
-        */
-        return days[day];
+        switch (this.data.settings.firstDayOfWeek) {
+          case 1:
+            day = day == 6 ? 0 : day + 1;
+            break;
+          case 6:
+            day = day == 0 ? 6 : day - 1;
+        }
+        return this.localize('weekDays', 'd', day);
       }
       
       _pickLessonColor(name) {

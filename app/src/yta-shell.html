@@ -23,6 +23,7 @@
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="/bower_components/paper-styles/paper-styles.html">
 
+<link rel="import" href="app-localize-behavior-mixin.html">
 <link rel="import" href="yta-firebase.html">
 <link rel="import" href="yta-overview-page.html" async>
 <link rel="import" href="ycons.html">
@@ -292,15 +293,15 @@
     <!-- Display the main view of the app -->
     <app-header id="header" condenses fixed reveals effects="waterfall">
       <app-toolbar>
-        <div title>Your Timetable</div>
+        <div title>[[localize('shell_title')]]</div>
         <span class="spacer"></span>
         <paper-menu-button horizontal-align="right">
           <paper-icon-button src="[[_avatarImage]]" slot="dropdown-trigger" class="avatar-menu"></paper-icon-button>
           <paper-listbox slot="dropdown-content" on-tap="_menuItemClicked">
-            <paper-item role="menuitem" key="settings">Settings</paper-item>
-            <paper-item role="menuitem" key="feedback">Feedback</paper-item>
-            <paper-item role="menuitem" key="about">About</paper-item>
-            <paper-item role="menuitem" key="signout">Sign out</paper-item>
+            <paper-item role="menuitem" key="settings">[[localize('set_h')]]</paper-item>
+            <paper-item role="menuitem" key="feedback">[[localize('shell_feedback')]]</paper-item>
+            <paper-item role="menuitem" key="about">[[localize('shell_about')]]</paper-item>
+            <paper-item role="menuitem" key="signout">[[localize('shell_signout')]]</paper-item>
             <!--<paper-item role="menuitem" key="help">Help</paper-item> # Think of help section -->
           </paper-listbox>
         </paper-menu-button>
@@ -308,19 +309,19 @@
       <app-toolbar sticky>
         <paper-tabs selected="{{selectedView}}" attr-for-selected="key" bottom-item>
           <paper-tab key="overview">
-            <template is="dom-if" if="[[!phoneLayout]]">overview</template>
+            <template is="dom-if" if="[[!phoneLayout]]">[[localize('shell_overview')]]</template>
             <template is="dom-if" if="[[phoneLayout]]"><iron-icon icon="ycons:home"></iron-icon></template>
           </paper-tab>
           <paper-tab key="timetable">
-            <template is="dom-if" if="[[!phoneLayout]]">timetable</template>
+            <template is="dom-if" if="[[!phoneLayout]]">[[localize('shell_timetable')]]</template>
             <template is="dom-if" if="[[phoneLayout]]"><iron-icon icon="ycons:view-list"></iron-icon></template>
           </paper-tab>
           <paper-tab key="search">
-            <template is="dom-if" if="[[!phoneLayout]]">search</template>
+            <template is="dom-if" if="[[!phoneLayout]]">[[localize('search')]]</template>
             <template is="dom-if" if="[[phoneLayout]]"><iron-icon icon="ycons:search"></iron-icon></template>
           </paper-tab>
           <paper-tab key="calendar">
-            <template is="dom-if" if="[[!phoneLayout]]">calendar</template>
+            <template is="dom-if" if="[[!phoneLayout]]">[[localize('shell_calendar')]]</template>
             <template is="dom-if" if="[[phoneLayout]]"><iron-icon icon="ycons:event"></iron-icon></template>
           </paper-tab>
         </paper-tabs>
@@ -378,7 +379,7 @@
   </template>
   
   <script>
-    class Shell extends Polymer.Element {
+    class Shell extends Polymer.AppLocalizeBehaviorMixin(Polymer.Element) {
       static get is() { return 'yta-shell'; }
       static get properties() {
         return {

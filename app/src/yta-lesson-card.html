@@ -6,6 +6,8 @@
 <link rel="import" href="/bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="/bower_components/paper-styles/color.html">
 
+<link rel="import" href="app-localize-behavior-mixin.html">
+
 <dom-module id="yta-lesson-card">
   <template>
     <style>
@@ -53,7 +55,7 @@
           <div>[[name]]</div>
           <div secondary>
             [[startTime]] - [[endTime]]
-            <i hidden$="[[_isClassNull(classroom)]]"> in [[classroom]]</i>
+            <i hidden$="[[_isClassNull(classroom)]]"> [[localize('setup_in')]] [[classroom]]</i>
           </div>
         </paper-item-body>
       </paper-item>
@@ -61,7 +63,7 @@
   </template>
   
   <script>
-    class LessonCard extends Polymer.Element {
+    class LessonCard extends Polymer.AppLocalizeBehaviorMixin(Polymer.Element) {
       static get is() { return 'yta-lesson-card'; }
       static get properties() {
         return {
