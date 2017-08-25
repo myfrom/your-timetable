@@ -74,6 +74,7 @@ function pushToPouch(e) {
     output.settings = data.settings;
     output.timetable = data.timetable;
     output.lastEdit = data.lastEdit;
+    output.events = data.events;
     output._id = 'data';
     output._rev = resp._rev || undefined;
     return db.put(output).catch(err => {
