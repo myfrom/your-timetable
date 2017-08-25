@@ -560,64 +560,63 @@
         });
       }
       
-      _switchRoute(e) {
+      async _switchRoute(e) {
+        let clientRect;
         switch (e.detail.action) {
           case 'openAddDialog':
-            importHref('src/yta-add-dialog.html').then(() => {
-              const withAnimation = this.selected === 'main' ? true
-                                                             : false;
-              const clientRect = this.desktopLayout ? null :
-                                                      e.detail.clientRect;
-              this._fire('open-add-dialog', { clientRect, withAnimation });
-              this.selected = 'add';
-              this.routeData.page = 'add';
-              this.routeData = this.routeData;
-            });
+            await importHref('src/yta-add-dialog.html');
+            const withAnimation = this.selected === 'main' ? true
+                                                            : false;
+            clientRect = this.desktopLayout ? null : e.detail.clientRect;
+            this._fire('open-add-dialog', { clientRect, withAnimation });
+            this.selected = 'add';
+            this.routeData.page = 'add';
+            this.routeData = this.routeData;
             break;
           case 'closeAddDialog':
-            const clientRect = this.desktopLayout ? null :
-                                                    e.detail.clientRect;
+            clientRect = this.desktopLayout ? null : e.detail.clientRect;
             this._fire('close-add-dialog', { clientRect: clientRect });
+            await waitMs(260);
             this.selected = 'main';
             this.routeData.page = 'app';
             this.routeData = this.routeData;
             break;
           case 'openOnboarding':
-            importHref('src/yta-onboarding.html').then(() => {
-              this._fire('open-onboarding');
-              this.selected = 'onboarding';
-              this.routeData.page = 'welcome';
-              this.routeData = this.routeData;
-            });
+            await importHref('src/yta-onboarding.html');
+            this._fire('open-onboarding');
+            this.selected = 'onboarding';
+            this.routeData.page = 'welcome';
+            this.routeData = this.routeData;
             break;
           case 'closeOnboarding':
             this._fire('close-onboarding');
+            await waitMs(260);
             this.selected = 'main';
             this.routeData.page = 'app';
             this.routeData = this.routeData;
             break;
           case 'openSetupDialog':
-            importHref('src/yta-setup-dialog.html').then(() => {
-              this._fire('open-setup-dialog');
-              this.selected = 'setup';
-              this.routeData.page = 'app';
-              this.routeData = this.routeData;
-            });
+            await importHref('src/yta-setup-dialog.html');
+            this._fire('open-setup-dialog');
+            this.selected = 'setup';
+            this.routeData.page = 'app';
+            this.routeData = this.routeData;
             break;
           case 'closeSetupDialog':
             this._fire('close-setup-dialog');
+            await waitMs(260);
             this.selected = 'main';
             break;
           case 'openSettings':
-            importHref('src/yta-settings.html').then(() => {
-              this._fire('open-settings');
-              this.selected = 'settings';
-              this.routeData.page = 'settings';
-              this.routeData = this.routeData;
-            });
+            await importHref('src/yta-settings.html')
+            this._fire('open-settings');
+            this.selected = 'settings';
+            this.routeData.page = 'settings';
+            this.routeData = this.routeData;
             break;
           case 'closeSettings':
             this._fire('close-settings');
+            await waitMs(260);
             this.selected = 'main';
             this.routeData.page = 'app';
             this.routeData = this.routeData;
