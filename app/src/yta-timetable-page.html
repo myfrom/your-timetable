@@ -135,10 +135,10 @@
       
       _computeDayName(day) {
         switch (this.data.settings.firstDayOfWeek) {
-          case 1:
+          case "1":
             day = day == 6 ? 0 : day + 1;
             break;
-          case 6:
+          case "6":
             day = day == 0 ? 6 : day - 1;
         }
         return this.localize('weekDays', 'd', day);
