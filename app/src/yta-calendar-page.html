@@ -1,12 +1,19 @@
 <link rel="import" href="/bower_components/polymer/polymer-element.html">
-<!-- <link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html"> -->
-
 
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-item/paper-item-body.html">
+
+<link rel="import" href="/bower_components/neon-animation/animations/slide-from-bottom-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-down-animation.html">
 
 <link rel="import" href="ycons.html">
 <link rel="import" href="paper-calendar.html">
 
+<script src="/bower_components/moment/min/moment.min.js"></script>
 
 <dom-module id="yta-calendar-page">
   <template>
@@ -17,7 +24,7 @@
         
         #calendar {
           position: fixed;
-          top: 45px;
+          top: 50px;
           bottom: 72px;
           right: 15px;
           left: 15px;
@@ -32,11 +39,39 @@
           max-width: 500px;
           margin: 30px auto;
         }
+
+        #header {
+          max-width: 500px;
+          margin: 0 auto;
+        }
       }
+
+      #header {
+        @apply --layout-flex;
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        height: 60px;
+        padding: 0 16px;
+      }
+
+      #header > span {
+        @apply --layout-flex;
+        @apply --paper-font-menu;
+        text-transform: uppercase;
+        text-align: center;
+        position: relative;
+        left: 20px;
+        opacity: var(--light-primary-opacity);
+     }
+
+     #header > paper-icon-button {
+       opacity: var(--light-secondary-opacity);
+     }
 
       #calendar {
         --paper-calendar-selected-background: var(--accent-color);
         --paper-calendar-selected-color: rgba(0,0,0,.87);
+        --paper-calendar-event-background: var(--primary-color);
         --paper-calendar-table: {
           width: 100%;
         };
@@ -45,15 +80,37 @@
     </style>
     
     <div id="header">
-      <paper-icon-button icon=""></paper-icon-button>
-      <span>[[_selectedMonth]]</span>
-      <paper-icon-button icon=""></paper-icon-button>
-      <paper-icon-button icon=""></paper-icon-button>
+      <paper-icon-button icon="ycons:keyboard-arrow-left" on-tap="_previousMonth"></paper-icon-button>
+      <span>[[_computeMonthName(_selectedMonth)]]</span>
+      <paper-icon-button icon="ycons:event" on-tap="_today"></paper-icon-button>
+      <paper-icon-button icon="ycons:keyboard-arrow-right" on-tap="_nextMonth"></paper-icon-button>
     </div>
-    <paper-calendar id="calendar" selectable
+    <paper-calendar id="calendar" selectable on-selected="_calendarSelected"
                     swipeable swipe-direction="vertical"
+                    events="[[_processEvents(data.events)]]"
                     first-day="[[data.settings.firstDayOfWeek]]"
-                    selected-month="[[_selectedMonth]]"></paper-calendar>
+                    selected-month="{{_selectedMonth}}"></paper-calendar>
+
+    <paper-dialog id="dialog" entry-animation="slide-from-bottom-animation" with-backdrop
+                  exit-animation="slide-down-animation" style="border-radius:2px;">
+      <h2></h2>
+      <paper-dialog-scrollable>
+        <template is="dom-repeat">
+          <paper-item class="event" style="background-color: [[item.color]];">
+            <paper-item-body two-line>
+              <div class="primary">
+                <span class="header">[[item.name]]</span>
+                <div class="actions" info$="[[item.date]][[item.lesson]]">
+                  <paper-icon-button icon="ycons:edit" class="edit-button"></paper-icon-button>
+                  <paper-icon-button icon="ycons:delete" class="delete-button"></paper-icon-button>
+                </div>
+              </div>
+              <div secondary>[[_getLessonName(item.date, item.lesson)]]</div>
+            </paper-item-body>
+          </paper-item>
+        </template>
+      </paper-dialog-scrollable>
+    </paper-dialog>
   </template>
   
   <script>
@@ -79,42 +136,137 @@
       
       connectedCallback() {
         super.connectedCallback();
-        
-        // Set scroll target
-        this.scrollTarget = document.body;
+      }
+
+      _calendarSelected(e) {
+        const date = e.detail.date,
+              events = this.data.events;
+        if (!events) return;
+        this._checkForEventsOn(date, events).then(dayEvents => {
+          // Create styles
+          const styles = `
+            #dialog .event {
+              width: 240px;
+              color: white;
+              margin: 2px;
+              border-radius: 2px;
+              background-color: var(--primary-color);
+            }
+
+            #dialog .event .primary {
+              display: flex;
+              flex-direction: row;
+            }
+
+            #dialog .event .primary .header {
+              flex: 1;
+            }
+
+            #dialog .event [secondary] {
+              color: white;
+              opacity: var(--light-secondary-opacity);
+            }
+
+            #dialog .event .primary paper-icon-button {
+              opacity: var(--light-secondary-opacity);
+              padding: 0 4px;
+              height: 22px;
+              width: 30px;
+            }
+          `
+          // Add content
+          this.shadowRoot.querySelector('#dialog > h2').textContent = moment(date).format('MMMM Do YYYY');
+          this.shadowRoot.querySelector('#dialog dom-repeat').items = dayEvents;
+          this.shadowRoot.querySelector('#dialog dom-repeat').render();
+          // Remove old event listeners
+          this.shadowRoot.querySelectorAll('#dialog .edit-button').forEach(item => item.removeEventListener('click', this._editEvent));
+          this.shadowRoot.querySelectorAll('#dialog .delete-button').forEach(item => item.removeEventListener('click', this._deleteEvent));
+          // Asign callbacks
+          this.shadowRoot.querySelectorAll('#dialog .edit-button').forEach(item => item.addEventListener('click', this._editEvent.bind(this)));
+          this.shadowRoot.querySelectorAll('#dialog .delete-button').forEach(item => item.addEventListener('click', this._deleteEvent.bind(this)));
+          // Open dialog
+          this._openDialog(this.$.dialog, styles);
+        }, err => { if (err !== 'noevents') throw err })
+      }
+
+      _checkForEventsOn(date, events) {
+        return new Promise((resolve, reject) => {
+          const regexp = new RegExp(`^${date}.+`, 'g'),
+                output = [];
+          Object.keys(events).forEach(key => {
+            if (key.match(regexp)) output.push(events[key]);
+          });
+          if (!output.length) {
+            reject('noevents');
+          } else {
+            /* DEMO VALUES WOULD CAUSE ERRORS HERE
+            output.sort((a, b) => a.lessonIndex - b.lessonIndex);
+            */
+            resolve(output);
+          }
+        });
+      }
+
+      _editEvent(e) {
+        console.log(e);
+      }
+
+      _deleteEvent(e) {
+        console.log(e.target.parentElement.getAttribute('info'));
+      }
+
+      _getLessonName(date, index) {
+        let day = moment(date).day();
+        switch (this.data.settings.firstDayOfWeek) {
+          case "1":
+            day = day == 6 ? 0 : day + 1;
+            break;
+          case "6":
+            day = day == 0 ? 6 : day - 1;
+        }
+        return index + '. ' + this.data.timetable[day][index].name;
+      }
+
+      _openDialog(dialog, style = null) {
+        // Create nescessary styles
+        let styleEl;
+        if (style) {
+          styleEl = document.createElement('style');
+          styleEl.innerHTML = style;
+          document.head.appendChild(styleEl);
+        }
+        // Remember current parent to...
+        const parent = dialog.parentNode;
+        // ...move it back when it closes
+        dialog.addEventListener('iron-overlay-closed', () => {
+          if (styleEl) styleEl.remove();
+          parent.appendChild(dialog);
+        }, { once: true });
+        // Move element
+        document.body.appendChild(dialog);
+        dialog.open();
+      }
+
+      _processEvents(events) {
+        const output = [];
+        Object.keys(events).forEach(key => output.push(events[key]));
+        return output;
       }
       
-      viewReadable(time) {
-        let input = new Date(time);
-        let output = [null, ':', null];
-        output[0] = input.getHours();
-        output[2] = input.getMinutes();
-        if (output[2].toString().length == 1) {
-          output[2] = '0' + output[2];
-        };
-        return output.join('')
+      _computeMonthName(month) {
+        return moment(month).format('MMMM');
       }
-      
-      _computeDayName(day) {
-        let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        /*
-        let daysLocalised = [];
-        for(i=0; i>5; i++) {
-          daysLocalized[i] = this.localize(days[i])
-        };
-        days = daysLocalised;
-        */
-        return days[day];
+
+      _nextMonth() {
+        this._selectedMonth = Number(moment(this._selectedMonth).add(1, 'months').format('x'));
       }
-      
-      _pickLessonColor(name) {
-        let config = this.data.config;
-        return config[name].color;
+
+      _previousMonth() {
+        this._selectedMonth = Number(moment(this._selectedMonth).subtract(1, 'months').format('x'));
       }
-      
-      _pickClassroom(name) {
-        let config = this.data.config;
-        return config[name].class;
+
+      _today() {
+        this._selectedMonth = Number(moment().format('x'));
       }
     }
     
