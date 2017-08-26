@@ -1,4 +1,4 @@
-<!-- Copiedcand modified from myfrom/paper-calendar -->
+<!-- Copied and modified from myfrom/paper-calendar -->
 
 <link rel="import" href="/bower_components/polymer/polymer.html">
 
@@ -23,12 +23,14 @@ List of events to display. Provided as an array of objects like this:
 ````
 [
   {
-    name: 'event-name', // Optional, only for cleaner view at events, won't get rendered anyway
-    date: '1482766107232', // Hours, minutes, seconds will be ignored
-    color: '##03a9f4' // Dots indicating events will have this color; optional
+    name: 'Almost my birthday', // Will get remdered, can contain other HTML elements, but be very careful when including them
+    date: '2002-01-17', // yyyy-mm-dd
+    color: '##03a9f4' // Evens will have this color; optional
+    textColor: 'white' // Text color of event label; optional
   },
   {
-    date: '1463522400000',
+    name: 'Today, somewhen'
+    date: '2017-08-17',
     color: 'purple' // Can be any valid CSS color
   }
 ]
@@ -49,6 +51,9 @@ Custom property | Description | Default
 `--paper-calendar-text-hover` | Background of date being hovered over | `rgba(0,0,0,0.12)`
 `--paper-calendar-background` | Backround of the element | `none`
 `--paper-calendar-table` | Mixin aplied to table (Each page is rendered as table) | `{}`
+`--paper-calendar-event-text` | Mixin aplied to text of events | `{}`
+`--paper-calendar-event-background` | Default background color of event | `#3367d6`
+`--paper-calendar-event-text-color` | Text color of events | `white`
 
 @demo demo/index.html 
 -->
@@ -88,7 +93,7 @@ Custom property | Description | Default
       
       tr, td, th {
         text-align: center;
-        vertical-align: middle;
+        vertical-align: top;
       }
       
       td {
@@ -114,6 +119,10 @@ Custom property | Description | Default
         cursor: pointer;
       }
       
+      td {
+        background-color: #FAFAFA;
+      }
+
       td div {
         height: 30px;
         width: 30px;
@@ -141,27 +150,37 @@ Custom property | Description | Default
       
       td .events {
         position: absolute;
-        bottom: 0;
+        top: 30px;
         left: 0;
         right: 0;
         display: -ms-flexbox;
         display: -webkit-flex;
         display: flex;
-        -ms-flex-direction: row;
-        -webkit-flex-direction: row;
-        flex-direction: row;
+        -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
         -ms-flex-pack: center;
         -webkit-justify-content: center;
         justify-content: center;
       }
       
-      .event-dot {
-        margin: 0 1px;
-        width: 5px;
-        height: 5px;
+      .event-block {
+        @apply --paper-calendar-event-text;
+        margin: 1px;
+        width: calc(100% - 2px);
+        height: 14px;
         display: block;
-        border-radius: 50%;
-        background-color: var(--paper-calendar-selected-background, #3367d6);
+        border-radius: 2px;
+        background-color: var(--paper-calendar-event-background, #3367d6);
+        color: var(--paper-calendar-event-text-color, white);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 1px;
+        font-size: 12px;
+      }
+
+      dom-repeat {
+        display: none;
       }
       
     </style>
@@ -291,8 +310,7 @@ Custom property | Description | Default
       },
       
       listeners: {
-        'iron-resize': '_switchTranslateDir',
-        'tap': '_tapped'
+        'iron-resize': '_switchTranslateDir'
       },
       
       attached: function() {
@@ -361,6 +379,7 @@ Custom property | Description | Default
           var td = document.createElement('td');
           td.innerHTML = '<div>' + (j + 1) + '</div> \
                           <span class="events"></span>';
+          td.addEventListener('click', this._tapped.bind(this));
           if (week.length > 6) {
             Polymer.dom(table).appendChild(tr);
             week = [0];
@@ -514,7 +533,7 @@ Custom property | Description | Default
           var day = this._months.next[selected.date() - 1];
           Polymer.dom(day).querySelector('div').setAttribute('selected', true);
         } else if (selected.month() === thisMonth.add(-1,'M').month()) {
-          var day = this._months.las[selected.date() - 1];
+          var day = this._months.last[selected.date() - 1];
           Polymer.dom(day).querySelector('div').setAttribute('selected', true);
         } else {
           this._requireSetSelected = true;
@@ -531,8 +550,10 @@ Custom property | Description | Default
             var thisMonth = moment(this.selectedMonth);
             var evDate = moment(item.date);
             var el = document.createElement('span');
-            el.classList.add('event-dot');
+            el.classList.add('event-block');
             el.style.backgroundColor = item.color;
+            el.innerHTML = item.name;
+            item.el = el;
             if (evDate.month() === thisMonth.month()) {
               var day = this._months.current[evDate.date() - 1];
               day = Polymer.dom(day).querySelector('span.events');
@@ -542,7 +563,7 @@ Custom property | Description | Default
               day = Polymer.dom(day).querySelector('span.events');
               Polymer.dom(day).appendChild(el);
             } else if (evDate.month() === thisMonth.add(-1,'M').month()) {
-              var day = this._months.las[evDate.date() - 1];
+              var day = this._months.last[evDate.date() - 1];
               day = Polymer.dom(day).querySelector('span.events');
               Polymer.dom(day).appendChild(el);
             } else {
@@ -552,29 +573,16 @@ Custom property | Description | Default
         });
         this._renderedEvents.forEach(item => {
           if (!events.includes(item)) {
-            var deleted = this._renderedEvents.splice(oneArray.indexOf(item), 1);
-            console.log('Old one deleted', deleted)
+            item.el.remove();
+            var deleted = this._renderedEvents.splice(events.indexOf(item), 1);
           }
         });
       },
       
-      _tapped: function(e) {
-        var el = e.target;
-        if (el.nodeName === 'DIV' && !el.getAttribute('selected') && this.selectable) {
-          var month, day = el.textContent;
-          switch (el.parentElement.parentElement.parentElement.parentElement.classList[0]) {
-            case 'i0':
-              month = moment(this.selectedMonth);
-              break;
-            case 'i1':
-              month = moment(this.selectedMonth).add(1,'M');
-              break;
-            case 'i-1':
-              month = moment(this.selectedMonth).add(-1,'M');
-              break;
-          }
-          this.selected = Number(month.date(day).format('x'));
-        }
+      _tapped: function(e, detail) {
+        const day = this._months.current.indexOf(e.currentTarget),
+              date = moment(this.selectedMonth).date(day + 1).format('YYYY-MM-DD');
+        this.fire('selected', { date });
       }
 
     });
