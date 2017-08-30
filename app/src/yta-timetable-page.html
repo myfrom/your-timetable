@@ -5,6 +5,8 @@
 
 <link rel="import" href="app-localize-behavior-mixin.html">
 
+<script src="/bower_components/moment/min/moment.min.js"></script>
+
 <dom-module id="yta-timetable-page">
   <template>
     <style>
@@ -71,9 +73,9 @@
     </style>
     
     <div id="topPlaceholder">
-      <template is="dom-repeat" items="[[data.timetable]]">
+      <template is="dom-repeat" items="[[_getTt(data.timetable)]]">
         <div class="dayPlaceholder">
-          <h6 class="day-name">[[_computeDayName(index)]]</h6>
+          <h6 class="day-name">[[_getDayName(item)]]</h6>
           <div class="lessonsPlaceholder">
             <dom-repeat items="[[item]]" as="lesson">
               <template>
@@ -91,7 +93,7 @@
   </template>
   
   <script>
-    class TimetablePage extends Polymer.AppLocalizeBehaviorMixin(Polymer.Element) {
+    class TimetablePage extends Polymer.Element {
       static get is() { return 'yta-timetable-page'; }
       static get properties() {
         return {
@@ -111,37 +113,33 @@
       
       connectedCallback() {
         super.connectedCallback();
-        
-        // Set scroll target
-        this.scrollTarget = document.body;
       }
       
       viewReadable(time) {
-        const date = new Date(time);
-        let hours = date.getUTCHours(),
-            minutes = date.getUTCMinutes(),
-            pm = false;
-        if (this.data.settings.use12hoursClock && hours > 12) {
-          hours -= 12;
-          pm = true;
-        }
-        if (minutes.toString().length === 1) minutes = '0' + minutes;
-        let output = hours + ':' + minutes;
-        if (this.data.settings.use12hoursClock) {
-          output += pm ? ' PM' : ' AM'; 
+        const ampm = this.data.settings.use12hoursClock;
+        return moment(time).utcOffset(0)
+          .format(`${ampm ? 'hh' : 'HH'}:mm${ampm ? ' a' : ''}`);
+      }
+
+      _getTt(timetable) {
+        const output = [];
+        timetable.forEach(item => {
+          if (item) output.push(item);
+        });
+        switch (Number(this.data.settings.firstDayOfWeek)) {
+          case 1:
+            output.push(output.shift());
+            break;
+          case 6:
+            output.unshift(output.pop());
+            break;
         }
         return output;
       }
       
-      _computeDayName(day) {
-        switch (this.data.settings.firstDayOfWeek) {
-          case "1":
-            day = day == 6 ? 0 : day + 1;
-            break;
-          case "6":
-            day = day == 0 ? 6 : day - 1;
-        }
-        return this.localize('weekDays', 'd', day);
+      _getDayName(item) {
+        const day = this.data.timetable.indexOf(item);
+        return moment().day(day).format('dddd');
       }
       
       _pickLessonColor(name) {

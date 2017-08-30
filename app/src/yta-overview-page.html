@@ -6,6 +6,8 @@
 
 <link rel="import" href="yta-lesson-card.html">
 
+<script src="/bower_components/moment/min/moment.min.js"></script>
+
 <dom-module id="yta-overview-page">
   <template>
     <style>
@@ -26,6 +28,10 @@
           @apply --layout-center-justified;
           padding-top: 12px !important;
         }
+
+        h2 {
+          text-align: center;
+        }
         
       }
       
@@ -37,12 +43,23 @@
         position: relative;
         overflow: visible;
       }
+      
+      h2 {
+        margin: 15px;
+        opacity: var(--dark-primary-opacity);
+        font-size: 24px;
+        font-weight: 400;
+        letter-spacing: -.01em;
+        line-height: 40px;
+        font-family: 'Roboto', 'Noto', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
     
     </style>
     
     <div id="placeholder">
       <template is="dom-repeat" items="[[lessonsToday(data.timetable)]]">
-        <yta-lesson-card i="[[index]]"
+        <yta-lesson-card i$="[[index]]"
                          name="[[item.name]]"
                          start-time="[[viewReadable(item.startTime)]]"
                          end-time="[[viewReadable(item.endTime)]]"
@@ -85,8 +102,7 @@
       
       connectedCallback() {
         super.connectedCallback();
-        const evt = new CustomEvent('OVERIVIEW-PAGE-loaded');
-        this.dispatchEvent(evt, { bubbles: true });
+        this._fire('OVERIVIEW-PAGE-loaded');
       }
       
       lessonsToday(tt) {
@@ -94,44 +110,36 @@
           this._fire('err-no-data');
           return [];
         } else {
-          const now = new Date();
-          const todayTt = tt[now.getUTCDay() - 1];
-          if (now.getUTCDay() > tt.length || now.getUTCDay() == 0) {
-            return tt[0];
-          } else if (this.hoursTimer(now) >= this.hoursTimer(todayTt[todayTt.length - 1].endTime)) {
-            if (now.getUTCDay() + 1 > tt.length) {
-              return tt[0];
-            } else {
-              return tt[now.getUTCDay()];
+          const timetable = tt;
+          let day = moment().day(),
+              showHeader = false,
+              firstRun = true;
+          while (true) {
+            if (timetable[day] !== 0) {
+              const minute = moment().minute(),
+                    hour = moment().hour(),
+                    time = moment().utcOffset(0).set({year: 1970, month: 0, date: 1, minute, hour}).format('x');
+              if (!firstRun || timetable[day][timetable[day].length - 1].endTime > time) {
+                if (!firstRun) this._showHeader(day);
+                return timetable[day];
+              }
             }
-          } else {
-            return todayTt;
+            day = day === 6 ? 0 : day + 1;
+            firstRun = false;
           }
         }
       }
       
       viewReadable(time) {
-        const date = new Date(time);
-        let hours = date.getUTCHours(),
-            minutes = date.getUTCMinutes(),
-            pm = false;
-        if (this.data.settings.use12hoursClock && hours > 12) {
-          hours -= 12;
-          pm = true;
-        }
-        if (minutes.toString().length === 1) minutes = '0' + minutes;
-        let output = hours + ':' + minutes;
-        if (this.data.settings.use12hoursClock) {
-          output += pm ? ' PM' : ' AM'; 
-        }
-        return output;
+        const ampm = this.data.settings.use12hoursClock;
+        return moment(time).utcOffset(0)
+          .format(`${ampm ? 'hh' : 'HH'}:mm${ampm ? ' a' : ''}`);
       }
-      
-      hoursTimer(date) {
-        const output = new Date();
-        const input = new Date(date);
-        output.setUTCHours(input.getUTCHours(), input.getUTCMinutes());
-        return output.getTime();
+
+      _showHeader(day) {
+        const el = document.createElement('h2');
+        el.textContent = moment().day(day).format('dddd');
+        this.shadowRoot.insertBefore(el, this.shadowRoot.firstChild);
       }
       
       _pickLessonColor(name) {
