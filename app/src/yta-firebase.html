@@ -102,7 +102,7 @@
         
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            if (this.isSW) {
+            if (this._isSW()) {
               this._loadPouchDB();
             } else {
               importHref('/bower_components/app-pouchdb/app-pouchdb-document.html');
