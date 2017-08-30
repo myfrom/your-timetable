@@ -553,11 +553,13 @@
         pager.updateStyles({ '--paper-pager-color': this.desktopLayout ? color
                                                                        : '#FFFFFF' });
         if (this.desktopLayout) {
-          const nextFab = this.shadowRoot.querySelector('.fab.right');
-          const previousFab = this.shadowRoot.querySelector('.fab.left');
-          color = color === '#FFFFFF' ? 'black' : color; 
-          nextFab.style.color = color;
-          previousFab.style.color = color;
+          Polymer.RenderStatus.afterNextRender(this, () => {
+            const nextFab = this.shadowRoot.querySelector('.fab.right');
+            const previousFab = this.shadowRoot.querySelector('.fab.left');
+            color = color === '#FFFFFF' ? 'black' : color; 
+            nextFab.style.color = color;
+            previousFab.style.color = color;
+          });
         }
       }
       
