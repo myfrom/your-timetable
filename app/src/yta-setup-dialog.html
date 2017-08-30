@@ -68,7 +68,7 @@
         }
         
         .lesson-inputs .grid {
-          width: 50%;
+          width: 49%;
         }
       }
       
@@ -99,11 +99,11 @@
         }
         
         .lesson-inputs .grid {
-          width: 50%;
+          width: 49%;
         }
         
         .next {
-          bottom: -15px;
+          bottom: -15px !important;
           border-radius: 0 0 25px 25px;
         }
         
@@ -311,6 +311,7 @@
         @apply --layout-inline;
         @apply --layout-horizontal;
         @apply --layout-center;
+        display: inline-flex;
       }
       
     </style>
@@ -371,7 +372,7 @@
               </div>
             </div>
             <paper-icon-button icon="ycons:remove-circle" on-tap="_removeLesson"
-                               class="remove-lesson"></paper-icon-button>
+                               tabindex="-1" class="remove-lesson"></paper-icon-button>
           </div>
         </template>
         <div class="next">
@@ -402,13 +403,6 @@
           tabletLayout: {
             type: Boolean
           },
-          
-          /* NOT SURE IF NESSCESSARY
-          // Boolean indicating state of element
-          isActive: {
-            type: Boolean,
-            value: false
-          },*/
           
           // Days in which user goes to school
           weekDays: {
@@ -444,7 +438,7 @@
         super.ready();
         
         // Init variables with defaults
-        this.weekDays = ["0","1","2","3","4"];
+        this.weekDays = ['1','2','3','4','5'];
         this._lessonTime = 2700000;
         this._breakTime = 600000;
       }
@@ -527,31 +521,20 @@
         this.weekDays.sort((a,b) => {
           switch (Number(firstDayOfWeek)) {
             case 1:
-              return Number(a) - Number(b);
+              a = a == 0 ? 6 : Number(a) - 1;
+              b = b == 0 ? 6 : Number(b) - 1;
+              return a - b;
             case 0:
-              // If a or b is 6 (Sunday) change it to 0
+              return Number(a) - Number(b);
+            case 6:
               a = a == 6 ? 0 : Number(a) + 1;
               b = b == 6 ? 0 : Number(b) + 1;
-              return a - b;
-            case 6:
-              if (a == 5)
-                a = 0;
-              else if (a == 6)
-                a = 1;
-              else
-                a = Number(a) + 2;
-              if (b == 5)
-                b = 0;
-              else if (b == 6)
-                b = 1;
-              else
-                b = Number(b) + 2;
               return a - b;
           }
         });
         this._currentEditedDay = Number(this.weekDays.shift());
-        const dayReadable = moment().day(this._currentEditedDay + 1).format('dddd');
-        this.$.daySection.children[0].textContent = `${this.localize('setup_enterLessonsON')} ${dayReadable}`;;
+        const dayReadable = moment().day(this._currentEditedDay).format('dddd');
+        this.$.daySection.children[0].textContent = `${this.localize('setup_enterLessonsOn')} ${dayReadable}`;;
         this.$.daySection.children[1].items = this._lessonsOn(this._currentEditedDay);
         this._closeWaiter();
       }
@@ -585,7 +568,8 @@
       }
       
       _lessonsOn(day) {
-        while (this._lessonsOnDays.length - 1 <= day) this._lessonsOnDays.push([{},{},{},{},{},{},{},{}]);
+        const emptyDay = [{},{},{},{},{},{},{},{}];
+        if (this._lessonsOnDays.length === 0) this._lessonsOnDays = [emptyDay,emptyDay,emptyDay,emptyDay,emptyDay,emptyDay,emptyDay];
         if (this._lessonsOnDays[day].length === 0) this._lessonsOnDays[day] = [{},{},{},{},{},{},{},{}];
         return this._lessonsOnDays[day];
       }
@@ -627,7 +611,7 @@
       }
       
       _processCustomLessonInputValue(e) {
-        if (!e.detail) return;
+        if (!e.detail || e.detail == {}) return;
         const val = e.detail;
         const capVal = val.charAt(0).toUpperCase() + val.slice(1);
         e.preventDefault();
@@ -637,8 +621,8 @@
       
       _changeFirstDayOfWeek(e) {
         const weekDays = this.shadowRoot.querySelector('#weekDays'),
-              sat = this.shadowRoot.querySelector('#weekDays [i="5"]'),
-              sun = this.shadowRoot.querySelector('#weekDays [i="6"]');
+              sat = this.shadowRoot.querySelector('#weekDays [i="6"]'),
+              sun = this.shadowRoot.querySelector('#weekDays [i="0"]');
         switch (e.detail.value) {
           case "Saturday":
             weekDays.insertBefore(sun, weekDays.firstChild);
@@ -723,14 +707,12 @@
           }
         });
         this.appData.config = config;
-        this.appData.timetable = this.appData.timetable || [];
+        this.appData.timetable = this.appData.timetable || [0,0,0,0,0,0,0];
         output.forEach((item, index) => {
           output[index] = Object.keys(item)
                                 .filter(key => typeof item[key] !== 'undefined')
                                 .reduce((res, key) => Object.assign(res, { [key]: item[key] }), {});
         });
-        while (this.appData.timetable.length < day + 1)
-          this.appData.timetable.push([]);
         this.appData.timetable[day] = output;
         if (this.weekDays.length === 0) {
           // Save and exit setup
@@ -739,8 +721,8 @@
         } else {
           // Open another input page for next day
           this._currentEditedDay = Number(this.weekDays.shift());
-          const dayReadable = moment().day(this._currentEditedDay + 1).format('dddd');
-          this.$.daySection.children[0].textContent = `${this.localize('setup_enterLessonsON')} ${dayReadable}`;
+          const dayReadable = moment().day(this._currentEditedDay).format('dddd');
+          this.$.daySection.children[0].textContent = `${this.localize('setup_enterLessonsOn')} ${dayReadable}`;
           this.shadowRoot.querySelector('#daySection dom-repeat').items = this._lessonsOn(this._currentEditedDay);
           this.$.main.scrollTop = 0;
         }
