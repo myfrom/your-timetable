@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-if.html">
 
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/paper-styles/paper-styles.html">
@@ -6,6 +7,9 @@
 <link rel="import" href="/bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="/bower_components/paper-item/paper-item.html">
 <link rel="import" href="/bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
 
 <link rel="import" href="/bower_components/neon-animation/animations/slide-from-bottom-animation.html">
 <link rel="import" href="/bower_components/neon-animation/animations/slide-down-animation.html">
@@ -98,14 +102,30 @@
         <template is="dom-repeat">
           <paper-item class="event" style="background-color: [[item.color]];">
             <paper-item-body two-line>
-              <div class="primary">
-                <span class="header">[[item.name]]</span>
-                <div class="actions" info$="[[item.date]][[item.lesson]]">
-                  <paper-icon-button icon="ycons:edit" class="edit-button"></paper-icon-button>
-                  <paper-icon-button icon="ycons:delete" class="delete-button"></paper-icon-button>
+              <template is="dom-if" if="true">
+                <div class="primary">
+                  <span class="header">[[item.name]]</span>
+                  <div class="actions" info$="[[item.date]][[index]]">
+                    <paper-icon-button icon="ycons:edit" class="edit-button"></paper-icon-button>
+                    <paper-icon-button icon="ycons:delete" class="delete-button"></paper-icon-button>
+                  </div>
                 </div>
-              </div>
-              <div secondary>[[_getLessonName(item.date, item.lesson)]]</div>
+                <div secondary>[[_getLessonName(item.date, item.lesson)]]</div>
+              </template>
+              <template is="dom-if">
+                <paper-input no-label-float value="[[item.name]]"></paper-input>
+                <paper-icon-button  info$="[[item.date]][[index]]" icon="ycons:done" on-tap="_finishedEditing"></paper-icon-button>
+                <div secondary>
+                  <paper-input type="date" no-label-float value="[[item.date]]" on-value-changed="_showLessons"></paper-input>
+                  <paper-dropdown-menu>
+                    <paper-listbox selected="[[item.lesson]]">
+                      <template is="dom-repeat">
+                        <paper-item>[[item]]</paper-item>
+                      </template>
+                    </paper-listbox>
+                  </paper-dropdown-menu>
+                </div>
+              </template>
             </paper-item-body>
           </paper-item>
         </template>
@@ -167,20 +187,27 @@
               opacity: var(--light-secondary-opacity);
             }
 
-            #dialog .event .primary paper-icon-button {
+            #dialog .event paper-icon-button {
               opacity: var(--light-secondary-opacity);
               padding: 0 4px;
               height: 22px;
               width: 30px;
             }
+
+            #dialog paper-input {
+              --paper-input-container-color: white;
+              --paper-input-container-focus-color: white;
+              --paper-input-container-input-color: white;
+            }
           `
           // Add content
           this.shadowRoot.querySelector('#dialog > h2').textContent = moment(date).format('MMMM Do YYYY');
-          this.shadowRoot.querySelector('#dialog dom-repeat').items = dayEvents;
-          this.shadowRoot.querySelector('#dialog dom-repeat').render();
-          // Remove old event listeners
-          this.shadowRoot.querySelectorAll('#dialog .edit-button').forEach(item => item.removeEventListener('click', this._editEvent));
-          this.shadowRoot.querySelectorAll('#dialog .delete-button').forEach(item => item.removeEventListener('click', this._deleteEvent));
+          // Refresh events items to remove previous states
+          const domRepeat = this.shadowRoot.querySelector('#dialog dom-repeat');
+          domRepeat.items = [];
+          domRepeat.render();
+          domRepeat.items = dayEvents;
+          domRepeat.render();
           // Asign callbacks
           this.shadowRoot.querySelectorAll('#dialog .edit-button').forEach(item => item.addEventListener('click', this._editEvent.bind(this)));
           this.shadowRoot.querySelectorAll('#dialog .delete-button').forEach(item => item.addEventListener('click', this._deleteEvent.bind(this)));
@@ -199,32 +226,65 @@
           if (!output.length) {
             reject('noevents');
           } else {
-            /* DEMO VALUES WOULD CAUSE ERRORS HERE
-            output.sort((a, b) => a.lessonIndex - b.lessonIndex);
-            */
+            output.sort((a, b) => a.lesson - b.lesson);
             resolve(output);
           }
         });
       }
 
       _editEvent(e) {
-        console.log(e);
+        const domIfs = e.target.parentElement.parentElement.parentElement.querySelectorAll('dom-if');
+        domIfs[0].if = false;
+        domIfs[1].if = true;
+      }
+
+      _finishedEditing(e) {
+        //..
+      }
+
+      _showLessons(e) {
+        const lessons = [];
+        this.data.timetable[moment(e.detail.value).day()].forEach((item, index) => {
+          lessons.push(index + 1 + '. ' + item.name);
+        });
+        e.target.nextSibling.querySelector('dom-repeat').items = lessons;
       }
 
       _deleteEvent(e) {
-        console.log(e.target.parentElement.getAttribute('info'));
+        const events = this.data.events,
+              info = e.target.parentElement.getAttribute('info'),
+              date = info.slice(0, 10),
+              index = Number(info.slice(-1, -0)),
+              regexp = new RegExp(`^${date}.+`, 'g'),
+              filtered = [],
+              untouched = [],
+              filteredObj = {},
+              untouchedObj = {},
+              giveName = (event, index) => {
+                return event.date + '_' + index;
+              };
+        Object.keys(events).forEach(key => {
+          key.match(regexp) ? filtered.push(events[key]) : untouched.push(events[key]);
+        });
+        filtered.splice(index, 1);
+        filtered.forEach((item, index) => {
+          Object.assign(filteredObj, { [giveName(item, index)]: item })
+        });
+        untouched.forEach((item, index) => {
+          Object.assign(untouchedObj, { [giveName(item, index)]: item })
+        });
+        this.data.events = Object.assign(untouchedObj, filteredObj);
+        this.notifyPath('data.events');
+        e.target.parentElement.parentElement.parentElement.parentElement.remove();
       }
 
       _getLessonName(date, index) {
         let day = moment(date).day();
-        switch (this.data.settings.firstDayOfWeek) {
-          case "1":
-            day = day == 6 ? 0 : day + 1;
-            break;
-          case "6":
-            day = day == 0 ? 6 : day - 1;
+        if (this.data.timetable[day]) {
+          return index + '. ' + this.data.timetable[day][index].name;
+        } else {
+          return '';
         }
-        return index + '. ' + this.data.timetable[day][index].name;
       }
 
       _openDialog(dialog, style = null) {
@@ -248,6 +308,7 @@
       }
 
       _processEvents(events) {
+        if (!events || Object.keys(events).length === 0) return;
         const output = [];
         Object.keys(events).forEach(key => output.push(events[key]));
         return output;

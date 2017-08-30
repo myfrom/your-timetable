@@ -364,7 +364,7 @@ Custom property | Description | Default
           });
         }
         var tr = document.createElement('tr');
-        var startDay = moment(this.selectedMonth).add(i,'M').date(1).get('day') - Number(moment().weekday(0).format('d'));
+        var startDay = moment(this.selectedMonth).add(i,'M').date(1).get('day') - this.firstDay || Number(moment().weekday(0).format('d'));
         if (startDay < 0) {
           startDay = 7 + startDay;
         }
@@ -544,37 +544,34 @@ Custom property | Description | Default
         if (!this._months || !events) return;
         this._requireSetEvents = false;
         this._renderedEvents = this._renderedEvents || [];
-        events.forEach(item => {
-          if (!this._renderedEvents.includes(item)) {
-            this._renderedEvents.push(item);
-            var thisMonth = moment(this.selectedMonth);
-            var evDate = moment(item.date);
-            var el = document.createElement('span');
-            el.classList.add('event-block');
-            el.style.backgroundColor = item.color;
-            el.innerHTML = item.name;
-            item.el = el;
-            if (evDate.month() === thisMonth.month()) {
-              var day = this._months.current[evDate.date() - 1];
-              day = Polymer.dom(day).querySelector('span.events');
-              Polymer.dom(day).appendChild(el);
-            } else if (evDate.month() === thisMonth.add(1,'M').month()) {
-              var day = this._months.next[evDate.date() - 1];
-              day = Polymer.dom(day).querySelector('span.events');
-              Polymer.dom(day).appendChild(el);
-            } else if (evDate.month() === thisMonth.add(-1,'M').month()) {
-              var day = this._months.last[evDate.date() - 1];
-              day = Polymer.dom(day).querySelector('span.events');
-              Polymer.dom(day).appendChild(el);
-            } else {
-              this._requireSetSelected = true;
-            }
-          }
-        });
+        // Remove all events already rendered
         this._renderedEvents.forEach(item => {
-          if (!events.includes(item)) {
-            item.el.remove();
-            var deleted = this._renderedEvents.splice(events.indexOf(item), 1);
+          item.el.remove();
+        });
+        this._renderedEvents = [];
+        // And render new ones
+        events.forEach(item => {
+          var thisMonth = moment(this.selectedMonth);
+          var evDate = moment(item.date);
+          var el = document.createElement('span');
+          el.classList.add('event-block');
+          el.style.backgroundColor = item.color;
+          el.innerHTML = item.name;
+          this._renderedEvents.push(Object.assign({ el }, item));
+          if (evDate.month() === thisMonth.month()) {
+            var day = this._months.current[evDate.date() - 1];
+            day = Polymer.dom(day).querySelector('span.events');
+            Polymer.dom(day).appendChild(el);
+          } else if (evDate.month() === thisMonth.add(1,'M').month()) {
+            var day = this._months.next[evDate.date() - 1];
+            day = Polymer.dom(day).querySelector('span.events');
+            Polymer.dom(day).appendChild(el);
+          } else if (evDate.month() === thisMonth.add(-1,'M').month()) {
+            var day = this._months.last[evDate.date() - 1];
+            day = Polymer.dom(day).querySelector('span.events');
+            Polymer.dom(day).appendChild(el);
+          } else {
+            this._requireSetSelected = true;
           }
         });
       },
