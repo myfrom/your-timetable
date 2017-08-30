@@ -298,7 +298,7 @@
         <paper-menu-button horizontal-align="right">
           <paper-icon-button src="[[_avatarImage]]" slot="dropdown-trigger" class="avatar-menu"></paper-icon-button>
           <paper-listbox slot="dropdown-content" on-tap="_menuItemClicked">
-            <paper-item role="menuitem" key="settings">[[localize('set_h')]]</paper-item>
+            <paper-item role="menuitem" key="settings">[[localize('settings_h')]]</paper-item>
             <paper-item role="menuitem" key="feedback">[[localize('shell_feedback')]]</paper-item>
             <paper-item role="menuitem" key="about">[[localize('shell_about')]]</paper-item>
             <paper-item role="menuitem" key="signout">[[localize('shell_signout')]]</paper-item>
@@ -335,25 +335,25 @@
                           selected="{{selectedView}}"
                           attr-for-selected="id">
       <div id="overview">
-        <yta-overview-page phone-layout="[[phoneLayout]]" data="[[data]]"></yta-overview-page>
+        <yta-overview-page phone-layout="[[phoneLayout]]" data="{{data}}"></yta-overview-page>
         <div class="waiter">
           <paper-spinner active></paper-spinner>
         </div>
       </div>
       <div id="timetable">
-        <yta-timetable-page data="[[data]]"></yta-timetable-page>
+        <yta-timetable-page data="{{data}}"></yta-timetable-page>
         <div class="waiter">
           <paper-spinner active></paper-spinner>
         </div>
       </div>
       <div id="search">
-        <yta-search-page></yta-search-page>
+        <yta-search-page data="{{data}}"></yta-search-page>
         <div class="waiter">
           <paper-spinner active></paper-spinner>
         </div>
       </div>
       <div id="calendar">
-        <yta-calendar-page data="[[data]]"></yta-calendar-page>
+        <yta-calendar-page data="{{data}}"></yta-calendar-page>
         <div class="waiter">
           <paper-spinner active></paper-spinner>
         </div>
