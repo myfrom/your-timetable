@@ -111,7 +111,9 @@
         }
 
         #content {
-          height: 686px;
+          height: 660px;
+          border-bottom-left-radius: 25px;
+          border-bottom-right-radius: 25px;
         }
 
         app-toolbar {
@@ -160,30 +162,37 @@
         z-index: 1;
       }
 
+      #notice {
+        font-size: 12px;
+        opacity: var(--dark-secondary-opacity);
+        font-style: italic;
+      }
+
     </style>
 
     <div id="main">
       <app-header shadow fixed>
         <app-toolbar>
           <paper-icon-button icon="ycons:arrow-back" on-tap="_sendClose"></paper-icon-button>
-          <div main-title class="spacer">[[localize('set_h')]]</div>
+          <div main-title class="spacer">[[localize('settings_h')]]</div>
         </app-toolbar>
       </app-header>
       <div id="content">
-        <paper-dropdown-menu label="[[localize('set_lang')]]" disabled>
+        <paper-dropdown-menu label="[[localize('settings_lang')]]" disabled>
           <paper-listbox slot="dropdown-content" attr-for-selected="key" fallback-selection="en" selected="{{language}}">
             <paper-item key="en">English</paper-item>
             <paper-item key="pl">Polski</paper-item>
           </paper-listbox>
         </paper-dropdown-menu>
-        <paper-toggle-button checked="{{appData.settings.use12hoursClock}}">[[localize('set_12h')]]</paper-toggle-button>
-        <paper-dropdown-menu label="[[localize('set_firstDay')]]">
+        <paper-toggle-button checked="{{appData.settings.use12hoursClock}}">[[localize('settings_12h')]]</paper-toggle-button>
+        <paper-dropdown-menu label="[[localize('settings_firstDay')]]">
           <paper-listbox slot="dropdown-content" attr-for-selected="i" selected="{{appData.settings.firstDayOfWeek}}">
             <paper-item i="1">[[localize('weekDays','d','1')]]</paper-item>
             <paper-item i="6">[[localize('weekDays','d','6')]]</paper-item>
             <paper-item i="0">[[localize('weekDays','d','0')]]</paper-item>
           </paper-listbox>
         </paper-dropdown-menu>
+        <p id="notice">[[localize('settings_notice')]]</p>
       </div>
     </div>
   </template>
