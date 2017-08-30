@@ -3,10 +3,11 @@
     "weekDays": "{d, select, 0 {Sunday} 1 {Monday} 2 {Tuesday} 3 {Wednesday} 4 {Thursday} 5 {Friday} 6 {Saturday}}",
     "weekDaysShort": "{d, select, 0 {S} 1 {M} 2 {T} 3 {W} 4 {T} 5 {F} 6 {S}}",
 
-    "set_h": "Settings",
-    "set_firstDay": "First day of the week",
-    "set_12h": "Use 12 hours clock",
-    "set_lang": "Language",
+    "settings_h": "Settings",
+    "settings_firstDay": "First day of the week",
+    "settings_12h": "Use 12 hours clock",
+    "settings_lang": "Language",
+    "settings_notice": "You may need to reload to apply changes.",
 
     "setup_header": "Let's get started",
     "setup_daysToSchool": "Which days do you go to school?",

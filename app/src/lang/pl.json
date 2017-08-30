@@ -3,10 +3,11 @@
     "weekDays": "{d, select, 0 {Niedziela} 1 {Poniedziałek} 2 {Wtorek} 3 {Środa} 4 {Czwartek} 5 {Piątek} 6 {Sobota}}",
     "weekDaysShort": "{d, select, 0 {N} 1 {P} 2 {W} 3 {Ś} 4 {C} 5 {P} 6 {S}}",
 
-    "set_h": "Ustawienia",
-    "set_firstDay": "Pierwszy dzień tygodnia",
-    "set_12h": "Używaj 12-godzinnego zegara",
-    "set_lang": "Język",
+    "settings_h": "Ustawienia",
+    "settings_firstDay": "Pierwszy dzień tygodnia",
+    "settings_12h": "Używaj 12-godzinnego zegara",
+    "settings_lang": "Język",
+    "settings_notice": "Musisz ponownie załadować stronę, jeśli chcesz zastosować zmiany.",
 
     "setup_header": "Zacznijmy jak najszybciej",
     "setup_daysToSchool": "W które dni idziesz do szkoły",
