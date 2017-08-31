@@ -13,6 +13,8 @@
 
 <link rel="import" href="/bower_components/neon-animation/animations/slide-from-bottom-animation.html">
 <link rel="import" href="/bower_components/neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/fade-out-animation.html">
 
 <link rel="import" href="ycons.html">
 <link rel="import" href="paper-calendar.html">
@@ -95,14 +97,13 @@
                     first-day="[[data.settings.firstDayOfWeek]]"
                     selected-month="{{_selectedMonth}}"></paper-calendar>
 
-    <paper-dialog id="dialog" entry-animation="slide-from-bottom-animation" with-backdrop
-                  exit-animation="slide-down-animation" style="border-radius:2px;">
+    <paper-dialog id="dialog" with-backdrop>
       <h2></h2>
       <paper-dialog-scrollable>
         <template is="dom-repeat">
           <paper-item class="event" style="background-color: [[item.color]];">
             <paper-item-body two-line>
-              <template is="dom-if" if="true">
+              <template is="dom-if" class="show-domif" if="true" restamp>
                 <div class="primary">
                   <span class="header">[[item.name]]</span>
                   <div class="actions" info$="[[item.date]][[index]]">
@@ -110,18 +111,22 @@
                     <paper-icon-button icon="ycons:delete" class="delete-button"></paper-icon-button>
                   </div>
                 </div>
-                <div secondary>[[_getLessonName(item.date, item.lesson)]]</div>
+                <div secondary class="secondary">[[_getLessonName(item.date, item.lesson)]]</div>
               </template>
-              <template is="dom-if">
-                <paper-input no-label-float value="[[item.name]]"></paper-input>
-                <paper-icon-button  info$="[[item.date]][[index]]" icon="ycons:done" on-tap="_finishedEditing"></paper-icon-button>
+              <template is="dom-if" class="edit-domif" restamp>
+                <div class="primary">
+                  <paper-input no-label-float value="[[item.name]]"></paper-input>
+                  <div class="actions">
+                    <paper-icon-button  info$="[[item.date]][[index]]" icon="ycons:done" on-tap="_finishedEditing" style="height:42px"></paper-icon-button>
+                  </div>
+                </div>
                 <div secondary>
                   <paper-input type="date" no-label-float value="[[item.date]]" on-value-changed="_showLessons"></paper-input>
-                  <paper-dropdown-menu>
-                    <paper-listbox selected="[[item.lesson]]">
-                      <template is="dom-repeat">
-                        <paper-item>[[item]]</paper-item>
-                      </template>
+                  <paper-dropdown-menu no-label-float>
+                    <paper-listbox selected="[[item.lesson]]" slot="dropdown-content">
+                      <template is="dom-repeat" as="lesson">
+                        <paper-item>[[lesson]]</paper-item>
+                      </template> 
                     </paper-listbox>
                   </paper-dropdown-menu>
                 </div>
@@ -165,6 +170,10 @@
         this._checkForEventsOn(date, events).then(dayEvents => {
           // Create styles
           const styles = `
+            #dialog {
+              border-radius: 2px;
+            }
+
             #dialog .event {
               width: 240px;
               color: white;
@@ -182,7 +191,7 @@
               flex: 1;
             }
 
-            #dialog .event [secondary] {
+            #dialog .event .secondary {
               color: white;
               opacity: var(--light-secondary-opacity);
             }
@@ -194,15 +203,19 @@
               width: 30px;
             }
 
-            #dialog paper-input {
+            #dialog paper-input, #dialog paper-dropdown-menu {
               --paper-input-container-color: white;
               --paper-input-container-focus-color: white;
               --paper-input-container-input-color: white;
             }
           `
           // Add content
-          this.shadowRoot.querySelector('#dialog > h2').textContent = moment(date).format('MMMM Do YYYY');
+          this.shadowRoot.querySelector('#dialog > h2').textContent = moment(date).format('Do MMMM YYYY');
           // Refresh events items to remove previous states
+          this.shadowRoot.querySelectorAll('#dialog .edit-domif').forEach(item => item.if = false);
+          this.shadowRoot.querySelectorAll('#dialog .show-domif').forEach(item => item.if = true);
+          //this.shadowRoot.querySelectorAll('#dialog paper-dialog-scrollable > .event').forEach(item => item.remove());
+          // Render new elements
           const domRepeat = this.shadowRoot.querySelector('#dialog dom-repeat');
           domRepeat.items = [];
           domRepeat.render();
@@ -210,7 +223,7 @@
           domRepeat.render();
           // Asign callbacks
           this.shadowRoot.querySelectorAll('#dialog .edit-button').forEach(item => item.addEventListener('click', this._editEvent.bind(this)));
-          this.shadowRoot.querySelectorAll('#dialog .delete-button').forEach(item => item.addEventListener('click', this._deleteEvent.bind(this)));
+          this.shadowRoot.querySelectorAll('#dialog .delete-button').forEach(item => item.addEventListener('click', this._deleteEventBtnPress.bind(this)));
           // Open dialog
           this._openDialog(this.$.dialog, styles);
         }, err => { if (err !== 'noevents') throw err })
@@ -233,61 +246,135 @@
       }
 
       _editEvent(e) {
-        const domIfs = e.target.parentElement.parentElement.parentElement.querySelectorAll('dom-if');
+        const domIfs = e.target.parentElement.parentElement.parentElement.querySelectorAll('dom-if'),
+              date = e.target.parentElement.getAttribute('info').slice(0, 10);
         domIfs[0].if = false;
         domIfs[1].if = true;
+        // First one can hide asynchronously but second needs to be rendered
+        domIfs[1].render();
+        const lessons = [],
+              tt = this.data.timetable[moment(date).day()],
+              domRepeat = document.querySelector('#dialog paper-listbox dom-repeat');
+        if (tt) {
+          tt.forEach((item, index) => {
+            lessons.push(index + 1 + '. ' + item.name);
+          });
+          domRepeat.items = lessons;
+        }
       }
 
       _finishedEditing(e) {
-        //..
+        const primary = e.target.parentElement.parentElement,
+              secondary = primary.parentElement.children[2],
+              info = e.target.getAttribute('info'),
+              dateOld = info.slice(0, 10),
+              indexOld = Number(info.slice(10, 11)),
+              name = primary.children[0].value,
+              date = secondary.children[0].value,
+              lesson = secondary.children[1].value,
+              lessonIndex = lesson ? Number(lesson.match(/^(\d+)\..+/)[1]) - 1 : 0,
+              dialog = document.querySelector('#dialog');
+        this._deleteEvent(dateOld, indexOld, [{ name, date, lesson: lessonIndex }]);
+        dialog.close();
+        primary.parentElement.parentElement.remove();
       }
 
       _showLessons(e) {
-        const lessons = [];
-        this.data.timetable[moment(e.detail.value).day()].forEach((item, index) => {
-          lessons.push(index + 1 + '. ' + item.name);
-        });
-        e.target.nextSibling.querySelector('dom-repeat').items = lessons;
+        const lessons = [],
+              tt = this.data.timetable[moment(e.detail.value).day()],
+              listOfLessons = e.target.parentElement.children[1].children[0].children,
+              domRepeat = listOfLessons[listOfLessons.length - 1];
+        if (tt) {
+          tt.forEach((item, index) => {
+            lessons.push(index + 1 + '. ' + item.name);
+          });
+          domRepeat.items = lessons;
+        }
       }
 
-      _deleteEvent(e) {
+      _deleteEventBtnPress(e) {
         const events = this.data.events,
               info = e.target.parentElement.getAttribute('info'),
               date = info.slice(0, 10),
-              index = Number(info.slice(-1, -0)),
+              index = Number(info.slice(10, 11));
+        this._deleteEvent(date, index);
+        e.target.parentElement.parentElement.parentElement.parentElement.remove();
+      }
+
+      _deleteEvent(date, index, added = []) {
+        const events = this.data.events,
               regexp = new RegExp(`^${date}.+`, 'g'),
               filtered = [],
-              untouched = [],
+              untouched = added,
               filteredObj = {},
               untouchedObj = {},
-              giveName = (event, index) => {
-                return event.date + '_' + index;
+              reserved = [],
+              giveName = (event, i) => {
+                return event.date + '_' + i;
               };
         Object.keys(events).forEach(key => {
           key.match(regexp) ? filtered.push(events[key]) : untouched.push(events[key]);
         });
         filtered.splice(index, 1);
         filtered.forEach((item, index) => {
-          Object.assign(filteredObj, { [giveName(item, index)]: item })
+          const name = giveName(item, index);
+          Object.assign(filteredObj, { [name]: item });
+          reserved.push(name);
         });
-        untouched.forEach((item, index) => {
-          Object.assign(untouchedObj, { [giveName(item, index)]: item })
+        untouched.forEach(item => {
+          let index = 0,
+              name = giveName(item, index);
+          for (; reserved.includes(name); index++) name = giveName(item, index);
+          Object.assign(untouchedObj, { [name]: item });
+          reserved.push(name);
         });
         this.data.events = Object.assign(untouchedObj, filteredObj);
         this.notifyPath('data.events');
-        e.target.parentElement.parentElement.parentElement.parentElement.remove();
       }
 
       _getLessonName(date, index) {
         let day = moment(date).day();
         if (this.data.timetable[day]) {
-          return index + '. ' + this.data.timetable[day][index].name;
+          return index + 1 + '. ' + this.data.timetable[day][index].name;
         } else {
           return '';
         }
       }
 
-      _openDialog(dialog, style = null) {
+      _openDialog(dialog, style = null, animations) {
+        // Setup animations
+        dialog.animationConfig = animations || {
+          entry: [{
+            name: 'slide-from-bottom-animation',
+            node: dialog,
+            timing: {
+              easing: 'ease-out',
+              duration: 250
+            }
+          },{
+            name: 'fade-in-animation',
+            node: dialog,
+            timing: {
+              easing: 'ease-out',
+              duration: 250
+            }
+          }],
+          exit: [{
+            name: 'slide-down-animation',
+            node: dialog,
+            timing: {
+              easing: 'ease-in',
+              duration: 250
+            }
+          },{
+            name: 'fade-out-animation',
+            node: dialog,
+            timing: {
+              easing: 'ease-in',
+              duration: 250
+            }
+          }],
+        };
         // Create nescessary styles
         let styleEl;
         if (style) {
@@ -298,10 +385,11 @@
         // Remember current parent to...
         const parent = dialog.parentNode;
         // ...move it back when it closes
-        dialog.addEventListener('iron-overlay-closed', () => {
+        dialog.addEventListener('iron-overlay-closed', e => {
+          if (e.target !== dialog) return;
           if (styleEl) styleEl.remove();
           parent.appendChild(dialog);
-        }, { once: true });
+        });
         // Move element
         document.body.appendChild(dialog);
         dialog.open();
@@ -328,6 +416,12 @@
 
       _today() {
         this._selectedMonth = Number(moment().format('x'));
+      }
+      
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
       }
     }
     
