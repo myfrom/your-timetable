@@ -1,273 +1,350 @@
-<!--<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html">
 
-<link rel="import" href="/bower_components/app-datepicker/app-datepicker-dialog.html">
+<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
 
-<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
-
+<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="/bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
 
-<link rel="import" href="/bower_components/neon-animation/neon-animations.html">
-<link rel="import" href="/bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
 
-<link rel="import" href="paper-expansion-panel.html">
-<link rel="import" href="yta-common-styles.html">
+<link rel="import" href="/bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
-<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="ycons.html">
+<link rel="import" href="app-localize-behavior-mixin.html">
+<link rel="import" href="yta-theme.html">
 
 <dom-module id="yta-add-dialog">
   <template>
-    <style include="yta-common-styles">
+    <style>
+
+      @media (max-width: 960px) and (orientation: landscape),
+             (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        /* Phone styles */
+        
+        #background.static, #content {
+          @apply --layout-fit;
+        }
+      }
       
-      #content {
-        /*@apply --layout-fit;*/
+      @media (min-width: 961px) and (max-width: 1279px) and (orientation: landscape),
+             (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {
+        /* Tablet styles */
+        
+        #background.static, #content {
+          @apply --layout-fit;
+        }
+      }
+      
+      @media (min-width: 841px) and (orientation: portrait), (min-width: 1280px) and (orientation: landscape) {
+        /* Desktop styles */
+        
+        :host {
+          @apply --layout;
+          @apply --layout-center;
+          @apply --layout-center-justified;
+        }
+        
+        #background, #content {
+          width: 750px;
+          height: 750px;
+          position: relative;
+        }
+        
+        /* Hide ugly scrollbar in Chrome on desktop */
+        #content::-webkit-scrollbar { width: 0 !important; }
+        
+        #background {
+          @apply --shadow-elevation-16dp;
+        }
+        
+        #background, #content {
+          border-radius: 25px;
+        }
+        
+      }
+
+      :host {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        z-index: 10;
+      }
+
+      #background {
+        position: absolute;
         background-color: white;
       }
-      
-      app-toolbar {
-        background-color: var(--paper-yellow-500);
-        color: rgba(0,0,0,0.87);
+
+      paper-tabs {
+        --paper-tabs-selection-bar-color: var(--paper-yellow-700);
       }
-      
+
+      paper-tab {
+        font-weight: 500 !important;
+        text-transform: uppercase;
+        opacity: var(--dark-secondary-opacity);
+        --paper-tab-ink: var(--paper-yellow-700);
+      }
+
+      paper-tab.iron-selected {
+        opacity: var(--dark-primary-opacity);
+      }
+
+      .lesson {
+        padding: 14px;
+        background-color: var(--paper-yellow-700);
+      }
+
+      .lesson .first-line, .lesson .second-line, .lesson .third-line {
+        display: flex;
+      }
+
+      .remove-lesson-btn {
+        color: white;
+        opacity: var(--light-secondary-opacity);
+      }
+
+      #addLessonBtn {
+        color: black;
+        opacity: var(--dark-primary-opacity);
+      }
+
+      paper-button {
+        color: var(--paper-yellow-700);
+      }
+
+      .spacer {
+        display: flex;
+        flex: 1;
+      }
+
+      #bottom {
+        position: sticky;
+        bottom: 0;
+        background-color: white;
+        padding: 4px 0;
+        border-top: 1px rgba(0,0,0,0.12) solid;
+        display: flex;
+        flex-direction: row;
+      }
+
+      iron-pages {
+        margin: 8px 0;
+      }
+
+      .with-bg {
+        color: white;
+      }
+
+      .input.with-bg {
+        --paper-input-container-color: white;
+        --paper-input-container-focus-color: white;
+        --paper-input-container-input-color: white;
+      }
+
+      .lesson p {
+        margin-right: 8px;
+      }
+
+      paper-checkbox.with-bg {
+        --paper-checkbox-label-color: white;
+        --paper-checkbox-unchecked-color: white;
+        --paper-checkbox-unchecked-ink-color: white;
+        --paper-checkbox-checked-color: white;
+        --paper-checkbox-checked-ink-color: white;
+        --paper-checkbox-checkmark-color: var(--paper-yellow-700);
+        --paper-checkbox-label-color: white;
+      }
+
     </style>
-    
-    <paper-dialog id="dialog" with-backdrop>
-      <h2>Add to calendar</h2>
-      <paper-dialog-scrollable>
-        <template is="dom-repeat" items="{{data}}">
-          <paper-icon-item role="menuitem">
-            <paper-item-body two-line="[[_changeFromContent(item)]]">
-              <div>Change from</div>
-              <template is="dom-if" if="[[_changeFromContent(item)]]">
-                <div secondary>[[_changeFromContent(item)]]</div>
-              </template>
-            </paper-item-body>
-            <paper-icon-button icon="icons:arrow-drop-down"
-                               on-tap="collapseFrom"
-                               class="rotateable"></paper-icon-button>
-          </paper-icon-item>
-          <iron-collapse class="from">
-            <div>
-              <paper-dropdown-menu label="What to add?">
-                <paper-listbox attr-for-selected="key" selected="{{item.type}}" class="dropdown-content">
-                  <paper-item key="change">Change in plan</paper-item>
-                  <paper-item key="test">Test</paper-item>
-                  <paper-item key="reminder">Reminder</paper-item>
-                </paper-listbox>
-              </paper-dropdown-menu>
-              <br>
-              <template is="dom-if" if="{{_isChangeSelected(item.type)}}">
-                <paper-checkbox checked="{{item.pernament}}" class="change">Pernament change</paper-checkbox><br>
-                <paper-expansion-panel header-content="[[_changeFromContent(item.from)]]" header-title="Change from">
-                  <div>
-                    Hello world!
-                  </div>
-                </paper-expansion-panel>
-              </template>
+
+    <div id="background" class="static"></div>
+    <div id="content">
+      <paper-tabs selected="{{selectedView}}">
+        <paper-tab>[[localize('add_lesson')]]</paper-tab>
+        <paper-tab>[[localize('add_event')]]</paper-tab>
+      </paper-tabs>
+      <iron-pages selected="[[selectedView]]">
+        <div id="addLesson">
+          <template is="dom-repeat" items="[[lessons]]">
+            <div class="lesson">
+              <div class="first-line">
+                <p class="with-bg">[[localize('add_from')]]</p>
+                <paper-dropdown-menu no-label-float class="with-bg input">
+                  <paper-listbox slot="dropdown-content">
+                    <paper-item>Hello</paper-item>
+                    <paper-item>world!</paper-item>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+                <paper-icon-button icon="ycons:remove-circle" on-tap="_removeLesson" tabindex="-1"
+                                   index$="[[index]]" class="remove-lesson-btn"></paper-icon-button>
+              </div>
+              <div class="second-line">
+                <p class="with-bg">[[localize('add_to')]]</p>
+                <vaadin-combo-box class="input with-bg" label="[[localize('setup_yourLesson')]]"
+                                no-label-float allow-custom-value item-value-path="name"
+                                on-custom-value-set="_processCustomLessonInputValue"
+                                items="[[_getLessonsNames(data.config)]]"></vaadin-combo-box>
+              </div>
+              <div class="third-line">
+                <paper-checkbox class="with-bg" checked="{{item.pernament}}">[[localize('add_pernament')]]</paper-checkbox>
+                <template is="dom-if" if="[[item.pernament]]">
+                  <p class="with-bg">[[localize('add_when')]]</p>
+                </template>
+              </div>
             </div>
-          </iron-collapse>
-        </template>
-      </paper-dialog-scrollable>
-      <div class="buttons">
-        <paper-button dialog-dismiss>Discard</paper-button>
-        <paper-button dialog-confirm>Save</paper-button>
+          </template>
+        </div>
+        <div id="addEvent">world</div>
+      </iron-pages>
+      <div id="bottom">
+        <paper-button>[[localize('add_add-lesson')]]</paper-button>
+        <span class="spacer"></span>
+        <paper-button>[[localize('cancel')]]</paper-button>
+        <paper-button>[[localize('save')]]</paper-button>
       </div>
-    </paper-dialog>
-    
-    <app-datepicker-dialog id="datepicker"
-                           show-long-date
-                           disable-days="{{_computeIgnoredDays(appData.timetable)}}"></app-datepicker-dialog>
-    
-    <paper-dialog id="cancel">
-      <p>Discard edits?</p>
-      <div class="buttons">
-        <paper-button dialog-dismiss>Discard</paper-button>
-        <paper-button dialog-confirm>Keep editing</paper-button>
-      </div>
-    </paper-dialog>
+    </div>
   </template>
-  
+
   <script>
-    Polymer({
-      is: 'yta-add-dialog',
-      
-      behaviors: [
-        Polymer.NeonSharedElementAnimatableBehavior,
-        Polymer.IronResizableBehavior
-      ],
-      
-      properties: {
-        
-        data: {
-          type: Object,
-          notify: true,
-          reflectToAttribute: true,
-          value: function() { return [ {
-            type: 'change',
-            name: null,
-            lesson: { day: null, number: null },
-            reminder: false,
-            subject: null,
-            pernament: false,
-          } ] }
-        },
-        
-        appData: {
-          type: Object,
-          notify: true
-        },
-        
-        phoneLayout: {
-          type: Boolean,
-          notify: true
-        },
-        
-        isActive: {
-          type: Boolean,
-          value: false
-        },
-        
-        /*animationConfig: {
-          value: function() { return {
-            'entry': null,
-            'exit': null
-          } }
-        },*/
-        
-        sharedElements: {
-          value: function() { return {
-            'hero': this.$.dialog
-          } }
-        }
-        
-      },
-      
-      listeners: {
-        //'iron-resize': 'setLayout', // To set the layout when screen size changes
-        'dialog.iron-overlay-canceled': '_onDialogCanceled'
-      },
-      
-      attached: function() {
-        addDialog = this;
-        this.$.cancel.animationConfig = {
-          'entry': [
-            {
-              name: 'slide-from-bottom-animation',
-              node: this.$.cancel,
-              timing: {
-                duration: 225,
-                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-              }
-            },
-            {
-              name: 'fade-in-animation',
-              node: this.$.cancel,
-              timing: {
-                duration: 225,
-                easing: 'cubic-bezier(0.0, 0.0, 0.2, 1)'
-              }
-            }
-          ],
-          'exit': [
-            {
-              name: 'slide-down-animation',
-              node: this.$.cancel,
-              timing: {
-                duration: 195,
-                easing: 'cubic-bezier(0.4, 0.0, 1, 1)'
-              }
-            },
-            {
-              name: 'fade-out-animation',
-              node: this.$.cancel,
-              timing: {
-                duration: 195,
-                easing: 'cubic-bezier(0.4, 0.0, 1, 1)'
-              }
-            }
-          ],
-        };
-      },
-      
-      _isChangeSelected: function(selected) {
-        if(selected == 'change') {
-          return true
-        }
-      },
-      
-      open: function() {
-        this.isActive = true;
-        this.$.dialog.open()
-      },
-      
-      _computeIgnoredDays: function(timetable) {
-        var output = [0,1,2,3,4,5,6];
-        for(var i = 0; i < timetable.length; i++) {
-          if(i == 6) {
-            output.splice(0, 1)
-          } else {
-            output.splice(1, 1)
-          }
-        };
-        return output
-      },
-      
-      _onDialogCanceled: function(e) {
-        if(e.target == this.$.dialog) {
-          e.preventDefault();
-          this.$.cancel.open();
-          this.listen(this.$.cancel, 'iron-overlay-closed', '_onCancelClosed');
-        }
-      },
-      
-      _onCancelClosed: function(e) {
-        if(!e.detail.confirmed) {
-          this.isActive = false;
-          this.unlisten(this.$.cancel, 'iron-overlay-closed', '_onCancelClosed');
-          this.fire('switch-page', { action: 'closeAddDialog' });
-        }
-      },
-      
-      _changeFromContent: function(from) {
-        if(from) {
-          const output = this.appData.timetable[from.day][from.lesson]
-          const name = output.name;
-          const timeStart = viewReadableTime(output.startTime);
-          const timeEnd = viewReadableTime(output.endTime);
-          const time = `${timeStart} - ${timeEnd}`;
-          const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-          /*
-          const daysLocalised = [];
-          for(i=0; i>5; i++) {
-            daysLocalized[i] = this.localize(days[i])
-          };
-          days = daysLocalised;
-          */
-          const day = days[from.day];
-          if(!this.$$('iron-collapse.from').opened) {
-            return `${day}, ${name} ${time}`
-          } else {
-            return false
-          }
-        } else {
-          return false
-        }
+    class AddDialog extends Polymer.AppLocalizeBehaviorMixin(Polymer.Element) {
+      static get is() {
+        return 'yta-add-dialog';
       }
-    })
-    
-    function viewReadableTime(time) {
-      const input = new Date(time);
-      const output = [null, ':', null];
-      output[0] = input.getHours();
-      output[2] = input.getMinutes();
-      if(output[2].toString().length == 1) {
-        output[2] = '0' + output[2]
-      };
-      return output.join('')
+
+      static get properties() {
+        return {
+          
+          // Inherited from shell
+          desktopLayout: {
+            type: Boolean
+          },
+          
+          // Inherited from shell
+          tabletLayout: {
+            type: Boolean
+          },
+
+          // Inherited from shell
+          data: {
+            type: Object,
+            notify: true
+          },
+
+          // Currently viewed editor (lesson/event)
+          selectedView: Number,
+
+          // List of lessons being edited/added
+          lessons: {
+            type: Array,
+            value: () => [{}]
+          }
+
+        };
+      }
+
+      constructor() {
+        super();
+      }
+
+      ready() {
+        super.ready();
+
+        // Initialize default values
+        this.selectedView = 0;
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        // Complicated? parentElement is neon-animated-pages, parentNode is ShadowRoot and we need it's host
+        //              But if it's not Shadow DOM, pick just parentElement
+        if (!this._shell) this._shell = Polymer.Settings.useShadow ? this.parentElement.parentNode.host
+                                                                   : this.parentElement.parentElement;
+        
+        // Add event listeners
+        this._shell.addEventListener('open-add-dialog', e => this.open(e));
+        this._shell.addEventListener('close-add-dialog', e => this.close(e));
+      }
+
+      open(e) {
+        const withAnimation = e.detail.withAnimation,
+              clientRect = e.detail.clientRect,
+              animator = this.$.background,
+              content = this.$.content;
+        let transitionTiming;
+        content.style.display = 'none';
+        animator.classList.remove('static');
+        if (withAnimation && clientRect) {
+          // Set initial styles
+          animator.style.height = clientRect.height + 'px';
+          animator.style.width = clientRect.width + 'px';
+          animator.style.left = clientRect.left + 'px';
+          animator.style.top = clientRect.top + 'px';
+          animator.style.borderRadius = '50%';
+
+          // Compute transition timing
+          transitionTiming = this.tabletLayout ? 300 : 390;
+
+          // Compute distance
+          const a = clientRect.left + clientRect.width / 2,
+                b = clientRect.top + clientRect.height / 2,
+                c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2)),
+                scale = c / (clientRect.height / 2);
+
+          // Animate!
+          requestAnimationFrame(() => {
+            animator.animate([
+              { transform: 'scale(1)' },
+              { transform: `scale(${scale})` }
+            ], {
+              duration: transitionTiming
+            }).onfinish = () => {
+              animator.removeAttribute('style');
+              animator.classList.add('static');
+              content.style.display = 'block';
+            }
+          });
+        } else {
+          //..
+        }
+        requestAnimationFrame(() => {
+          content.animate([
+            {
+              opacity: 0,
+              transform: 'translateY(10px)'
+            },
+            {
+              opacity: 1,
+              transform: 'translateY(0)'
+            }
+          ], {
+            duration: 100,
+            delay: transitionTiming
+          });
+        });
+      }
+
+      close(e) {
+        const clientRect = e.detail.clientRect,
+              animator = this.$.background;
+      }
+
+      _getLessonsNames(config) {
+        return Object.keys(config);
+      }
+
     }
+
+    window.customElements.define(AddDialog.is, AddDialog);
   </script>
-</dom-module>-->
+</dom-module>
