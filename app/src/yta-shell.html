@@ -362,15 +362,17 @@
     
     <!-- Switch between sections -->
     <iron-pages selected="[[selected]]" attr-for-selected="key" id="sections">
-      <yta-settings key="settings" desktop-layout="[[desktopLayout]]" tablet-layout="[[tabletLayout]]" app-data="{{data}}"></yta-settings>
+      <yta-settings key="settings" desktop-layout="[[desktopLayout]]"
+                    tablet-layout="[[tabletLayout]]" app-data="{{data}}"></yta-settings>
       
-      <yta-onboarding key="onboarding" desktop-layout="[[desktopLayout]]" tablet-layout="[[tabletLayout]]"></yta-onboarding>
+      <yta-onboarding key="onboarding" desktop-layout="[[desktopLayout]]"
+                      tablet-layout="[[tabletLayout]]"></yta-onboarding>
                       
-      <yta-setup-dialog key="setup" desktop-layout="[[desktopLayout]]" tablet-layout="[[tabletLayout]]" app-data="{{data}}"></yta-setup-dialog>
+      <yta-setup-dialog key="setup" desktop-layout="[[desktopLayout]]"
+                        tablet-layout="[[tabletLayout]]" app-data="{{data}}"></yta-setup-dialog>
       
-      <yta-add-dialog key="add"
-                      app-data="{{data}}"
-                      phone-layout="[[phoneLayout]]"></yta-add-dialog>
+      <yta-add-dialog key="add" desktop-layout="[[desktopLayout]]"
+                      tablet-layout="[[phoneLayout]]" data="{{data}}"></yta-add-dialog>
                       
       <yta-feedback-dialog key="feedback"></yta-feedback-dialog>
       
@@ -565,6 +567,7 @@
         switch (e.detail.action) {
           case 'openAddDialog':
             await importHref('src/yta-add-dialog.html');
+            document.body.style.overflowY = 'hidden';
             const withAnimation = this.selected === 'main' ? true
                                                             : false;
             clientRect = this.desktopLayout ? null : e.detail.clientRect;
@@ -575,14 +578,16 @@
             break;
           case 'closeAddDialog':
             clientRect = this.desktopLayout ? null : e.detail.clientRect;
-            this._fire('close-add-dialog', { clientRect: clientRect });
+            this._fire('close-add-dialog', { clientRect });
             await waitMs(260);
+            document.body.style.overflowY = null;
             this.selected = 'main';
             this.routeData.page = 'app';
             this.routeData = this.routeData;
             break;
           case 'openOnboarding':
             await importHref('src/yta-onboarding.html');
+            document.body.style.overflowY = 'hidden';
             this._fire('open-onboarding');
             this.selected = 'onboarding';
             this.routeData.page = 'welcome';
@@ -591,12 +596,14 @@
           case 'closeOnboarding':
             this._fire('close-onboarding');
             await waitMs(260);
+            document.body.style.overflowY = null;
             this.selected = 'main';
             this.routeData.page = 'app';
             this.routeData = this.routeData;
             break;
           case 'openSetupDialog':
             await importHref('src/yta-setup-dialog.html');
+            document.body.style.overflowY = 'hidden';
             this._fire('open-setup-dialog');
             this.selected = 'setup';
             this.routeData.page = 'app';
@@ -605,10 +612,12 @@
           case 'closeSetupDialog':
             this._fire('close-setup-dialog');
             await waitMs(260);
+            document.body.style.overflowY = null;
             this.selected = 'main';
             break;
           case 'openSettings':
-            await importHref('src/yta-settings.html')
+            await importHref('src/yta-settings.html');
+            document.body.style.overflowY = 'hidden';
             this._fire('open-settings');
             this.selected = 'settings';
             this.routeData.page = 'settings';
@@ -617,6 +626,7 @@
           case 'closeSettings':
             this._fire('close-settings');
             await waitMs(260);
+            document.body.style.overflowY = null;
             this.selected = 'main';
             this.routeData.page = 'app';
             this.routeData = this.routeData;
