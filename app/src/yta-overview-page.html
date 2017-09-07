@@ -137,14 +137,16 @@
       }
 
       _showHeader(day) {
-        const header = this.shadowRoot.querySelector('h2');
-        if (header) {
-          header.textContent = moment().day(day).format('dddd');
-        } else {
-          const el = document.createElement('h2');
-          el.textContent = moment().day(day).format('dddd');
-          this.shadowRoot.insertBefore(el, this.shadowRoot.firstChild);
-        }
+        Polymer.RenderStatus.afterNextRender(this, () => {
+          const header = this.shadowRoot.querySelector('h2');
+          if (header) {
+            header.textContent = moment().day(day).format('dddd');
+          } else {
+            const el = document.createElement('h2');
+            el.textContent = moment().day(day).format('dddd');
+            this.shadowRoot.insertBefore(el, this.shadowRoot.firstChild);
+          }
+        });
       }
       
       _pickLessonColor(name) {
