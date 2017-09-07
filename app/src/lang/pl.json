@@ -32,6 +32,10 @@
     "onboard_4p": "Aby aplikacja mogła działać wszędzie, musisz zalogowac się z kontem Google.",
 
     "search": "Szukaj",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "earse-changes": "Wyczyść zmiany",
+    "keep-editing": "Edytuj dalej",
 
     "shell_title": "Twój plan lekcji",
     "shell_feedback": "Zgłoś problem",
@@ -39,6 +43,14 @@
     "shell_signout": "Wyloguj sie",
     "shell_overview": "Przegląd",
     "shell_timetable": "Plan",
-    "shell_calendar": "Kalendarz"
+    "shell_calendar": "Kalendarz",
+
+    "add_lesson": "lekcja",
+    "add_event": "wydarzenie",
+    "add_add-lesson": "dodaj kolejny",
+    "add_from": "Zamień",
+    "add_to": "na",
+    "add_pernament": "Stała zmiana",
+    "add_when": "Kiedy?"
   }
 }

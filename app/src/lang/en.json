@@ -32,6 +32,10 @@
     "onboard_4p": "To let the app work everywhere you need to sign in with your Google account.",
     
     "search": "Search",
+    "save": "Save",
+    "cancel": "Cancel",
+    "earse-changes": "Earse",
+    "keep-editing": "Keep editing",
 
     "shell_title": "Your Timetable",
     "shell_feedback": "Feedback",
@@ -39,6 +43,14 @@
     "shell_signout": "Sign out",
     "shell_overview": "Overview",
     "shell_timetable": "Timetable",
-    "shell_calendar": "Calendar"
+    "shell_calendar": "Calendar",
+
+    "add_lesson": "lesson",
+    "add_event": "event",
+    "add_add-lesson": "add another",
+    "add_from": "Change from",
+    "add_to": "to",
+    "add_pernament": "Pernament change",
+    "add_when": "When?"
   }
 }
