@@ -74,7 +74,8 @@
     "paper-pager": "myfrom/paper-pager#^1",
     "paper-expansion-panel": "Collaborne/paper-expansion-panel#master",
     "moment": "^2.18.1",
-    "iron-scroll-target-behavior": "PolymerElements/iron-scroll-target-behavior#^2"
+    "iron-scroll-target-behavior": "PolymerElements/iron-scroll-target-behavior#^2",
+    "paper-alert-dialog": "^2.0.1"
   },
   "_dependencies": {
     "polymer": "Polymer/polymer#2.0.0-rc.8",
