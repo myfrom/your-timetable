@@ -3,7 +3,7 @@
   "shell": "src/yta-shell.html",
   "fragments": [
     "src/yta-timetable-page.html",
-    "src/yta-teachers-page.html",
+    "src/yta-search-page.html",
     "src/yta-calendar-page.html",
     "src/yta-settings.html",
     "src/yta-onboarding.html",
