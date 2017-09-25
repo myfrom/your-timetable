@@ -2,6 +2,7 @@
   "pl": {
     "weekDays": "{d, select, 0 {Niedziela} 1 {Poniedziałek} 2 {Wtorek} 3 {Środa} 4 {Czwartek} 5 {Piątek} 6 {Sobota}}",
     "weekDaysShort": "{d, select, 0 {N} 1 {P} 2 {W} 3 {Ś} 4 {C} 5 {P} 6 {S}}",
+    "months": "{m, select, 0 {Styczeń} 1 {Luty} 2 {Marzec} 3 {Kwiecień} 4 {Maj} 5 {Czerwiec} 6 {Lipiec} 7 {Sierpień} 8 {Wrzesień} 9 {Październik} 10 {Listopad} 11 {Grudzień}}",
 
     "settings_h": "Ustawienia",
     "settings_firstDay": "Pierwszy dzień tygodnia",
@@ -34,8 +35,10 @@
     "search": "Szukaj",
     "save": "Zapisz",
     "cancel": "Anuluj",
-    "earse-changes": "Wyczyść zmiany",
+    "discard-changes": "Wyczyść",
     "keep-editing": "Edytuj dalej",
+    "discard-changes-question": "Wyczyścić zmiany?",
+    "discard-changes-content": "Czy na pewno chcesz anulować te zmiany?",
 
     "shell_title": "Twój plan lekcji",
     "shell_feedback": "Zgłoś problem",
@@ -45,12 +48,25 @@
     "shell_timetable": "Plan",
     "shell_calendar": "Kalendarz",
 
-    "add_lesson": "lekcja",
-    "add_event": "wydarzenie",
+    "add_lesson": "Lekcja",
+    "add_event": "Wydarzenie",
     "add_add-lesson": "dodaj kolejny",
     "add_from": "Zamień",
     "add_to": "na",
     "add_pernament": "Stała zmiana",
-    "add_when": "Kiedy?"
+    "add_when": "Kiedy?",
+    "add_new": "Utwórz nowy",
+    "add_swap": "z",
+    "add_delete": "usuń lekcję",
+    "add_year": "Rok",
+    "add_month": "Miesiąc",
+    "add_day": "Dzień",
+    "add_delete-leave": "Pozostaw wolne",
+    "add_delete-leave-desc": "Nie zmieniaj innych lekcji",
+    "add_delete-up": "Przesuń lekcje do przodu",
+    "add_delete-up-desc": "Przesuń lekcje przed tą usuniętą o jedną pozycję później",
+    "add_delete-down": "Przesuń lekcję do tyłu",
+    "add_delete-down-desc": "Przesuń lekcje po tej usuniętej o jedną pozycję wcześniej",
+    "add_all-day": "Cały dzień"
   }
 }
