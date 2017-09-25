@@ -85,8 +85,8 @@
           <paper-icon-item class="result-card">
             <iron-icon icon="ycons:event" slot="item-icon"></iron-icon>
             <paper-item-body two-line>
-              <span>name</span>
-              <span secondary>day, hours</span>
+              <span>[[item.name]]</span>
+              <span secondary>[[_readDate(item.date)]], [[_readLesson(item)]]</span>
             </paper-item-body>
           </paper-icon-item>
         </template>
@@ -158,10 +158,9 @@
             }
           });
           if (data.events) {
-            data.calendar.forEach(event => {
-              if (event.name.inlcudes(query)) {
-                results.unshift(Object.assign(event, { isEvent: true }));
-              }
+            Object.keys(data.events).forEach(key => {
+              if (data.events[key].name.includes(query))
+                results.unshift(Object.assign(data.events[key], { isEvent: true }));
             });
           }
           this._results = results;
@@ -185,6 +184,19 @@
         const ampm = this.data.settings.use12hoursClock;
         return moment(time).utcOffset(0)
           .format(`${ampm ? 'hh' : 'HH'}:mm${ampm ? ' a' : ''}`);
+      }
+
+      _readDate(date) {
+        date = moment(date);
+        return date.format('ddd, MMM D YYYY');
+      }
+
+      _readLesson(event) {
+        const day = moment(event.date).day(),
+              index = event.lesson,
+              timetable = this.data.timetable[day];
+        return timetable ? `${index + 1}. ${timetable[index].name}`
+                         : this.localize('add_all-day');
       }
 
       _readIndex(i) {
