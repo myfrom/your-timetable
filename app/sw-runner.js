@@ -13,7 +13,8 @@ importScripts('service-worker.js');
       } 
       db = new PouchDB(e.data.uid);
       db.get('data').then(() => e.ports[0].postMessage(true), err => {
-        db.put({ _id: 'data' }).then(() => e.ports[0].postMessage(true));
+        if (err.status === 404)
+          db.put({ _id: 'data' }).then(() => e.ports[0].postMessage(true));
       });
       break;
     
