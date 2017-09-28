@@ -67,6 +67,18 @@
     "add_delete-up-desc": "Move lessons before deleted one up one lesson",
     "add_delete-down": "Move lessons downwards",
     "add_delete-down-desc": "Move lessons after deleted one down one lesson",
-    "add_all-day": "All day"
+    "add_all-day": "All day",
+
+    "feedback_h1": "Send feedback",
+    "feedback_faq": "Browse FAQ",
+    "feedback_email": "Send me an email",
+    "feedback_polish-english": "Polish and English language only",
+    "feedback_github": "Open an issue on Github",
+    "feedback_english": "English language only",
+
+    "about_h1": "About",
+    "about_p": "Say hello to Your new timetable. Did you ever feel like browsing your digital timetable was hard or inconvenient and you didn't have time to update your paper one regularly? Your Timetable is here to help. We will try to help easily manage your school days and show you right information at your fingertips. From now you can enjoy beautiful Material Design and wide availability of the app and soon you will be able to make it even more seamless with integrations coming soon.",
+    "about_h2": "Check out our contributors",
+    "about_contributor_myfrom": "Creator and maintainer of the app"
   }
 }
