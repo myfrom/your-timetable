@@ -83,6 +83,10 @@
         };
       }
 
+      paper-icon-button[hidden] {
+        display: none !important;
+      }
+
     </style>
     
     <div id="header">
@@ -100,14 +104,16 @@
     <paper-dialog id="dialog" with-backdrop>
       <h2></h2>
       <paper-dialog-scrollable>
-        <template is="dom-repeat">
+        <template is="dom-repeat" id="eventsRepeater">
           <paper-item class="event" style="background-color: [[item.color]];">
             <paper-item-body two-line>
               <template is="dom-if" class="show-domif" if="true" restamp>
                 <div class="primary">
                   <span class="header">[[item.name]]</span>
                   <div class="actions" info$="[[item.date]][[index]]">
-                    <paper-icon-button icon="ycons:edit" class="edit-button"></paper-icon-button>
+                    <template is="dom-if" if="[[!item.change]]">
+                      <paper-icon-button icon="ycons:edit" class="edit-button"></paper-icon-button>
+                    </template>
                     <paper-icon-button icon="ycons:delete" class="delete-button"></paper-icon-button>
                   </div>
                 </div>
@@ -217,10 +223,10 @@
           //this.shadowRoot.querySelectorAll('#dialog paper-dialog-scrollable > .event').forEach(item => item.remove());
           // Render new elements
           const domRepeat = this.shadowRoot.querySelector('#dialog dom-repeat');
-          domRepeat.items = [];
-          domRepeat.render();
           domRepeat.items = dayEvents;
+          domRepeat.notifySplices('items');
           domRepeat.render();
+          domRepeat.items;
           // Asign callbacks
           this.shadowRoot.querySelectorAll('#dialog .edit-button').forEach(item => item.addEventListener('click', this._editEvent.bind(this)));
           this.shadowRoot.querySelectorAll('#dialog .delete-button').forEach(item => item.addEventListener('click', this._deleteEventBtnPress.bind(this)));
@@ -234,7 +240,7 @@
           const regexp = new RegExp(`^${date}.+`, 'g'),
                 output = [];
           Object.keys(events).forEach(key => {
-            if (key.match(regexp)) output.push(events[key]);
+            if (key.match(regexp) && !events[key].hide) output.push(events[key]);
           });
           if (!output.length) {
             reject('noevents');
@@ -248,10 +254,10 @@
       _editEvent(e) {
         const domIfs = e.target.parentElement.parentElement.parentElement.querySelectorAll('dom-if'),
               date = e.target.parentElement.getAttribute('info').slice(0, 10);
-        domIfs[0].if = false;
-        domIfs[1].if = true;
+        domIfs[1].if = false;
+        domIfs[2].if = true;
         // First one can hide asynchronously but second needs to be rendered
-        domIfs[1].render();
+        domIfs[2].render();
         const lessons = [],
               tt = this.data.timetable[moment(date).day()],
               domRepeat = document.querySelector('#dialog paper-listbox dom-repeat');
@@ -259,7 +265,7 @@
           tt.forEach((item, index) => {
             lessons.push(index + 1 + '. ' + item.name);
           });
-          domRepeat.items = lessons;
+          domRepeat.set('items', lessons);
         }
       }
 
@@ -276,7 +282,6 @@
               dialog = document.querySelector('#dialog');
         this._deleteEvent(dateOld, indexOld, [{ name, date, lesson: lessonIndex }]);
         dialog.close();
-        primary.parentElement.parentElement.remove();
       }
 
       _showLessons(e) {
@@ -298,24 +303,29 @@
               date = info.slice(0, 10),
               index = Number(info.slice(10, 11));
         this._deleteEvent(date, index);
-        e.target.parentElement.parentElement.parentElement.parentElement.remove();
+        document.querySelector('#dialog #eventsRepeater').splice('items', index, 1);
       }
 
       _deleteEvent(date, index, added = []) {
         const events = this.data.events,
               regexp = new RegExp(`^${date}.+`, 'g'),
-              filtered = [],
-              untouched = added,
               filteredObj = {},
               untouchedObj = {},
               reserved = [],
               giveName = (event, i) => {
                 return event.date + '_' + i;
               };
+        let filtered = [],
+            untouched = added;
         Object.keys(events).forEach(key => {
-          key.match(regexp) ? filtered.push(events[key]) : untouched.push(events[key]);
+          key.match(regexp) && !events[key].hide ? filtered.push(events[key]) : untouched.push(events[key]);
         });
+        const eventChangeId = filtered[index].change;
         filtered.splice(index, 1);
+        if (typeof eventChangeId === 'string') {
+          filtered = filtered.filter(item => item.change === eventChangeId);
+          untouched = untouched.filter(item => item.change !== eventChangeId);
+        }
         filtered.forEach((item, index) => {
           const name = giveName(item, index);
           Object.assign(filteredObj, { [name]: item });
@@ -334,7 +344,7 @@
 
       _getLessonName(date, index) {
         let day = moment(date).day();
-        if (this.data.timetable[day]) {
+        if (this.data.timetable[day] && this.data.timetable[day][index]) {
           return index + 1 + '. ' + this.data.timetable[day][index].name;
         } else {
           return '';
@@ -398,7 +408,9 @@
       _processEvents(events) {
         if (!events || Object.keys(events).length === 0) return;
         const output = [];
-        Object.keys(events).forEach(key => output.push(events[key]));
+        Object.keys(events).forEach(key => {
+          if(!events[key].hide) output.push(events[key])
+        });
         return output;
       }
       

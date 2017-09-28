@@ -280,7 +280,7 @@
                pattern="/:page"
                data="{{routeData}}"
                id="router"></app-route>
-    
+
     <!-- Database controller -->
     <yta-firebase id="firebase" data="{{data}}" user="{{user}}"></yta-firebase>
     
@@ -335,7 +335,7 @@
                           selected="{{selectedView}}"
                           attr-for-selected="id">
       <div id="overview">
-        <yta-overview-page phone-layout="[[phoneLayout]]" data="{{data}}"></yta-overview-page>
+        <yta-overview-page phone-layout="[[phoneLayout]]" data="{{data}}" timetable="[[data.timetable]]"></yta-overview-page>
         <div class="waiter">
           <paper-spinner active></paper-spinner>
         </div>
@@ -353,7 +353,7 @@
         </div>
       </div>
       <div id="calendar">
-        <yta-calendar-page data="{{data}}"></yta-calendar-page>
+        <yta-calendar-page data="{{data}}" timetable="[[data.timetable]]"></yta-calendar-page>
         <div class="waiter">
           <paper-spinner active></paper-spinner>
         </div>
@@ -373,11 +373,12 @@
       
       <yta-add-dialog key="add" desktop-layout="[[desktopLayout]]"
                       tablet-layout="[[phoneLayout]]" data="{{data}}"></yta-add-dialog>
-                      
-      <yta-feedback-dialog key="feedback"></yta-feedback-dialog>
-      
-      <yta-about-page key="about"></yta-about-page>
+
     </iron-pages>
+
+     <!-- Less importnant elements -->    
+    <yta-feedback-dialog id="feedbackDialog"></yta-feedback-dialog>
+    <yta-about-page id="aboutDialog"></yta-about-page>
   </template>
   
   <script>
@@ -514,9 +515,9 @@
         
         // Show FAB after goin back from AddDialog
         this.addEventListener('close-add-dialog', () => {
-          let time = 375;
-          if (this.desktopLayout) time = 0;
-          if (this.tabletLayout) time = 490;
+          let time = 300;
+          if (this.desktopLayout) time = 150;
+          if (this.tabletLayout) time = 390;
           setTimeout(() => requestAnimationFrame(() => {
             this.$.fab.classList.remove('hidden');
           }), time);
@@ -577,9 +578,16 @@
             this.routeData = this.routeData;
             break;
           case 'closeAddDialog':
-            clientRect = this.desktopLayout ? null : e.detail.clientRect;
-            this._fire('close-add-dialog', { clientRect });
-            await waitMs(260);
+            if (this.desktopLayout) {
+              clientRect = null;
+            } else {
+              const fab = this.$.fab;
+              fab.classList.remove('hidden');
+              clientRect = fab.getBoundingClientRect();
+              fab.classList.add('hidden')
+            }
+            this._fire('close-add-dialog', { clientRect, withAnimation: true });
+            await waitMs(390);
             document.body.style.overflowY = null;
             this.selected = 'main';
             this.routeData.page = 'app';
@@ -650,7 +658,7 @@
       
       signOut() {
         if (!this._firebase) this._firebase = this.$.firebase;
-        this._firebase.signOut().then(() => location.reload());
+        return this._firebase.signOut()
       }
       
       resolveSelected(selectedString) {
@@ -707,7 +715,7 @@
         }
       }
       
-      _menuItemClicked(e) {
+      async _menuItemClicked(e) {
         const cmd = e.target.getAttribute('key');
         switch (cmd) {
           case 'settings':
@@ -715,11 +723,13 @@
             break;
           
           case 'feedback':
-            // open feedback dialog
+            await importHref('/src/yta-feedback-dialog.html');
+            this.$.feedbackDialog.open();
             break;
           
           case 'about':
-            // open about section
+            await importHref('/src/yta-about-page.html');
+            this.$.aboutDialog.open();
             break;
           
           case 'help':
@@ -727,7 +737,8 @@
             break;
             
           case 'signout':
-            this.signOut();
+            await this.signOut();
+            location.reload();
             break;
           
           default:

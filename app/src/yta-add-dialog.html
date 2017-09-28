@@ -847,6 +847,7 @@
           j++;
         });
 
+        this.events.filter(item => Object.keys(item).length);
         const events = this.data.events || {},
               filtered = [],
               untouched = this.events,

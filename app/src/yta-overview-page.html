@@ -58,13 +58,14 @@
     </style>
     
     <div id="placeholder">
-      <template is="dom-repeat" items="[[lessonsToday(data.timetable)]]">
+      <template is="dom-repeat" items="[[lessonsToday(timetable, data.events)]]">
         <yta-lesson-card i$="[[index]]"
                          name="[[item.name]]"
                          start-time="[[viewReadable(item.startTime)]]"
                          end-time="[[viewReadable(item.endTime)]]"
                          color="[[_pickLessonColor(item.name)]]"
                          classroom="[[item.classroom]]"
+                         teacher="[[item.teacher]]"
                          phone-layout="[[phoneLayout]]"
                          ></yta-lesson-card>
       </template>
@@ -91,7 +92,10 @@
           data: {
             type: Object,
             notify: true
-          }
+          },
+
+          // Inherited from shell as unmodificable on higher levels
+          timetable: Array
           
         };
       }
@@ -105,16 +109,26 @@
         this._fire('OVERIVIEW-PAGE-loaded');
       }
       
-      lessonsToday(tt) {
+      lessonsToday(tt, events) {
         if (tt == null) {
           this._fire('err-no-data');
           return [];
         } else {
-          const timetable = tt;
+          const timetable = JSON.parse(JSON.stringify(tt));
           let day = moment().day(),
               showHeader = false,
-              firstRun = true;
+              firstRun = true,
+              i = 0;
           while (true) {
+            if (events) {
+              Object.keys(events).forEach(key => {
+                const event = events[key];
+                if (event.change && event.date === moment().add(i, 'd').format('YYYY-MM-DD')) {
+                  const eventDay = moment(event.date).day();
+                  timetable[eventDay][event.lesson] = event.to ? event.to : undefined;
+                }
+              });
+            }
             if (timetable[day] !== 0) {
               const minute = moment().minute(),
                     hour = moment().hour(),
@@ -124,6 +138,7 @@
                 return timetable[day];
               }
             }
+            i++;
             day = day === 6 ? 0 : day + 1;
             firstRun = false;
           }
