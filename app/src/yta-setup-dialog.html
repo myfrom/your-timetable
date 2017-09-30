@@ -312,14 +312,14 @@
         <h3 class="margin">
           [[localize('setup_pref')]]<br>
         </h3>
-        <paper-dropdown-menu label="[[localize('set_firstDayOfWeek')]]" id="firstDayOfWeek" class="margin" on-value-changed="_changeFirstDayOfWeek">
+        <paper-dropdown-menu label="[[localize('settings_firstDayOfWeek')]]" id="firstDayOfWeek" class="margin" on-value-changed="_changeFirstDayOfWeek">
           <paper-listbox slot="dropdown-content" class="dropdown-content" attr-for-selected="i">
             <paper-item i="1">[[localize('weekDays', 'd', '1')]]</paper-item>
             <paper-item i="6">[[localize('weekDays', 'd', '6')]]</paper-item>
             <paper-item i="0">[[localize('weekDays', 'd', '0')]]</paper-item>
           </paper-listbox>
         </paper-dropdown-menu>
-        <paper-toggle-button class="margin" id="clock12">[[localize('set_12h')]]</paper-toggle-button>
+        <paper-toggle-button class="margin" id="clock12">[[localize('settings_12h')]]</paper-toggle-button>
         <div class="next">
           <span class="spacer"></span>
           <paper-button on-tap="_afterInit">[[localize('setup_next')]]</paper-button>
@@ -692,7 +692,7 @@
                                 .filter(key => typeof item[key] !== 'undefined')
                                 .reduce((res, key) => Object.assign(res, { [key]: item[key] }), {});
         });
-        this.appData.timetable[day] = output;
+        this.appData.timetable[day] = output.length ? output : 0;
         if (this.weekDays.length === 0) {
           // Save and exit setup
           this.notifyPath('appData.config');

@@ -721,10 +721,11 @@
           const isPernament = lesson.querySelector('.is-pernament').checked;
           let when;
           if (!isPernament) {
-            const year = lesson.querySelector('.input.year').value,
-                  day = lesson.querySelector('.day').parentElement.value;
-            let month = lesson.querySelector('.month').selected + 1;
+            const year = lesson.querySelector('.input.year').value;
+            let month = lesson.querySelector('.month').selected + 1,
+                day = lesson.querySelector('.day').selectedItem.textContent;
             if (month.toString().length === 1) month = '0' + month;
+            if (day.toString().length === 1) day = '0' + day;
             when = `${year}-${month}-${day}`;
           }
           const changeType = lesson.querySelector('.change-type').selected;
@@ -845,12 +846,12 @@
               break; 
           }
           j++;
+          if (!timetable[from.weekday].length) timetable[from.weekday] = 0;
         });
 
-        this.events.filter(item => Object.keys(item).length);
         const events = this.data.events || {},
               filtered = [],
-              untouched = this.events,
+              untouched = this.events.filter(item => Object.keys(item).length),
               filteredObj = {},
               untouchedObj = {},
               reserved = [],
