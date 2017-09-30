@@ -52,7 +52,7 @@
       'use strict';
       if (!Array.from) importPolyfill('array-from-polyfill');
       if (!window.requestIdleCallback) importPolyfill('request-idle-callback');
-      /*if (!Element.prototype.animate) */ importPolyfill('bower_components/web-animations-js/web-animations-next.min.js', true);
+      /*if (!Element.prototype.animate) */ importPolyfill('/bower_components/web-animations-js/web-animations-next.min.js', true);
     })();
     
     // load pre-caching service worker
@@ -74,7 +74,7 @@
   <script src="/src/index.js" async></script>
   
   <!-- App metrics thing -->
-  <script src="bower_components/appmetrics.js/dist/appmetrics.min.js"></script>
+  <script src="/bower_components/appmetrics.js/dist/appmetrics.min.js"></script>
   
   <link rel="prefetch" href="/src/yta-shell.html">
   
