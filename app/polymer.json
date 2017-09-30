@@ -9,29 +9,31 @@
     "src/yta-onboarding.html",
     "src/yta-add-dialog.html",
     "src/yta-feedback-dialog.html",
+    "src/yta-about-page.html",
     "src/yta-setup-dialog.html"
   ],
   "sources": [
-    "src/*",
+    "src/**/*",
     "images/**/*",
-    "src/polyfills/*.*",
     "bower.json"
   ],
   "extraDependencies": [
     "sw-runner.js",
     "manifest.json",
-    "bower_components/webcomponentsjs/webcomponents-lite.min.js",
+    "bower_components/webcomponentsjs/**/*",
+    "bower_components/moment/locale/*",
+    "bower_components/appmetrics.js/dist/appmetrics.min.js",
+    "bower_components/web-animations-js/web-animations-next.min.js",
     "privacy-policy.html",
-    "images/offline-avatar.svg"
+    "terms-and-conditions.html",
+    "images/offline-avatar.svg",
+    "favicon.ico",
+    "bower_components/pouchdb/dist/pouchdb.min.js",
+    "bower_components/app-pouchdb/app-pouchdb-conflict-resolution.html",
+    "bower_components/app-pouchdb/app-pouchdb-document.html",
+    "bower_components/paper-alert-dialog/paper-alert-dialog.html"
   ],
   "lint": {
     "rules": ["polymer-2"]
-  },
-  "builds": [{
-    "name": "bundled",
-    "preset": "es6-bundled"
-  },{
-    "name": "unbundled",
-    "preset": "es6-unbundled"
-  }]
+  }
 }
