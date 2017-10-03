@@ -1,5 +1,4 @@
-// Import sw-precache
-importScripts('service-worker.js');
+const version = '1.0.0';
 
 // Set required functions
 (() => {

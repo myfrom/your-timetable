@@ -18,7 +18,7 @@
     "bower.json"
   ],
   "extraDependencies": [
-    "sw-runner.js",
+    "sw-logic.js",
     "manifest.json",
     "bower_components/webcomponentsjs/**/*",
     "bower_components/moment/locale/*",
@@ -31,9 +31,25 @@
     "bower_components/pouchdb/dist/pouchdb.min.js",
     "bower_components/app-pouchdb/app-pouchdb-conflict-resolution.html",
     "bower_components/app-pouchdb/app-pouchdb-document.html",
-    "bower_components/paper-alert-dialog/paper-alert-dialog.html"
+    "bower_components/paper-alert-dialog/paper-alert-dialog.html",
+    "bower_components/sw-toolbox/sw-toolbox.js"
   ],
   "lint": {
     "rules": ["polymer-2"]
-  }
+  },
+  "builds": [
+    {
+      "name": "full-css",
+      "preset": "es6-unbundled",
+      "css": { "minify": false }
+    },{
+      "name": "full-js",
+      "preset": "es6-unbundled",
+      "js": { "minify": false, "compile": false }
+    },{
+      "name": "minified",
+      "preset": "es6-unbundled",
+      "swPrecacheConfig": "sw-precache-config.js"
+    }
+  ]
 }
