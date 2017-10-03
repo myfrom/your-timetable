@@ -1,0 +1,93 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="/bower_components/paper-item/paper-item-body.html">
+
+<link rel="import" href="app-localize-behavior-mixin.html">
+<link rel="import" href="ycons.html">
+
+<dom-module id="yta-feedback-dialog">
+  <template>
+    <style>
+      :host {
+        display: block
+      }
+
+      hr {
+        border: 0;
+        border-bottom: solid 1px  var(--divider-color);
+        margin: 0;
+      }
+
+      a {
+        color: unset !important;
+        text-decoration: unset !important;
+      }
+    </style>
+
+    <paper-dialog id="dialog" with-backdrop>
+      <h2>[[localize('feedback_h1')]]</h2>
+      <div>
+        <a target="_blank" href="https://plus.google.com/+WiktorOlejniczak13th/posts/XzT4fLDEAdk">
+          <paper-icon-item>
+            <iron-icon icon="ycons:info" slot="item-icon"></iron-icon>
+            <paper-item-body two-line>
+              <div>[[localize('feedback_faq')]]</div>
+              <div secondary>[[localize('feedback_english')]]</div>
+            </paper-item-body>
+          </paper-icon-item>
+        </a>
+        <hr>
+        <a target="_blank" href="mailto:myfrom.13th@gmail.com?subject=Your%20Timetable%20feedback">
+          <paper-icon-item>
+            <iron-icon icon="ycons:email" slot="item-icon"></iron-icon>
+            <paper-item-body two-line>
+              <div>[[localize('feedback_email')]]</div>
+              <div secondary>[[localize('feedback_polish-english')]]</div>
+            </paper-item-body>
+          </paper-icon-item>
+        </a>
+        <hr>
+        <a target="_blank" href="https://github.com/myfrom/your-timetable/issues">
+          <paper-icon-item>
+            <iron-icon icon="ycons:bug-report" slot="item-icon"></iron-icon>
+            <paper-item-body two-line>
+              <div>[[localize('feedback_github')]]</div>
+              <div secondary>[[localize('feedback_english')]]</div>
+            </paper-item-body>
+          </paper-icon-item>
+        </a>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss>[[localize('cancel')]]</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+    
+    class FeedbackDialog extends Polymer.AppLocalizeBehaviorMixin(Polymer.Element) {
+      
+      static get is() {
+        return 'yta-feedback-dialog';
+      }
+
+      constructor() {
+        super();
+      }
+
+      open() {
+        this.$.dialog.open();
+      }
+
+    }
+
+    window.customElements.define(FeedbackDialog.is, FeedbackDialog);
+  </script>
+</dom-module>

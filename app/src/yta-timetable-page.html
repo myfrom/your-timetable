@@ -1,0 +1,153 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html">
+
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html">
+
+<link rel="import" href="app-localize-behavior-mixin.html">
+
+<script src="/bower_components/moment/min/moment.min.js"></script>
+
+<dom-module id="yta-timetable-page">
+  <template>
+    <style>
+      
+      :host, #topPlaceholder {
+        overflow-y: visible;
+        position: relative;
+      }
+      
+      #topPlaceholder {
+        @apply --layout-horizontal;
+        @apply --layout-wrap;
+      }
+      
+      .dayPlaceholder {
+        min-width: 300px;
+      }
+      
+      .lesson {
+        @apply --layout-vertical;
+        @apply --layout-center-justified;
+        border-bottom: 1px solid rgba(0,0,0,0.12);
+        border-left-style: solid;
+        border-left-width: 3px;
+        height: 60px;
+        padding-left: 13px;
+      }
+      
+      .day-name {
+        @apply --paper-font-menu;
+        color: #fbc02d;
+        margin: 8px 0 8px 16px;
+      }
+      
+      p.secondary {
+        @apply --paper-font-body1;
+        color: var(--secondary-text-color);
+      }
+      
+      p {
+        margin: 0 2px; 
+      }
+      
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        
+        .dayPlaceholder {
+          min-width: calc(100vw - 3px);
+        }
+        
+        .lesson {
+          height: 70px;
+        }
+        
+      }
+      
+      @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+        
+        .dayPlaceholder {
+          @apply --layout-flex;
+        }
+        
+      }
+    
+    </style>
+    
+    <div id="topPlaceholder">
+      <template is="dom-repeat" items="[[_getTt(data.timetable)]]">
+        <div class="dayPlaceholder">
+          <h6 class="day-name">[[_getDayName(item)]]</h6>
+          <div class="lessonsPlaceholder">
+            <dom-repeat items="[[item]]" as="lesson">
+              <template>
+                <div class="lesson" style="border-left-color: [[_pickLessonColor(lesson.name)]];">
+                  <p>[[lesson.name]]</p>
+                  <p class="secondary">[[viewReadable(lesson.startTime)]] - [[viewReadable(lesson.endTime)]]</p>
+                </div>
+              </template>
+            </dom-repeat>
+          </div>
+        </div>
+      </template>
+    </div>
+    <div id="spacer"></div>
+  </template>
+  
+  <script>
+    class TimetablePage extends Polymer.Element {
+      static get is() { return 'yta-timetable-page'; }
+      static get properties() {
+        return {
+          
+          // Inherited from MainView
+          data: {
+            type: Object,
+            notify: true
+          }
+          
+        };
+      }
+      
+      constructor() {
+        super();
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+      }
+      
+      viewReadable(time) {
+        const ampm = this.data.settings.use12hoursClock;
+        return moment(time).utcOffset(0)
+          .format(`${ampm ? 'hh' : 'HH'}:mm${ampm ? ' a' : ''}`);
+      }
+
+      _getTt(timetable) {
+        const output = [];
+        timetable.forEach(item => {
+          if (item) output.push(item);
+        });
+        switch (Number(this.data.settings.firstDayOfWeek)) {
+          case 1:
+            output.push(output.shift());
+            break;
+          case 6:
+            output.unshift(output.pop());
+            break;
+        }
+        return output;
+      }
+      
+      _getDayName(item) {
+        const day = this.data.timetable.indexOf(item);
+        return moment().day(day).format('dddd');
+      }
+      
+      _pickLessonColor(name) {
+        let config = this.data.config;
+        return config[name].color;
+      }
+    }
+    
+    customElements.define(TimetablePage.is, TimetablePage);
+  </script>
+</dom-module>

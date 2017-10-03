@@ -1,2 +1,5 @@
-firebase-debug.log
-app
+app/node_modules
+app/bower_components
+app/build
+cert.pem
+key.pem

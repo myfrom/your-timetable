@@ -1,0 +1,1072 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-if.html">
+
+<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
+
+<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="/bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="/bower_components/paper-radio-button/paper-radio-button.html">
+
+<link rel="import" href="/bower_components/vaadin-combo-box/vaadin-combo-box.html">
+
+<link rel="import" href="ycons.html">
+<link rel="import" href="app-localize-behavior-mixin.html">
+<link rel="import" href="yta-theme.html">
+
+<dom-module id="yta-add-dialog">
+  <template>
+    <style>
+
+      @media (max-width: 960px) and (orientation: landscape),
+             (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        /* Phone styles */
+        
+        #background.static, #content {
+          @apply --layout-fit;
+        }
+      }
+      
+      @media (min-width: 961px) and (max-width: 1279px) and (orientation: landscape),
+             (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {
+        /* Tablet styles */
+        
+        #background.static, #content {
+          @apply --layout-fit;
+        }
+      }
+      
+      @media (min-width: 841px) and (orientation: portrait), (min-width: 1280px) and (orientation: landscape) {
+        /* Desktop styles */
+        
+        :host {
+          @apply --layout;
+          @apply --layout-center;
+          @apply --layout-center-justified;
+          background: rgba(0, 0, 0, 0.3);
+        }
+        
+        #background, #content {
+          width: 750px;
+          height: 750px;
+          position: relative;
+        }
+        
+        /* Hide ugly scrollbar in Chrome on desktop */
+        #content::-webkit-scrollbar { width: 0 !important; }
+        
+        #background {
+          @apply --shadow-elevation-16dp;
+        }
+        
+        #background, #content, #next {
+          border-radius: 25px;
+        }
+        
+      }
+
+      :host {
+        z-index: 999;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        z-index: 10;
+        overflow-y: scroll;
+      }
+
+      #background {
+        position: absolute;
+        background-color: white;
+      }
+
+      #content {
+        overflow-y: scroll;
+      }
+
+      paper-tabs {
+        --paper-tabs-selection-bar-color: var(--paper-yellow-700);
+      }
+
+      paper-tab {
+        font-weight: 500 !important;
+        text-transform: uppercase;
+        opacity: var(--dark-secondary-opacity);
+        --paper-tab-ink: var(--paper-yellow-700);
+      }
+
+      paper-tab.iron-selected {
+        opacity: var(--dark-primary-opacity);
+      }
+
+      .lesson, .event {
+        padding: 14px;
+        background-color: var(--paper-yellow-700);
+        position: relative;
+        margin-bottom: 1px;
+      }
+
+      .lesson .first-line, .lesson .second-line, .lesson .third-line {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .third-line {
+        margin-top: 8px;
+      }
+
+      .remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: white;
+        opacity: var(--light-secondary-opacity);
+      }
+
+      #addLessonBtn {
+        color: black;
+        opacity: var(--dark-primary-opacity);
+      }
+
+      paper-button {
+        color: var(--paper-yellow-700);
+      }
+
+      .spacer {
+        display: flex;
+        flex: 1;
+      }
+
+      #bottom {
+        position: sticky;
+        bottom: 0;
+        background-color: white;
+        padding: 4px 0;
+        border-top: 1px rgba(0,0,0,0.12) solid;
+        display: flex;
+        flex-direction: row;
+      }
+
+      iron-pages {
+        margin: 8px 0;
+      }
+
+      .with-bg {
+        color: white;
+      }
+
+      .input.with-bg {
+        --paper-input-container-color: white;
+        --paper-input-container-focus-color: white;
+        --paper-input-container-input-color: white;
+        margin: 0 4px;
+      }
+
+      .lesson p {
+        margin: 0 8px 0 0;
+      }
+
+      .row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+
+      paper-checkbox.with-bg {
+        margin-bottom: 15px;
+        --paper-checkbox-label-color: white;
+        --paper-checkbox-unchecked-color: white;
+        --paper-checkbox-unchecked-ink-color: white;
+        --paper-checkbox-checked-color: white;
+        --paper-checkbox-checked-ink-color: white;
+        --paper-checkbox-checkmark-color: var(--paper-yellow-700);
+        --paper-checkbox-label-color: white;
+      }
+
+      paper-radio-group.with-bg paper-radio-button {
+        color: white;
+        --paper-radio-button-unchecked-color: white;
+        --paper-radio-button-unchecked-ink-color: white;
+        --paper-radio-button-checked-color: white;
+        --paper-radio-button-checked-ink-color: white;
+        --paper-radio-button-label-color: white;
+      }
+
+      .third-line, .second-line {
+        border-top: solid 1px rgba(255,255,255,0.24);
+        margin-top: 10px;
+        padding-top: 10px;
+      }
+
+      .input.year, .input.month, .input.day {
+        width: 50px;
+      }
+
+    </style>
+
+    <div id="background" class="static"></div>
+    <div id="content">
+      <paper-tabs selected="{{selectedView}}">
+        <paper-tab>[[localize('add_lesson')]]</paper-tab>
+        <paper-tab>[[localize('add_event')]]</paper-tab>
+      </paper-tabs>
+      <iron-pages selected="[[selectedView]]">
+        <div id="addLesson">
+          <template is="dom-repeat" items="[[lessons]]">
+            <div class="lesson">
+              <paper-icon-button icon="ycons:remove-circle" on-tap="_removeLesson" tabindex="-1"
+                                 index$="[[index]]" class="remove-btn"></paper-icon-button>
+              <div class="first-line">
+                <p class="with-bg">[[localize('add_from')]]</p>
+                <div class="row">
+                  <paper-dropdown-menu no-label-float label="[[localize('add_day')]]" class="with-bg input from-weekday">
+                    <paper-listbox slot="dropdown-content" on-iron-select="_setLessonsAndWhen">
+                      <paper-item>[[localize('weekDays', 'd', 0)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 1)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 2)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 3)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 4)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 5)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 6)]]</paper-item>
+                    </paper-listbox>
+                  </paper-dropdown-menu>
+                  <paper-dropdown-menu no-label-float label="[[localize('add_lesson')]]" class="with-bg input from-lessoni">
+                    <paper-listbox slot="dropdown-content" on-iron-select="_autofillInputs">
+                      <template is="dom-repeat">
+                        <paper-item>[[item]]</paper-item>
+                      </template>
+                    </paper-listbox>
+                  </paper-dropdown-menu>
+                </div>
+              </div>
+              <div class="second-line">
+                <paper-radio-group class="with-bg change-type" selected="{{item.selectedChangeType}}">
+                  <paper-radio-button name="0">[[localize('add_to')]]</paper-radio-button>
+                  <paper-radio-button name="1">[[localize('add_swap')]]</paper-radio-button>
+                  <paper-radio-button name="2">[[localize('add_delete')]]</paper-radio-button>
+                </paper-radio-group>
+                <template is="dom-if" if="[[_isSelected(item.selectedChangeType, '0')]]">
+                  <div class="row">
+                    <vaadin-combo-box class="input with-bg lesson-name-input" label="[[localize('setup_yourLesson')]]"
+                                    no-label-float allow-custom-value item-value-path="name"
+                                    on-custom-value-set="_processCustomLessonInputValue"
+                                    items="[[_getLessonsNames(data.config)]]"></vaadin-combo-box>
+                  </div>
+                  <div class="row">
+                    <p class="with-bg">[[localize('setup_in')]]</p>
+                    <paper-input no-label-float label="[[localize('setup_class')]]"
+                                class="input with-bg classroom-input"></paper-input>
+                    <p class="with-bg">[[localize('setup_with')]]</p>
+                    <paper-input no-label-float label="[[localize('setup_teacher')]]"
+                                class="input with-bg teacher-input"></paper-input>
+                  </div>
+                  <div class="row">
+                    <p class="with-bg">[[localize('setup_starts')]]</p>
+                    <paper-input no-label-float type="time"
+                                class="input with-bg start-time time-input"></paper-input>
+                    <p class="with-bg">[[localize('setup_ends')]]</p>
+                    <paper-input no-label-float type="time"
+                                class="input with-bg end-time time-input"></paper-input>
+                  </div>
+                </template>
+                <template is="dom-if" if="[[_isSelected(item.selectedChangeType, '1')]]">
+                  <div class="row">
+                    <template is="dom-if" if="[[item.pernament]]">
+                      <paper-dropdown-menu on-value-changed="_clearInvalid" label="[[localize('add_day')]]" class="with-bg input">
+                        <paper-listbox class="with-weekday" slot="dropdown-content" on-iron-select="_setLessonsInWith">
+                          <paper-item>[[localize('weekDays', 'd', 0)]]</paper-item>
+                          <paper-item>[[localize('weekDays', 'd', 1)]]</paper-item>
+                          <paper-item>[[localize('weekDays', 'd', 2)]]</paper-item>
+                          <paper-item>[[localize('weekDays', 'd', 3)]]</paper-item>
+                          <paper-item>[[localize('weekDays', 'd', 4)]]</paper-item>
+                          <paper-item>[[localize('weekDays', 'd', 5)]]</paper-item>
+                          <paper-item>[[localize('weekDays', 'd', 6)]]</paper-item>
+                        </paper-listbox>
+                      </paper-dropdown-menu>
+                    </template>
+                    <template is="dom-if" if="[[!item.pernament]]">
+                      <paper-input type="date" class="input with-bg with-date" on-value-changed="_clearInvalid" on-change="_setLessonsInWith" label="[[localize('add_when')]]"></paper-input>
+                    </template>
+                    <paper-dropdown-menu on-value-changed="_clearInvalid" label="[[localize('add_lesson')]]" class="with-bg input">
+                      <paper-listbox class="with-lessoni" slot="dropdown-content">
+                        <template is="dom-repeat">
+                          <paper-item>[[item]]</paper-item>
+                        </template>
+                      </paper-listbox>
+                    </paper-dropdown-menu>
+                  </div>
+                </template>
+                <template is="dom-if" if="[[_isSelected(item.selectedChangeType, '2')]]">
+                  <paper-dropdown-menu no-label-float class="with-bg input">
+                      <paper-listbox slot="dropdown-content" class="delete-behavior" selected="0">
+                        <paper-item label="[[localize('add_delete-leave')]]">
+                          <paper-item-body two-line>
+                            <div>[[localize('add_delete-leave')]]</div>
+                            <div secondary>[[localize('add_delete-leave-desc')]]</div>
+                          </paper-item-body>
+                        </paper-item>
+                        <paper-item label="[[localize('add_delete-up')]]">
+                          <paper-item-body two-line>
+                            <div>[[localize('add_delete-up')]]</div>
+                            <div secondary>[[localize('add_delete-up-desc')]]</div>
+                          </paper-item-body>
+                        </paper-item>
+                        <paper-item label="[[localize('add_delete-down')]]">
+                          <paper-item-body two-line>
+                            <div>[[localize('add_delete-down')]]</div>
+                            <div secondary>[[localize('add_delete-down-desc')]]</div>
+                          </paper-item-body>
+                        </paper-item>
+                      </paper-listbox>
+                    </paper-dropdown-menu>
+                </template>
+              </div>
+              <div class="third-line">
+                <paper-checkbox class="with-bg row is-pernament" checked="{{item.pernament}}">[[localize('add_pernament')]]</paper-checkbox>
+                <template is="dom-if" if="[[!item.pernament]]">
+                  <p class="with-bg">[[localize('add_when')]]</p>
+                  <div class="row">
+                    <paper-input class="with-bg input year" label="[[localize('add_year')]]" min="[[_getCurrentYear()]]"
+                                 on-value-changed="_setDaysOfMonth" type="number" value="[[_getCurrentYear()]]"></paper-input>
+                    <paper-dropdown-menu class="input with-bg" label="[[localize('add_month')]]" on-value-changed="_setDaysOfMonth">
+                      <paper-listbox class="month" slot="dropdown-content" selected="[[_getCurrentMonth()]]">
+                        <paper-item>[[localize('months', 'm', '0')]]</paper-item>
+                        <paper-item>[[localize('months', 'm', '1')]]</paper-item>
+                        <paper-item>[[localize('months', 'm', '2')]]</paper-item>
+                        <paper-item>[[localize('months', 'm', '3')]]</paper-item>
+                        <paper-item>[[localize('months', 'm', '4')]]</paper-item>
+                        <paper-item>[[localize('months', 'm', '5')]]</paper-item>
+                        <paper-item>[[localize('months', 'm', '6')]]</paper-item>
+                        <paper-item>[[localize('months', 'm', '7')]]</paper-item>
+                        <paper-item>[[localize('months', 'm', '8')]]</paper-item>
+                        <paper-item>[[localize('months', 'm', '9')]]</paper-item>
+                        <paper-item>[[localize('months', 'm', '10')]]</paper-item>
+                        <paper-item>[[localize('months', 'm', '11')]]</paper-item>
+                      </paper-listbox>
+                    </paper-dropdown-menu>
+                    <paper-dropdown-menu class="input with-bg" label="[[localize('add_day')]]" on-value-changed="_validateDay">
+                      <paper-listbox class="day" slot="dropdown-content">
+                        <template is="dom-repeat" as="day">
+                          <paper-item>[[day]]</paper-item>
+                        </template>
+                      </paper-listbox>
+                    </paper-dropdown-menu>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div id="addEvent">
+          <template is="dom-repeat" items="{{events}}" as="event">
+            <div class="event">
+              <paper-icon-button icon="ycons:remove-circle" on-tap="_removeEvent" tabindex="-1"
+                                 index$="[[index]]" class="remove-btn"></paper-icon-button>
+              <paper-input value="{{event.name}}" class="input with-bg" label="[[localize('add_event')]]"></paper-input>
+              <paper-input type="date" value="{{event.date}}" class="input with-bg" on-change="_setLessonsInEvent" label="[[localize('add_when')]]"></paper-input>
+              <paper-dropdown-menu no-label-float label="[[localize('add_lesson')]]" class="with-bg input">
+                <paper-listbox slot="dropdown-content" selected="{{event.lesson}}" fallback-selection="0">
+                  <template is="dom-repeat">
+                    <paper-item>[[item]]</paper-item>
+                  </template>
+                </paper-listbox>
+              </paper-dropdown-menu>
+            </div>
+          </template>
+        </div>
+      </iron-pages>
+      <div id="bottom">
+        <paper-button on-tap="_addItem">[[localize('add_add-lesson')]]</paper-button>
+        <span class="spacer"></span>
+        <paper-button on-tap="_close">[[localize('cancel')]]</paper-button>
+        <paper-button on-tap="save">[[localize('save')]]</paper-button>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    class AddDialog extends Polymer.AppLocalizeBehaviorMixin(Polymer.Element) {
+      static get is() {
+        return 'yta-add-dialog';
+      }
+
+      static get properties() {
+        return {
+          
+          // Inherited from shell
+          desktopLayout: {
+            type: Boolean
+          },
+          
+          // Inherited from shell
+          tabletLayout: {
+            type: Boolean
+          },
+
+          // Inherited from shell
+          data: {
+            type: Object,
+            notify: true
+          },
+
+          // Currently viewed editor (lesson/event)
+          selectedView: Number,
+
+          // List of lessons being edited/added
+          lessons: Array,
+
+          // List of events being added
+          events: Array
+
+        };
+      }
+
+      constructor() {
+        super();
+      }
+
+      ready() {
+        super.ready();
+
+        // Initialize default values
+        this.selectedView = 0;
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        // Complicated? parentElement is neon-animated-pages, parentNode is ShadowRoot and we need it's host
+        //              But if it's not Shadow DOM, pick just parentElement
+        if (!this._shell) this._shell = Polymer.Settings.useShadow ? this.parentElement.parentNode.host
+                                                                   : this.parentElement.parentElement;
+        
+        // Add event listeners
+        this._shell.addEventListener('open-add-dialog', e => this.open(e));
+        this._shell.addEventListener('close-add-dialog', e => this.close(e));
+      }
+
+      open(e) {
+        this.lessons = [{ selectedChangeType: '0' }];
+        this.events = [{}];
+        const withAnimation = e.detail.withAnimation,
+              clientRect = e.detail.clientRect,
+              animator = this.$.background,
+              content = this.$.content;
+        let transitionTiming;
+        content.style.display = 'none';
+        animator.classList.remove('static');
+        if (withAnimation && clientRect) {
+          // Set initial styles
+          animator.style.height = clientRect.height + 'px';
+          animator.style.width = clientRect.width + 'px';
+          animator.style.left = clientRect.left + 'px';
+          animator.style.top = clientRect.top + 'px';
+          animator.style.borderRadius = '50%';
+
+          // Compute transition timing
+          transitionTiming = this.tabletLayout ? 250 : 325;
+
+          // Compute distance
+          const a = clientRect.left + clientRect.width / 2,
+                b = clientRect.top + clientRect.height / 2,
+                c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2)),
+                scale = c / (clientRect.height / 2);
+
+          // Animate!
+          requestAnimationFrame(() => {
+            animator.animate([
+              { transform: 'scale(1)' },
+              { transform: `scale(${scale})` }
+            ], {
+              duration: transitionTiming,
+              easing: 'ease-in'
+            }).onfinish = () => {
+              animator.removeAttribute('style');
+              animator.classList.add('static');
+              content.style.display = 'block';
+            }
+          });
+          requestAnimationFrame(() => {
+            content.animate([
+              {
+                opacity: 0,
+                transform: 'translateY(10px)'
+              },
+              {
+                opacity: 1,
+                transform: 'translateY(0)'
+              }
+            ],{
+              duration: 100,
+              delay: transitionTiming
+            });
+          });
+        } else {
+          content.style.display = 'block';
+          animator.classList.remove('static');
+          const animation =
+            [
+              {
+                opacity: 0,
+                transform: 'translateY(10px)'
+              },
+              {
+                opacity: 1,
+                transform: 'translateY(0)'
+              }
+            ],
+                timing =
+            {
+              duration: 150
+            };
+          requestAnimationFrame(() => {
+            animator.animate(animation, timing).onfinish = () => {
+              animator.classList.add('static');
+            };
+            content.animate(animation, timing);
+          });
+        }
+      }
+
+      close(e) {
+        const withAnimation = e.detail.withAnimation,
+              clientRect = e.detail.clientRect,
+              animator = this.$.background,
+              content = this.$.content;
+        let transitionTiming;
+        content.style.display = 'none';
+        animator.classList.remove('static');
+        if (withAnimation && clientRect) {
+          // Set initial styles
+          animator.style.height = clientRect.height + 'px';
+          animator.style.width = clientRect.width + 'px';
+          animator.style.left = clientRect.left + 'px';
+          animator.style.top = clientRect.top + 'px';
+          animator.style.borderRadius = '50%';
+
+          // Compute transition timing
+          transitionTiming = this.tabletLayout ? 250 : 325;
+
+          // Compute distance
+          const a = clientRect.left + clientRect.width / 2,
+                b = clientRect.top + clientRect.height / 2,
+                c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2)),
+                scale = c / (clientRect.height / 2);
+
+          // Animate!
+          requestAnimationFrame(() => {
+            animator.animate([
+              { transform: `scale(${scale})` },
+              { transform: 'scale(1)' }
+            ], {
+              duration: transitionTiming,
+              delay: 100,
+              easing: 'ease-in-out'
+            }).onfinish = () => {
+              animator.removeAttribute('style');
+              animator.classList.add('static');
+              content.style.display = 'block';
+              this.lessons = this.events = [];
+            }
+          });
+          requestAnimationFrame(() => {
+            content.animate([
+              {
+                opacity: 1,
+                transform: 'translateY(0)'
+              },
+              {
+                opacity: 0,
+                transform: 'translateY(10px)'
+              }
+            ],{
+              duration: 100
+            });
+          });
+        } else {
+          content.style.display = 'block';
+          animator.classList.remove('static');
+          const animation =
+            [
+              {
+                opacity: 1,
+                transform: 'translateY(0)'
+              },
+              {
+                opacity: 0,
+                transform: 'translateY(10px)'
+              }
+            ],
+                timing =
+            {
+              duration: 150
+            };
+          requestAnimationFrame(() => {
+            animator.animate(animation, timing).onfinish = () => {
+              animator.classList.add('static');
+              this.lessons = this.events = [];
+            };
+            content.animate(animation, timing);
+          });
+        }
+      }
+
+      _getLessonsNames(config) {
+        return Object.keys(config);
+      }
+
+      _clearInvalid(e) {
+        e.target.invalid = false;
+      }
+
+      _setLessons(e) {
+        const timetable = this.data.timetable,
+              day = e.target.selected,
+              lessonInput = e.target.parentElement.parentElement.children[1],
+              domRepeat = lessonInput.querySelector('dom-repeat'),
+              output = [];
+        if (timetable[day]) {
+          timetable[day].forEach((item, index) => {
+            output.push(`${index + 1}. ${item.name}`);
+          });
+        }
+        if (!e.target.getAttribute('in')) output.push(this.localize('add_new'));
+        domRepeat.items = output;
+        lessonInput.setAttribute('day', day);
+        lessonInput.children[0].selected = null;
+      }
+
+      _setLessonsAndWhen(e) {
+        this._setLessons(e);
+        const yearInput = e.target.parentElement.parentElement.parentElement
+                           .parentElement.querySelector('.third-line .year');
+        if (yearInput) {
+          const fakeEvent = { target: yearInput };
+          this._setDaysOfMonth(fakeEvent);
+        }
+      }
+
+      _autofillInputs(e) {
+        const day = Number(e.target.parentElement.getAttribute('day')),
+              lessonI = e.target.selected,
+              lesson = this.data.timetable[day][lessonI],
+              parent = e.target.parentElement.parentElement.parentElement.parentElement;
+        parent.querySelector('paper-radio-group').selected = '0';
+        if (!lesson) {
+          parent.querySelector('paper-radio-group [name="1"]').disabled = true;
+          parent.querySelector('paper-radio-group [name="2"]').disabled = true;
+          return;
+        } else {
+          parent.querySelector('paper-radio-group [name="1"]').disabled = false;
+          parent.querySelector('paper-radio-group [name="2"]').disabled = false;
+
+        };
+        parent.querySelector('.lesson-name-input').value = lesson.name;
+        parent.querySelector('.classroom-input').value = lesson.classroom;
+        parent.querySelector('.teacher-input').value = lesson.teacher;
+        parent.querySelector('.time-input.start-time').value = this._toHour(lesson.startTime);
+        parent.querySelector('.time-input.end-time').value = this._toHour(lesson.endTime);
+      }
+
+      _addItem() {
+        if (this.selectedView === 0) {
+          this.lessons.push({ selectedChangeType: '0' });
+          this.notifySplices('lessons')
+        } else {
+          this.events.push({});
+          this.notifySplices('events')
+        }
+      }
+
+      _removeLesson(e) {
+        const index = e.target.getAttribute('index');
+        this.lessons.splice(index, 1);
+        this.notifySplices('lessons');
+      }
+
+      _removeEvent(e) {
+        const index = e.target.getAttribute('index');
+        this.events.splice(index, 1);
+        this.notifySplices('events');
+      }
+
+      save() {
+        let cantSave = false,
+            timetable = [0,0,0,0,0,0,0];
+        this.data.timetable.forEach((day, dayIndex) => {
+          if (day) {
+            day.forEach(lesson => {
+              if (!timetable[dayIndex]) timetable[dayIndex] = [];
+              timetable[dayIndex].push(lesson);
+            });
+          }
+        });
+        let j = 0, changeId;
+        this.shadowRoot.querySelectorAll('.lesson').forEach(lesson => {
+          const from = {
+            weekday: lesson.querySelector('.from-weekday').children[0].selected,
+            lessonI: lesson.querySelector('.from-lessoni').children[0].selected
+          };
+          if (from.weekday === undefined || from.weekday === null || from.lessonI === undefined || from.lessonI === null) return;
+          const isPernament = lesson.querySelector('.is-pernament').checked;
+          let when;
+          if (!isPernament) {
+            const year = lesson.querySelector('.input.year').value;
+            let month = lesson.querySelector('.month').selected + 1,
+                day = lesson.querySelector('.day').selectedItem.textContent;
+            if (month.toString().length === 1) month = '0' + month;
+            if (day.toString().length === 1) day = '0' + day;
+            when = `${year}-${month}-${day}`;
+          }
+          const changeType = lesson.querySelector('.change-type').selected;
+          switch (changeType) {
+            case '0':
+              const name = lesson.querySelector('.lesson-name-input').value,
+                    classroom = lesson.querySelector('.classroom-input').value,
+                    teacher = lesson.querySelector('.teacher-input').value,
+                    startTime = this._convertTime(lesson.querySelector('.time-input.start-time').value),
+                    endTime = this._convertTime(lesson.querySelector('.time-input.end-time').value);
+              if (!this.data.config[name]) {
+                const colors = [
+                  '#f44336', '#E91E63', '#9c27b0', '#3f51b5', '#2196F3',
+                  '#009688', '#ff9800', '#ff5722', '#795548', '#4caf50'
+                ];
+                this.set('data.conifg.' + name, { color: colors[Math.round(Math.random() * 9)]});
+              }
+              if (isPernament) {
+                timetable[from.weekday][from.lessonI] = { name, classroom, teacher, startTime, endTime };
+              } else {
+                this.events.push({
+                  name: `${timetable[from.weekday][from.lessonI].name} -> ${name}`,
+                  change: true,
+                  date: when,
+                  lesson: from.lessonI,
+                  to: { name, classroom, teacher, startTime, endTime },
+                  color: '#FBC02D'
+                });
+              }
+              break;
+            case '1':
+              const withObj = {
+                lessonI: lesson.querySelector('.with-lessoni').selected
+              };
+              if (isPernament) {
+                withObj.weekday = lesson.querySelector('.with-weekday').selected;
+              } else {
+                withObj.date = lesson.querySelector('.with-date').value;
+                withObj.weekday = new Date(withObj.date).getDay();
+              }
+              if (withObj.weekday === undefined || withObj.weekday === null
+                  || withObj.lessonI === undefined || withObj.lessonI === null) {
+                if (lesson.querySelector('.with-weekday')) {
+                  lesson.querySelector('.with-weekday').parentElement.invalid = true;
+                } else {
+                  lesson.querySelector('with-date').invalid = true;
+                }
+                lesson.querySelector('.with-lessoni').parentElement.invalid = true;
+                cantSave = true;
+                return;
+              }
+              changeId = !isPernament ? when + '-' + j : undefined;
+              j++;
+              timetable = this._switchLessons(timetable, from, withObj, isPernament, when, false, changeId);
+              break;
+            case '2':
+              let slice;
+              changeId = !isPernament ? when + '-' + j : undefined;
+              j++;
+              switch (Number(lesson.querySelector('.delete-behavior').selected)) {
+                case 0:
+                  if (isPernament) {
+                    timetable[from.weekday].splice(from.lessonI, 1);
+                  } else {
+                    this.events.push({
+                      name: `- ${timetable[from.weekday][from.lessonI].name}`,
+                      change: true,
+                      date: when,
+                      lesson: from.lessonI,
+                      to: 0,
+                      color: '#FBC02D'
+                    });
+                  }
+                  break;
+                case 1:
+                  slice = timetable[from.weekday].slice(0, from.lessonI);
+                  slice.reverse();
+                  slice.forEach((item, index) => {
+                    index = slice.length - 1 - index;
+                    timetable = this._switchLessons(timetable, { weekday: from.weekday, lessonI: index }, 
+                                                    {lessonI: index + 1, weekday: from.weekday, date: when},
+                                                    isPernament, when, true, changeId);
+                  });
+                  if (isPernament) {
+                    timetable[from.weekday].shift();
+                  } else {
+                    this.events.push({
+                      name: `- ${timetable[from.weekday][0].name}`,
+                      change: changeId,
+                      date: when,
+                      lesson: 0,
+                      to: 0,
+                      color: '#FBC02D'
+                    });
+                  }
+                  break;
+                case 2:
+                  slice = timetable[from.weekday].slice(from.lessonI + 1);
+                  slice.forEach((item, index) => {
+                    timetable = this._switchLessons(timetable, { weekday: from.weekday, lessonI: from.lessonI + index }, 
+                                                    {lessonI: from.lessonI + index + 1, weekday: from.weekday, date: when},
+                                                    isPernament, when, true, changeId);
+                  });
+                  if (isPernament) {
+                    timetable[from.weekday].pop();
+                  } else {
+                    this.events.push({
+                      name: `- ${timetable[from.weekday][timetable[from.weekday].length - 1].name}`,
+                      change: changeId,
+                      date: when,
+                      lesson: timetable[from.weekday].length - 1,
+                      to: 0,
+                      color: '#FBC02D'
+                    });
+                  }
+                  break;
+              }
+              break; 
+          }
+          j++;
+          if (!timetable[from.weekday].length) timetable[from.weekday] = 0;
+        });
+
+        const events = this.data.events || {},
+              filtered = [],
+              untouched = this.events.filter(item => Object.keys(item).length),
+              filteredObj = {},
+              untouchedObj = {},
+              reserved = [],
+              giveName = (event, i) => {
+                return event.date + '_' + i;
+              };
+        Object.keys(events).forEach(key => {
+          untouched.push(events[key]);
+        });
+        untouched.forEach(item => {
+          let index = 0,
+              name = giveName(item, index);
+          for (; reserved.includes(name); index++) name = giveName(item, index);
+          Object.assign(untouchedObj, { [name]: item });
+          reserved.push(name);
+        });
+        this.set('data.events', untouchedObj);
+
+        if (!cantSave) {
+          this.set('data.timetable', timetable);
+          this._close(null, null, true);
+        }
+      }
+
+      _close(e, detail, saved = false) {
+        if (saved) {
+          this._fire('switch-page', { action: 'closeAddDialog' }, true, this._shell);
+        } else {
+          this._askForConfirmation({
+            title: this.localize('discard-changes-question'),
+            dismiss: this.localize('keep-editing'),
+            confirm: this.localize('discard-changes'),
+            text: this.localize('discard-changes-content')
+          }).then(() => {
+            this._fire('switch-page', { action: 'closeAddDialog' }, true, this._shell);
+          }, err => {
+            // Do nothing
+          });
+        }
+      }
+
+      _askForConfirmation(content) {
+        return new Promise(async (resolve, reject) => {
+          await importHref('/bower_components/paper-alert-dialog/paper-alert-dialog.html');
+          const alert = document.createElement('paper-alert-dialog');
+          alert.title = content.title || 'Are you sure?';
+          alert.dismissButton = content.dismiss || 'No';
+          alert.confirmButton = content.confirm || 'Yes';
+          alert.textContent = content.text;
+          alert.addEventListener('confirm', () => {
+            alert.remove();
+            resolve();
+          });
+          alert.addEventListener('dismiss', () => {
+            alert.remove();
+            reject({ error: false });
+          });
+          document.body.appendChild(alert);
+          alert.open();
+        });
+      }
+
+      _switchLessons(timetable, from, withObj, isPernament, when, hide = false, changeId = true) {
+        const oldLesson = Object.assign({}, timetable[from.weekday][from.lessonI]),
+              newLesson = Object.assign({}, timetable[withObj.weekday][withObj.lessonI]),
+              tempTime = { start: oldLesson.startTime, end: oldLesson.endTime };
+        oldLesson.startTime = newLesson.startTime;
+        oldLesson.endTime = newLesson.endTime;
+        newLesson.startTime = tempTime.start;
+        newLesson.endTime = tempTime.end;
+        if (isPernament) {
+          timetable[from.weekday][from.lessonI] = newLesson;
+          timetable[withObj.weekday][withObj.lessonI] = oldLesson;
+        } else {
+          const name = [
+            timetable[withObj.weekday][withObj.lessonI].name,
+            timetable[from.weekday][from.lessonI].name
+          ];
+          this.events.push({
+            name: name.join(' -> '),
+            change: changeId,
+            date: withObj.date,
+            lesson: withObj.lessonI,
+            to: oldLesson,
+            color: '#FBC02D',
+            hide
+          },{
+            name: name.reverse().join(' -> '),
+            change: changeId,
+            date: when,
+            lesson: from.lessonI,
+            to: newLesson,
+            color: '#FBC02D',
+            hide
+          });
+        }
+        return timetable;
+      }
+
+      _convertTime(time) {
+        const date = new Date(0),
+              timeRegExp = time.match(/(\d+):(\d+)/),
+              timeUnix = date.setUTCHours(timeRegExp[1], timeRegExp[2]);
+        return timeUnix;
+      }
+
+      _setLessonsInWith(e) {
+        const day = e.target.tagName === 'PAPER-INPUT' ? new Date(e.target.value).getDay()
+                                                       : e.target.selected,
+              domRepeat = e.target.parentElement.parentElement.querySelector('dom-repeat'),
+              items = this.data.timetable[day],
+              output = [];
+        if (items.length) {
+          items.forEach((item, index) => output.push(`${index + 1}. ${item.name}`));
+        } else {
+          e.target.tagName === 'PAPER-INPUT' ? e.target.invalid = true
+                                             : e.target.parentElement.invalid = true;
+        }
+        domRepeat.set('items', output);
+        domRepeat.parentElement.selected = null;
+      }
+
+      _setLessonsInEvent(e) {
+        const day = new Date(e.target.value).getDay(),
+              domRepeat = e.target.parentElement.querySelector('dom-repeat'),
+              items = this.data.timetable[day],
+              output = [];
+        if (items.length) {
+          items.forEach((item, index) => output.push(`${index + 1}. ${item.name}`));
+        } else {
+          output.push(this.localize('add_all-day'));
+        }
+        domRepeat.set('items', output);
+        domRepeat.parentElement.selected = null;
+      }
+
+      _getCurrentYear() {
+        return new Date().getFullYear();
+      }
+
+      _getCurrentMonth() {
+        return new Date().getMonth();
+      }
+
+      _setDaysOfMonth(e) {
+        const parent = e.target.parentElement,
+              year = Number(parent.querySelector('.year').value),
+              month = parent.querySelector('.month').selected,
+              dayInput = parent.querySelector('.day'),
+              dayDomRepeat = parent.querySelector('.day dom-repeat');
+        if (!year || !month) return;
+        dayInput.selected = null;
+        if (year === this._getCurrentYear() && month < this._getCurrentMonth()) {
+          parent.querySelector('.month').invalid = true;
+          return;
+        }
+        parent.querySelector('.month').invalid = false;
+        const weekday = e.target.parentElement.parentElement.parentElement
+          .querySelector('.from-weekday > paper-listbox').selected;
+        const weekdaysOccurances = 
+        dayDomRepeat.items = this._getDaysFromMonth(month, weekday);
+        dayInput.selected = 0;
+      }
+
+      _validateDay(e) {
+        const parent = e.target.parentElement,
+              year = Number(parent.querySelector('.year').value),
+              month = parent.querySelector('.month').selected,
+              dayInput = parent.querySelector('.day');
+        if (dayInput.selected === null || dayInput.selected === undefined) return;
+        const day = Number(dayInput.parentElement.value);
+        if (year === this._getCurrentYear() && month === this._getCurrentMonth() &&
+            day < new Date().getDate()) {
+          e.target.invalid = true;
+        } else {
+          e.target.invalid = false
+        }
+      }
+
+      _getDaysFromMonth(month, weekday = new Date().getDay()) {
+        const d = new Date(),
+              days = [];
+        d.setMonth(month);
+        d.setDate(1);
+        while (d.getDay() !== weekday) {
+            d.setDate(d.getDate() + 1);
+        }
+        while (d.getMonth() === month) {
+            days.push(d.getDate());
+            d.setDate(d.getDate() + 7);
+        }
+        return days;
+      }
+
+      _isSelected(a, b) {
+        return a == b;
+      }
+
+      _toHour(time) {
+        let timeDate = new Date(time),
+        timeReadable = timeDate.getUTCHours().toString().length === 1 ? '0' + timeDate.getUTCHours()
+                                                              : timeDate.getUTCHours();
+        timeReadable += ':' + (timeDate.getUTCMinutes().toString().length === 1 ? '0' + timeDate.getUTCMinutes()
+                                                                                : timeDate.getUTCMinutes());
+        return timeReadable;
+      }
+
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
+      }
+
+    }
+
+    window.customElements.define(AddDialog.is, AddDialog);
+  </script>
+</dom-module>

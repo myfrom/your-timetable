@@ -1,0 +1,85 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="/bower_components/paper-item/paper-item-body.html">
+
+<link rel="import" href="app-localize-behavior-mixin.html">
+<link rel="import" href="ycons.html">
+
+<dom-module id="yta-about-page">
+  <template>
+    <style>
+      :host {
+        display: block
+      }
+
+      a {
+        color: unset !important;
+        text-decoration: unset !important;
+      }
+
+      p {
+        font-family: 'Roboto', 'Noto', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+      }
+
+      .profile-picture {
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+      }
+
+      paper-icon-item {
+        padding-left: 0;
+      }
+    </style>
+
+    <paper-dialog id="dialog" with-backdrop>
+      <h2>[[localize('about_h1')]]</h2>
+      <paper-dialog-scrollable>
+        <p>[[localize('about_p')]]</p>
+        <h3>[[localize('about_h2')]]</h3>
+        <paper-icon-item>
+          <img src="https://lh3.googleusercontent.com/IuMTe0YwRbjHfwpsqEyFUPu61fpYvgAbT37XLPBvgunP3myaqJxyYCqVvNTUG9WNFZfjJJ6-SBapaA=w1080-h1920-rw-no" class="profile-picture" slot="item-icon">
+          <a href="https://plus.google.com/+WiktorOlejniczak13th" target="_blank"> 
+            <paper-item-body two-line>
+              <div class="profile-name">Wiktor Olejniczak</div>
+              <div secondary class="profile-contribution">[[localize('about_contributor_myfrom')]]</div>
+            </paper-item-body>
+          </a>
+        </paper-icon-item>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>[[localize('cancel')]]</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+    
+    class AboutPage extends Polymer.AppLocalizeBehaviorMixin(Polymer.Element) {
+      
+      static get is() {
+        return 'yta-about-page';
+      }
+
+      constructor() {
+        super();
+      }
+
+      open() {
+        this.$.dialog.open();
+      }
+
+    }
+
+    window.customElements.define(AboutPage.is, AboutPage);
+  </script>
+</dom-module>
