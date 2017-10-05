@@ -1,7 +1,10 @@
 module.exports = {
   importScripts: ['/sw-logic.js'],
   runtimeCaching: [{
-    urlPattern: '/*',
+    urlPattern: /^\/(?!__\/).*/,
     handler: 'fastest'
-  }]
+  }],
+  navigateFallbackWhitelist: [
+    /^\/(?!__\/).*/
+  ]
 };
