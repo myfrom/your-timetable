@@ -3,17 +3,10 @@
     "rules": "firebase.database.rules.json"
   },
   "hosting": {
-<<<<<<< HEAD
-    "public": "public",
-    "rewrites": [
-      {
-        "source": "*.*",
-=======
     "public": "app/build/final",
     "rewrites": [
       {
         "source": "**/!{*.*}",
->>>>>>> c3d5fb9bebb1599c7ff750fb88b1f798f9b84754
         "destination": "/index.html"
       }
     ],
