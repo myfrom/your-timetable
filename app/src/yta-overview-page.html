@@ -1,0 +1,181 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-repeat.html">
+
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="yta-lesson-card.html">
+
+<script src="/bower_components/moment/min/moment.min.js"></script>
+
+<dom-module id="yta-overview-page">
+  <template>
+    <style>
+      
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        
+        #placeholder {
+          @apply --layout-vertical;
+        }
+        
+      }
+      
+      @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+        
+        #placeholder {
+          @apply --layout-horizontal;
+          @apply --layout-wrap;
+          @apply --layout-center-justified;
+          padding-top: 12px !important;
+        }
+
+        h2 {
+          text-align: center;
+        }
+        
+      }
+      
+      #placeholder {
+         padding: 8px;
+      }
+
+      :host/* , #placeholder */ {
+        position: relative;
+        overflow: visible;
+      }
+      
+      h2 {
+        margin: 15px;
+        opacity: var(--dark-primary-opacity);
+        font-size: 24px;
+        font-weight: 400;
+        letter-spacing: -.01em;
+        line-height: 40px;
+        font-family: 'Roboto', 'Noto', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+    
+    </style>
+    
+    <div id="placeholder">
+      <template is="dom-repeat" items="[[lessonsToday(timetable, data.events)]]">
+        <yta-lesson-card i$="[[index]]"
+                         name="[[item.name]]"
+                         start-time="[[viewReadable(item.startTime)]]"
+                         end-time="[[viewReadable(item.endTime)]]"
+                         color="[[_pickLessonColor(item.name)]]"
+                         classroom="[[item.classroom]]"
+                         teacher="[[item.teacher]]"
+                         phone-layout="[[phoneLayout]]"
+                         ></yta-lesson-card>
+      </template>
+      <template is="dom-if" if="[[phoneLayout]]">
+        <yta-lesson-card blank phone-layout="[[phoneLayout]]"></yta-lesson-card>
+      </template>
+    </div>
+  </template>
+  
+  <script>
+    class OverviewPage extends Polymer.Element {
+      static get is() { return 'yta-overview-page'; }
+      static get properties() {
+        return {
+          
+          // Inherited from Shell
+          phoneLayout: {
+            type: Boolean,
+            notify: true,
+            reflectToAttribute: true
+          },
+          
+          // Inherited from MainView
+          data: {
+            type: Object,
+            notify: true
+          },
+
+          // Inherited from shell as unmodificable on higher levels
+          timetable: Array
+          
+        };
+      }
+      
+      constructor() {
+        super();
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+        this._fire('OVERIVIEW-PAGE-loaded');
+      }
+      
+      lessonsToday(tt, events) {
+        if (tt == null) {
+          this._fire('err-no-data');
+          return [];
+        } else {
+          const timetable = JSON.parse(JSON.stringify(tt));
+          let day = moment().day(),
+              showHeader = false,
+              firstRun = true,
+              i = 0;
+          while (true) {
+            if (events) {
+              Object.keys(events).forEach(key => {
+                const event = events[key];
+                if (event.change && event.date === moment().add(i, 'd').format('YYYY-MM-DD')) {
+                  const eventDay = moment(event.date).day();
+                  timetable[eventDay][event.lesson] = event.to ? event.to : undefined;
+                }
+              });
+            }
+            if (timetable[day] !== 0) {
+              const minute = moment().minute(),
+                    hour = moment().hour(),
+                    time = moment().utcOffset(0).set({year: 1970, month: 0, date: 1, minute, hour}).format('x');
+              if (!firstRun || timetable[day][timetable[day].length - 1].endTime > time) {
+                if (!firstRun) this._showHeader(day);
+                return timetable[day];
+              }
+            }
+            i++;
+            day = day === 6 ? 0 : day + 1;
+            firstRun = false;
+          }
+        }
+      }
+      
+      viewReadable(time) {
+        const ampm = this.data.settings.use12hoursClock;
+        return moment(time).utcOffset(0)
+          .format(`${ampm ? 'hh' : 'HH'}:mm${ampm ? ' a' : ''}`);
+      }
+
+      _showHeader(day) {
+        Polymer.RenderStatus.afterNextRender(this, () => {
+          const header = this.shadowRoot.querySelector('h2');
+          if (header) {
+            header.textContent = moment().day(day).format('dddd');
+          } else {
+            const el = document.createElement('h2');
+            el.textContent = moment().day(day).format('dddd');
+            this.shadowRoot.insertBefore(el, this.shadowRoot.firstChild);
+          }
+        });
+      }
+      
+      _pickLessonColor(name) {
+        const config = this.data.config;
+        return config[name].color;
+      }
+      
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
+      }
+    }
+    
+    customElements.define(OverviewPage.is, OverviewPage);
+  </script>
+</dom-module>

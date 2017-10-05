@@ -1,0 +1,441 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/lib/elements/dom-if.html">
+
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+
+<link rel="import" href="/bower_components/neon-animation/animations/slide-from-bottom-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/fade-out-animation.html">
+
+<link rel="import" href="ycons.html">
+<link rel="import" href="paper-calendar.html">
+
+<script src="/bower_components/moment/min/moment.min.js"></script>
+
+<dom-module id="yta-calendar-page">
+  <template>
+    <style>
+
+      @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+        /* Phone styles */
+        
+        #calendar {
+          position: fixed;
+          top: 50px;
+          bottom: 72px;
+          right: 15px;
+          left: 15px;
+        }
+      }
+
+      @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+        /* Other than phone */
+
+        #calendar {
+          height: 600px;
+          max-width: 500px;
+          margin: 30px auto;
+        }
+
+        #header {
+          max-width: 500px;
+          margin: 0 auto;
+        }
+      }
+
+      #header {
+        @apply --layout-flex;
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        height: 60px;
+        padding: 0 16px;
+      }
+
+      #header > span {
+        @apply --layout-flex;
+        @apply --paper-font-menu;
+        text-transform: uppercase;
+        text-align: center;
+        position: relative;
+        left: 20px;
+        opacity: var(--light-primary-opacity);
+     }
+
+     #header > paper-icon-button {
+       opacity: var(--light-secondary-opacity);
+     }
+
+      #calendar {
+        --paper-calendar-selected-background: var(--accent-color);
+        --paper-calendar-selected-color: rgba(0,0,0,.87);
+        --paper-calendar-event-background: var(--primary-color);
+        --paper-calendar-table: {
+          width: 100%;
+        };
+      }
+
+      paper-icon-button[hidden] {
+        display: none !important;
+      }
+
+    </style>
+    
+    <div id="header">
+      <paper-icon-button icon="ycons:keyboard-arrow-left" on-tap="_previousMonth"></paper-icon-button>
+      <span>[[_computeMonthName(_selectedMonth)]]</span>
+      <paper-icon-button icon="ycons:event" on-tap="_today"></paper-icon-button>
+      <paper-icon-button icon="ycons:keyboard-arrow-right" on-tap="_nextMonth"></paper-icon-button>
+    </div>
+    <paper-calendar id="calendar" selectable on-selected="_calendarSelected"
+                    swipeable swipe-direction="vertical"
+                    events="[[_processEvents(data.events)]]"
+                    first-day="[[data.settings.firstDayOfWeek]]"
+                    selected-month="{{_selectedMonth}}"></paper-calendar>
+
+    <paper-dialog id="dialog" with-backdrop>
+      <h2></h2>
+      <paper-dialog-scrollable>
+        <template is="dom-repeat" id="eventsRepeater">
+          <paper-item class="event" style="background-color: [[item.color]];">
+            <paper-item-body two-line>
+              <template is="dom-if" class="show-domif" if="true" restamp>
+                <div class="primary">
+                  <span class="header">[[item.name]]</span>
+                  <div class="actions" info$="[[item.date]][[index]]">
+                    <template is="dom-if" if="[[!item.change]]">
+                      <paper-icon-button icon="ycons:edit" class="edit-button"></paper-icon-button>
+                    </template>
+                    <paper-icon-button icon="ycons:delete" class="delete-button"></paper-icon-button>
+                  </div>
+                </div>
+                <div secondary class="secondary">[[_getLessonName(item.date, item.lesson)]]</div>
+              </template>
+              <template is="dom-if" class="edit-domif" restamp>
+                <div class="primary">
+                  <paper-input no-label-float value="[[item.name]]"></paper-input>
+                  <div class="actions">
+                    <paper-icon-button  info$="[[item.date]][[index]]" icon="ycons:done" on-tap="_finishedEditing" style="height:42px"></paper-icon-button>
+                  </div>
+                </div>
+                <div secondary>
+                  <paper-input type="date" no-label-float value="[[item.date]]" on-value-changed="_showLessons"></paper-input>
+                  <paper-dropdown-menu no-label-float>
+                    <paper-listbox selected="[[item.lesson]]" slot="dropdown-content">
+                      <template is="dom-repeat" as="lesson">
+                        <paper-item>[[lesson]]</paper-item>
+                      </template> 
+                    </paper-listbox>
+                  </paper-dropdown-menu>
+                </div>
+              </template>
+            </paper-item-body>
+          </paper-item>
+        </template>
+      </paper-dialog-scrollable>
+    </paper-dialog>
+  </template>
+  
+  <script>
+    class CalendarPage extends Polymer.Element {
+      static get is() { return 'yta-calendar-page'; }
+      static get properties() {
+        return {
+          
+          // Inherited from MainView
+          data: {
+            type: Object,
+            notify: true
+          },
+
+          _selectedMonth: Number
+          
+        };
+      }
+      
+      constructor() {
+        super();
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+      }
+
+      _calendarSelected(e) {
+        const date = e.detail.date,
+              events = this.data.events;
+        if (!events) return;
+        this._checkForEventsOn(date, events).then(dayEvents => {
+          // Create styles
+          const styles = `
+            #dialog {
+              border-radius: 2px;
+            }
+
+            #dialog .event {
+              width: 240px;
+              color: white;
+              margin: 2px;
+              border-radius: 2px;
+              background-color: var(--primary-color);
+            }
+
+            #dialog .event .primary {
+              display: flex;
+              flex-direction: row;
+            }
+
+            #dialog .event .primary .header {
+              flex: 1;
+            }
+
+            #dialog .event .secondary {
+              color: white;
+              opacity: var(--light-secondary-opacity);
+            }
+
+            #dialog .event paper-icon-button {
+              opacity: var(--light-secondary-opacity);
+              padding: 0 4px;
+              height: 22px;
+              width: 30px;
+            }
+
+            #dialog paper-input, #dialog paper-dropdown-menu {
+              --paper-input-container-color: white;
+              --paper-input-container-focus-color: white;
+              --paper-input-container-input-color: white;
+            }
+          `
+          // Add content
+          this.shadowRoot.querySelector('#dialog > h2').textContent = moment(date).format('Do MMMM YYYY');
+          // Refresh events items to remove previous states
+          this.shadowRoot.querySelectorAll('#dialog .edit-domif').forEach(item => item.if = false);
+          this.shadowRoot.querySelectorAll('#dialog .show-domif').forEach(item => item.if = true);
+          //this.shadowRoot.querySelectorAll('#dialog paper-dialog-scrollable > .event').forEach(item => item.remove());
+          // Render new elements
+          const domRepeat = this.shadowRoot.querySelector('#dialog dom-repeat');
+          domRepeat.items = dayEvents;
+          domRepeat.notifySplices('items');
+          domRepeat.render();
+          domRepeat.items;
+          // Asign callbacks
+          this.shadowRoot.querySelectorAll('#dialog .edit-button').forEach(item => item.addEventListener('click', this._editEvent.bind(this)));
+          this.shadowRoot.querySelectorAll('#dialog .delete-button').forEach(item => item.addEventListener('click', this._deleteEventBtnPress.bind(this)));
+          // Open dialog
+          this._openDialog(this.$.dialog, styles);
+        }, err => { if (err !== 'noevents') throw err })
+      }
+
+      _checkForEventsOn(date, events) {
+        return new Promise((resolve, reject) => {
+          const regexp = new RegExp(`^${date}.+`, 'g'),
+                output = [];
+          Object.keys(events).forEach(key => {
+            if (key.match(regexp) && !events[key].hide) output.push(events[key]);
+          });
+          if (!output.length) {
+            reject('noevents');
+          } else {
+            output.sort((a, b) => a.lesson - b.lesson);
+            resolve(output);
+          }
+        });
+      }
+
+      _editEvent(e) {
+        const domIfs = e.target.parentElement.parentElement.parentElement.querySelectorAll('dom-if'),
+              date = e.target.parentElement.getAttribute('info').slice(0, 10);
+        domIfs[1].if = false;
+        domIfs[2].if = true;
+        // First one can hide asynchronously but second needs to be rendered
+        domIfs[2].render();
+        const lessons = [],
+              tt = this.data.timetable[moment(date).day()],
+              domRepeat = document.querySelector('#dialog paper-listbox dom-repeat');
+        if (tt) {
+          tt.forEach((item, index) => {
+            lessons.push(index + 1 + '. ' + item.name);
+          });
+          domRepeat.set('items', lessons);
+        }
+      }
+
+      _finishedEditing(e) {
+        const primary = e.target.parentElement.parentElement,
+              secondary = primary.parentElement.children[2],
+              info = e.target.getAttribute('info'),
+              dateOld = info.slice(0, 10),
+              indexOld = Number(info.slice(10, 11)),
+              name = primary.children[0].value,
+              date = secondary.children[0].value,
+              lesson = secondary.children[1].value,
+              lessonIndex = lesson ? Number(lesson.match(/^(\d+)\..+/)[1]) - 1 : 0,
+              dialog = document.querySelector('#dialog');
+        this._deleteEvent(dateOld, indexOld, [{ name, date, lesson: lessonIndex }]);
+        dialog.close();
+      }
+
+      _showLessons(e) {
+        const lessons = [],
+              tt = this.data.timetable[moment(e.detail.value).day()],
+              listOfLessons = e.target.parentElement.children[1].children[0].children,
+              domRepeat = listOfLessons[listOfLessons.length - 1];
+        if (tt) {
+          tt.forEach((item, index) => {
+            lessons.push(index + 1 + '. ' + item.name);
+          });
+          domRepeat.items = lessons;
+        }
+      }
+
+      _deleteEventBtnPress(e) {
+        const events = this.data.events,
+              info = e.target.parentElement.getAttribute('info'),
+              date = info.slice(0, 10),
+              index = Number(info.slice(10, 11));
+        this._deleteEvent(date, index);
+        document.querySelector('#dialog #eventsRepeater').splice('items', index, 1);
+      }
+
+      _deleteEvent(date, index, added = []) {
+        const events = this.data.events,
+              regexp = new RegExp(`^${date}.+`, 'g'),
+              filteredObj = {},
+              untouchedObj = {},
+              reserved = [],
+              giveName = (event, i) => {
+                return event.date + '_' + i;
+              };
+        let filtered = [],
+            untouched = added;
+        Object.keys(events).forEach(key => {
+          key.match(regexp) && !events[key].hide ? filtered.push(events[key]) : untouched.push(events[key]);
+        });
+        const eventChangeId = filtered[index].change;
+        filtered.splice(index, 1);
+        if (typeof eventChangeId === 'string') {
+          filtered = filtered.filter(item => item.change === eventChangeId);
+          untouched = untouched.filter(item => item.change !== eventChangeId);
+        }
+        filtered.forEach((item, index) => {
+          const name = giveName(item, index);
+          Object.assign(filteredObj, { [name]: item });
+          reserved.push(name);
+        });
+        untouched.forEach(item => {
+          let index = 0,
+              name = giveName(item, index);
+          for (; reserved.includes(name); index++) name = giveName(item, index);
+          Object.assign(untouchedObj, { [name]: item });
+          reserved.push(name);
+        });
+        this.data.events = Object.assign(untouchedObj, filteredObj);
+        this.notifyPath('data.events');
+      }
+
+      _getLessonName(date, index) {
+        let day = moment(date).day();
+        if (this.data.timetable[day] && this.data.timetable[day][index]) {
+          return index + 1 + '. ' + this.data.timetable[day][index].name;
+        } else {
+          return '';
+        }
+      }
+
+      _openDialog(dialog, style = null, animations) {
+        // Setup animations
+        dialog.animationConfig = animations || {
+          entry: [{
+            name: 'slide-from-bottom-animation',
+            node: dialog,
+            timing: {
+              easing: 'ease-out',
+              duration: 250
+            }
+          },{
+            name: 'fade-in-animation',
+            node: dialog,
+            timing: {
+              easing: 'ease-out',
+              duration: 250
+            }
+          }],
+          exit: [{
+            name: 'slide-down-animation',
+            node: dialog,
+            timing: {
+              easing: 'ease-in',
+              duration: 250
+            }
+          },{
+            name: 'fade-out-animation',
+            node: dialog,
+            timing: {
+              easing: 'ease-in',
+              duration: 250
+            }
+          }],
+        };
+        // Create nescessary styles
+        let styleEl;
+        if (style) {
+          styleEl = document.createElement('style');
+          styleEl.innerHTML = style;
+          document.head.appendChild(styleEl);
+        }
+        // Remember current parent to...
+        const parent = dialog.parentNode;
+        // ...move it back when it closes
+        dialog.addEventListener('iron-overlay-closed', e => {
+          if (e.target !== dialog) return;
+          if (styleEl) styleEl.remove();
+          parent.appendChild(dialog);
+        });
+        // Move element
+        document.body.appendChild(dialog);
+        dialog.open();
+      }
+
+      _processEvents(events) {
+        if (!events || Object.keys(events).length === 0) return;
+        const output = [];
+        Object.keys(events).forEach(key => {
+          if(!events[key].hide) output.push(events[key])
+        });
+        return output;
+      }
+      
+      _computeMonthName(month) {
+        return moment(month).format('MMMM');
+      }
+
+      _nextMonth() {
+        this._selectedMonth = Number(moment(this._selectedMonth).add(1, 'months').format('x'));
+      }
+
+      _previousMonth() {
+        this._selectedMonth = Number(moment(this._selectedMonth).subtract(1, 'months').format('x'));
+      }
+
+      _today() {
+        this._selectedMonth = Number(moment().format('x'));
+      }
+      
+      _fire(name, detail = null, bubbles = true, target) {
+        target = target || this;
+        const evt = new CustomEvent(name, { detail, bubbles });
+        target.dispatchEvent(evt);
+      }
+    }
+    
+    customElements.define(CalendarPage.is, CalendarPage);
+  </script>

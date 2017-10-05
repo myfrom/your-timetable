@@ -1,0 +1,55 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/yta-shell.html",
+  "fragments": [
+    "src/yta-timetable-page.html",
+    "src/yta-search-page.html",
+    "src/yta-calendar-page.html",
+    "src/yta-settings.html",
+    "src/yta-onboarding.html",
+    "src/yta-add-dialog.html",
+    "src/yta-feedback-dialog.html",
+    "src/yta-about-page.html",
+    "src/yta-setup-dialog.html"
+  ],
+  "sources": [
+    "src/**/*",
+    "images/**/*",
+    "bower.json"
+  ],
+  "extraDependencies": [
+    "sw-logic.js",
+    "manifest.json",
+    "bower_components/webcomponentsjs/**/*",
+    "bower_components/moment/locale/*",
+    "bower_components/appmetrics.js/dist/appmetrics.min.js",
+    "bower_components/web-animations-js/web-animations-next.min.js",
+    "privacy-policy.html",
+    "terms-and-conditions.html",
+    "images/offline-avatar.svg",
+    "favicon.ico",
+    "bower_components/pouchdb/dist/pouchdb.min.js",
+    "bower_components/app-pouchdb/app-pouchdb-conflict-resolution.html",
+    "bower_components/app-pouchdb/app-pouchdb-document.html",
+    "bower_components/paper-alert-dialog/paper-alert-dialog.html",
+    "bower_components/sw-toolbox/sw-toolbox.js"
+  ],
+  "lint": {
+    "rules": ["polymer-2"]
+  },
+  "builds": [
+    {
+      "name": "full-css",
+      "preset": "es6-unbundled",
+      "css": { "minify": false }
+    },{
+      "name": "full-js",
+      "preset": "es6-unbundled",
+      "js": { "minify": false, "compile": false }
+    },{
+      "name": "minified",
+      "preset": "es6-unbundled",
+      "swPrecacheConfig": "sw-precache-config.js"
+    }
+  ]
+}
