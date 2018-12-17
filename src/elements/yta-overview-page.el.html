@@ -1,0 +1,60 @@
+<style>
+      
+  @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+    
+    #placeholder {
+      @apply --layout-vertical;
+      padding-bottom: 72px;
+    }
+    
+  }
+  
+  @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+    
+    #placeholder {
+      @apply --layout-horizontal;
+      @apply --layout-wrap;
+      @apply --layout-center-justified;
+      padding-top: 12px !important;
+    }
+
+    h2 {
+      text-align: center;
+    }
+    
+  }
+  
+  #placeholder {
+     padding: 8px;
+  }
+
+  :host/* , #placeholder */ {
+    position: relative;
+    overflow: visible;
+  }
+  
+  h2 {
+    margin: 15px;
+    opacity: var(--dark-primary-opacity);
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: -.01em;
+    line-height: 40px;
+    font-family: 'Roboto', 'Noto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+</style>
+
+<div id="placeholder">
+  <template is="dom-repeat" items="[[lessonsToday(data.timetable, data.events)]]">
+    <yta-lesson-card i$="[[index]]"
+                     name="[[item.name]]"
+                     start-time="[[viewReadable(item.startTime)]]"
+                     end-time="[[viewReadable(item.endTime)]]"
+                     color="[[_pickLessonColor(item.name)]]"
+                     classroom="[[item.classroom]]"
+                     teacher="[[item.teacher]]"
+                     ></yta-lesson-card>
+  </template>
+</div>

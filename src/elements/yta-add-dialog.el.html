@@ -1,0 +1,394 @@
+<style>
+
+  @media (max-width: 960px) and (orientation: landscape),
+         (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+    /* Phone styles */
+    
+    #background.static, #content {
+      @apply --layout-fit;
+    }
+  }
+  
+  @media (min-width: 961px) and (max-width: 1279px) and (orientation: landscape),
+         (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {
+    /* Tablet styles */
+    
+    #background.static, #content {
+      @apply --layout-fit;
+    }
+  }
+  
+  @media (min-width: 841px) and (orientation: portrait), (min-width: 1280px) and (orientation: landscape) {
+    /* Desktop styles */
+    
+    :host {
+      @apply --layout;
+      @apply --layout-center;
+      @apply --layout-center-justified;
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    #background, #content {
+      width: 750px;
+      height: 750px;
+      position: relative;
+    }
+    
+    /* Hide ugly scrollbar in Chrome on desktop */
+    #content::-webkit-scrollbar { width: 0 !important; }
+    
+    #background {
+      @apply --shadow-elevation-16dp;
+    }
+    
+    #background, #content, #next {
+      border-radius: 25px;
+    }
+    
+  }
+
+  :host {
+    z-index: 999;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 10;
+    overflow-y: auto;
+  }
+
+  #background {
+    position: absolute;
+    background-color: white;
+  }
+
+  #content {
+    overflow-y: auto;
+  }
+
+  paper-tabs {
+    --paper-tabs-selection-bar-color: var(--paper-yellow-700);
+  }
+
+  paper-tab {
+    font-weight: 500 !important;
+    text-transform: uppercase;
+    opacity: var(--dark-secondary-opacity);
+    --paper-tab-ink: var(--paper-yellow-700);
+  }
+
+  paper-tab.iron-selected {
+    opacity: var(--dark-primary-opacity);
+  }
+
+  .lesson, .event {
+    padding: 14px;
+    background-color: var(--paper-yellow-700);
+    position: relative;
+    margin-bottom: 1px;
+  }
+
+  .lesson .first-line, .lesson .second-line, .lesson .third-line {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .third-line {
+    margin-top: 8px;
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: white;
+    opacity: var(--light-secondary-opacity);
+  }
+
+  #addLessonBtn {
+    color: black;
+    opacity: var(--dark-primary-opacity);
+  }
+
+  paper-button {
+    color: var(--paper-yellow-700);
+  }
+
+  .spacer {
+    display: flex;
+    flex: 1;
+  }
+
+  #bottom {
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    padding: 4px 0;
+    border-top: 1px rgba(0,0,0,0.12) solid;
+    display: flex;
+    flex-direction: row;
+  }
+
+  iron-pages {
+    margin: 8px 0;
+  }
+
+  .with-bg {
+    color: white;
+  }
+
+  .input.with-bg {
+    --paper-input-container-color: white;
+    --paper-input-container-focus-color: white;
+    --paper-input-container-input-color: white;
+    margin: 0 4px;
+  }
+
+  .lesson p {
+    margin: 0 8px 0 0;
+  }
+
+  .row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  vaadin-combo-box-light paper-input paper-icon-button {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    opacity: 0;
+    transition: transform 200ms ease-in-out,
+      opacity 60ms;
+    --iron-icon: {
+      position: relative;
+      bottom: 3px;
+    }
+  }
+
+  vaadin-combo-box-light:hover paper-input paper-icon-button,
+  vaadin-combo-box-light:focus paper-input paper-icon-button,
+  vaadin-combo-box-light:focus-within paper-input paper-icon-button {
+    opacity: 0.54;
+  }
+
+  vaadin-combo-box-light[opened] paper-input .toggle-button {
+    transform: rotate(180deg);
+  }
+
+  paper-checkbox.with-bg {
+    margin-bottom: 15px;
+    --paper-checkbox-label-color: white;
+    --paper-checkbox-unchecked-color: white;
+    --paper-checkbox-unchecked-ink-color: white;
+    --paper-checkbox-checked-color: white;
+    --paper-checkbox-checked-ink-color: white;
+    --paper-checkbox-checkmark-color: var(--paper-yellow-700);
+    --paper-checkbox-label-color: white;
+  }
+
+  paper-radio-group.with-bg paper-radio-button {
+    color: white;
+    --paper-radio-button-unchecked-color: white;
+    --paper-radio-button-unchecked-ink-color: white;
+    --paper-radio-button-checked-color: white;
+    --paper-radio-button-checked-ink-color: white;
+    --paper-radio-button-label-color: white;
+  }
+
+  .third-line, .second-line {
+    border-top: solid 1px rgba(255,255,255,0.24);
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+
+  .input.year, .input.month, .input.day {
+    width: 50px;
+  }
+
+</style>
+
+<div id="background" class="static"></div>
+<div id="content">
+  <paper-tabs selected="{{selectedView}}">
+    <paper-tab>[[localize('add_lesson')]]</paper-tab>
+    <paper-tab>[[localize('add_event')]]</paper-tab>
+  </paper-tabs>
+  <iron-pages selected="[[selectedView]]">
+    <div id="addLesson">
+      <template is="dom-repeat" items="[[lessons]]">
+        <div class="lesson">
+          <paper-icon-button icon="ycons:remove-circle" on-tap="_removeLesson" tabindex="-1"
+                             index$="[[index]]" class="remove-btn"></paper-icon-button>
+          <div class="first-line">
+            <p class="with-bg">[[localize('add_from')]]</p>
+            <div class="row">
+              <paper-dropdown-menu no-label-float label="[[localize('add_day')]]" class="with-bg input from-weekday">
+                <paper-listbox slot="dropdown-content" on-iron-select="_setLessonsAndWhen">
+                  <paper-item>[[localize('weekDays', 'd', 0)]]</paper-item>
+                  <paper-item>[[localize('weekDays', 'd', 1)]]</paper-item>
+                  <paper-item>[[localize('weekDays', 'd', 2)]]</paper-item>
+                  <paper-item>[[localize('weekDays', 'd', 3)]]</paper-item>
+                  <paper-item>[[localize('weekDays', 'd', 4)]]</paper-item>
+                  <paper-item>[[localize('weekDays', 'd', 5)]]</paper-item>
+                  <paper-item>[[localize('weekDays', 'd', 6)]]</paper-item>
+                </paper-listbox>
+              </paper-dropdown-menu>
+              <paper-dropdown-menu no-label-float label="[[localize('add_lesson')]]" class="with-bg input from-lessoni">
+                <paper-listbox slot="dropdown-content" on-iron-select="_autofillInputs">
+                  <template is="dom-repeat">
+                    <paper-item>[[item]]</paper-item>
+                  </template>
+                </paper-listbox>
+              </paper-dropdown-menu>
+            </div>
+          </div>
+          <div class="second-line">
+            <paper-radio-group class="with-bg change-type" selected="{{item.selectedChangeType}}">
+              <paper-radio-button name="0">[[localize('add_to')]]</paper-radio-button>
+              <paper-radio-button name="1">[[localize('add_swap')]]</paper-radio-button>
+              <paper-radio-button name="2">[[localize('add_delete')]]</paper-radio-button>
+            </paper-radio-group>
+            <template is="dom-if" if="[[_isSelected(item.selectedChangeType, '0')]]">
+              <div class="row">
+                <vaadin-combo-box-light class="input with-bg lesson-name-input" allow-custom-value item-value-path="name"
+                  on-custom-value-set="_processCustomLessonInputValue" items="[[_getLessonsNames(data.config)]]"
+                  item-label-path="name">
+                  <paper-input label="[[localize('setup_yourLesson')]]" no-label-float>
+                    <paper-icon-button slot="suffix" icon="ycons:clear" class="clear-button" tabindex="-1"></paper-icon-button>
+                    <paper-icon-button slot="suffix" icon="ycons:arrow-drop-down" class="toggle-button" tabindex="-1"></paper-icon-button>
+                  </paper-input>
+                </vaadin-combo-box-light>
+              </div>
+              <div class="row">
+                <p class="with-bg">[[localize('setup_in')]]</p>
+                <paper-input no-label-float label="[[localize('setup_class')]]"
+                            class="input with-bg classroom-input"></paper-input>
+                <p class="with-bg">[[localize('setup_with')]]</p>
+                <paper-input no-label-float label="[[localize('setup_teacher')]]"
+                            class="input with-bg teacher-input"></paper-input>
+              </div>
+              <div class="row">
+                <p class="with-bg">[[localize('setup_starts')]]</p>
+                <paper-input no-label-float type="time"
+                            class="input with-bg start-time time-input"></paper-input>
+                <p class="with-bg">[[localize('setup_ends')]]</p>
+                <paper-input no-label-float type="time"
+                            class="input with-bg end-time time-input"></paper-input>
+              </div>
+            </template>
+            <template is="dom-if" if="[[_isSelected(item.selectedChangeType, '1')]]">
+              <div class="row">
+                <template is="dom-if" if="[[item.permanent]]">
+                  <paper-dropdown-menu on-value-changed="_clearInvalid" label="[[localize('add_day')]]" class="with-bg input">
+                    <paper-listbox class="with-weekday" slot="dropdown-content" on-iron-select="_setLessonsInWith">
+                      <paper-item>[[localize('weekDays', 'd', 0)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 1)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 2)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 3)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 4)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 5)]]</paper-item>
+                      <paper-item>[[localize('weekDays', 'd', 6)]]</paper-item>
+                    </paper-listbox>
+                  </paper-dropdown-menu>
+                </template>
+                <template is="dom-if" if="[[!item.permanent]]">
+                  <paper-input type="date" class="input with-bg with-date" on-value-changed="_clearInvalid" on-change="_setLessonsInWith" label="[[localize('add_when')]]"></paper-input>
+                </template>
+                <paper-dropdown-menu on-value-changed="_clearInvalid" label="[[localize('add_lesson')]]" class="with-bg input">
+                  <paper-listbox class="with-lessoni" slot="dropdown-content">
+                    <template is="dom-repeat">
+                      <paper-item>[[item]]</paper-item>
+                    </template>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+              </div>
+            </template>
+            <template is="dom-if" if="[[_isSelected(item.selectedChangeType, '2')]]">
+              <paper-dropdown-menu no-label-float class="with-bg input">
+                  <paper-listbox slot="dropdown-content" class="delete-behavior" selected="0">
+                    <paper-item label="[[localize('add_delete-leave')]]">
+                      <paper-item-body two-line>
+                        <div>[[localize('add_delete-leave')]]</div>
+                        <div secondary>[[localize('add_delete-leave-desc')]]</div>
+                      </paper-item-body>
+                    </paper-item>
+                    <paper-item label="[[localize('add_delete-up')]]">
+                      <paper-item-body two-line>
+                        <div>[[localize('add_delete-up')]]</div>
+                        <div secondary>[[localize('add_delete-up-desc')]]</div>
+                      </paper-item-body>
+                    </paper-item>
+                    <paper-item label="[[localize('add_delete-down')]]">
+                      <paper-item-body two-line>
+                        <div>[[localize('add_delete-down')]]</div>
+                        <div secondary>[[localize('add_delete-down-desc')]]</div>
+                      </paper-item-body>
+                    </paper-item>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+            </template>
+          </div>
+          <div class="third-line">
+            <paper-checkbox class="with-bg row is-permanent" checked="{{item.permanent}}">[[localize('add_permanent')]]</paper-checkbox>
+            <template is="dom-if" if="[[!item.permanent]]">
+              <p class="with-bg">[[localize('add_when')]]</p>
+              <div class="row">
+                <paper-input class="with-bg input year" label="[[localize('add_year')]]" min="[[_getCurrentYear()]]"
+                             on-value-changed="_setDaysOfMonth" type="number" value="[[_getCurrentYear()]]"></paper-input>
+                <paper-dropdown-menu class="input with-bg" label="[[localize('add_month')]]" on-value-changed="_setDaysOfMonth">
+                  <paper-listbox class="month" slot="dropdown-content" selected="[[_getCurrentMonth()]]">
+                    <paper-item>[[localize('months', 'm', '0')]]</paper-item>
+                    <paper-item>[[localize('months', 'm', '1')]]</paper-item>
+                    <paper-item>[[localize('months', 'm', '2')]]</paper-item>
+                    <paper-item>[[localize('months', 'm', '3')]]</paper-item>
+                    <paper-item>[[localize('months', 'm', '4')]]</paper-item>
+                    <paper-item>[[localize('months', 'm', '5')]]</paper-item>
+                    <paper-item>[[localize('months', 'm', '6')]]</paper-item>
+                    <paper-item>[[localize('months', 'm', '7')]]</paper-item>
+                    <paper-item>[[localize('months', 'm', '8')]]</paper-item>
+                    <paper-item>[[localize('months', 'm', '9')]]</paper-item>
+                    <paper-item>[[localize('months', 'm', '10')]]</paper-item>
+                    <paper-item>[[localize('months', 'm', '11')]]</paper-item>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+                <paper-dropdown-menu class="input with-bg" label="[[localize('add_day')]]" on-value-changed="_validateDay">
+                  <paper-listbox class="day" slot="dropdown-content">
+                    <template is="dom-repeat" as="day">
+                      <paper-item>[[day]]</paper-item>
+                    </template>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+    <div id="addEvent">
+      <template is="dom-repeat" items="{{events}}" as="event">
+        <div class="event">
+          <paper-icon-button icon="ycons:remove-circle" on-tap="_removeEvent" tabindex="-1"
+                             index$="[[index]]" class="remove-btn"></paper-icon-button>
+          <paper-input value="{{event.name}}" class="input with-bg" label="[[localize('add_event')]]"></paper-input>
+          <paper-input type="date" value="{{event.date}}" class="input with-bg" on-change="_setLessonsInEvent" label="[[localize('add_when')]]"></paper-input>
+          <paper-dropdown-menu no-label-float label="[[localize('add_lesson')]]" class="with-bg input">
+            <paper-listbox slot="dropdown-content" selected="{{event.lesson}}" fallback-selection="0">
+              <template is="dom-repeat">
+                <paper-item>[[item]]</paper-item>
+              </template>
+            </paper-listbox>
+          </paper-dropdown-menu>
+        </div>
+      </template>
+    </div>
+  </iron-pages>
+  <div id="bottom">
+    <paper-button on-tap="_addItem">[[localize('add_add-lesson')]]</paper-button>
+    <span class="spacer"></span>
+    <paper-button on-tap="_close">[[localize('cancel')]]</paper-button>
+    <paper-button on-tap="save">[[localize('save')]]</paper-button>
+  </div>
+</div>

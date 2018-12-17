@@ -1,0 +1,402 @@
+<!doctype html>
+<html>
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+  <title>Your Timetable</title>
+  <meta name="description" content="A timetable that works for you">
+
+  <link rel="icon" href="/favicon.ico">
+
+  <!-- Web manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Style status bar on Chrome -->
+  <meta name="theme-color" id="themeColor" content="#673ab7">
+
+  <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Your Timetable">
+
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Your Timetable">
+
+  <!-- Homescreen icons -->
+  <!--<link rel="apple-touch-icon" href="/images/icons/icon-48x48.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/images/icons/icon-72x72.png">     404
+  <link rel="apple-touch-icon" sizes="96x96" href="/images/icons/icon-96x96.png">-->
+  <!--<link rel="apple-touch-icon" sizes="144x144" href="/images/icons/icon-144x144.png">-->
+  <!--<link rel="apple-touch-icon" sizes="192x192" href="/images/icons/icon-192x192.png">-->
+
+  <!-- Tile icon for Windows 8 (144x144 + tile color) -->
+  <!--<meta name="msapplication-TileImage" content="/images/icons/icon-144x144.png">-->
+  <!--<meta name="msapplication-TileColor" content="#673ab7">-->
+  <!--<meta name="msapplicatidata-on-tap-highlight" content="no">-->
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-74403254-2"></script>
+
+  <!--
+    I can't believe we're really stuck with this unnecessary polyfill
+    But there's nothing we can do right now. For the future:
+    @TODO: Switch from paper elements to MDC webcomponents
+   -->
+  <script async src="/node_modules/web-animations-js/web-animations-next.min.js"></script>
+
+  <custom-style>
+    <link rel="stylesheet" href="/src/css/app-theme.css">
+    <style>
+      html, body {
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+        --main-font:  'Roboto', 'Noto', 'Halvetica', sans-serif;
+        font-family: var(--main-font);
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      @media (max-width: 960px) and (orientation: landscape),
+        (max-width: 600px) and (orientation: portrait) {
+        /* Phone styles */
+        
+        #fab {
+          position: fixed;
+          bottom: 16px;
+          right: 16px;
+        }
+        
+        app-toolbar {
+          height: 56px;
+          padding-left: 8px;
+        }
+        
+        app-toolbar [title] {
+          margin-left: 24px;
+        }
+        
+        iron-swipeable-pages {
+          top: 112px !important;
+        }
+
+        iron-swipeable-pages > div,
+        iron-swipeable-pages > div > * {
+          min-height: calc(100vh - 112px);
+        }
+      }
+
+      @media (max-width: 960px) and (orientation: landscape) {
+        /* Phone landscape styles */
+        
+        app-toolbar {
+          height: 48px !important;
+        }
+        
+        iron-swipeable-pages {
+          top: 96px !important;
+        }
+
+        iron-swipeable-pages > div,
+        iron-swipeable-pages > div > * {
+          min-height: calc(100vh - 96px);
+        }
+      }
+
+      @media (min-width: 600px) and (max-width: 840px) and (orientation: portrait),
+        (min-width: 960px) and (max-width: 1280px) and (orientation: landscape) {
+        /* Tablet styles */ /* A bit wider than standard tablet */
+        
+        #fab {
+          position: fixed;
+          right: 24px;
+          bottom: 24px;
+        }
+        
+        app-toolbar {
+          /*height: 64px; # Not necessary since this is the default*/
+          padding: 0 8px 0 60px;
+        }
+        
+        iron-swipeable-pages {
+          top: 128px !important;
+        }
+
+        iron-swipeable-pages > div,
+        iron-swipeable-pages > div > * {
+          min-height: calc(100vh - 128px);
+        }
+        
+        paper-tabs {
+          padding: 0 60px;
+        }
+        
+        #avatar-menu {
+          margin-right: 152px;
+        }
+      }
+
+      @media (min-width: 1280px) and (orientation: landscape),
+        (min-width: 840px) and (orientation: portrait) {
+        /* Desktop styles */
+        
+        paper-tabs {
+          padding: 0 180px !important;
+        }
+        
+        #fab {
+          position: absolute;
+          bottom: -32px;
+          right: 52px;
+        }
+        
+        app-toolbar {
+          /*height: 64px; # Not nescessary since this is the default*/
+          padding: 0 8px 0 60px;
+        }
+        
+        iron-swipeable-pages {
+          top: 128px !important;
+        }
+
+        iron-swipeable-pages > div,
+        iron-swipeable-pages > div > * {
+          min-height: calc(100vh - 128px);
+        }
+        
+        #avatar-menu {
+          margin-right: 152px;
+        }
+      }
+
+      /* Cross-device styles */
+
+      hr {
+        border-width: 1px 0 0 0;
+        border-color: var(--divider-color);
+      }
+
+      app-drawer {
+        z-index: 11;
+        --app-drawer-content-container: {
+          @apply --shadow-elevation-16dp;
+          max-width: 280px;
+          width: calc(100% - 56px);
+        };
+      }
+
+      paper-tab {
+        @apply --paper-font-button;
+        font-weight: 500;
+      }
+
+      app-toolbar {
+        background-color: var(--primary-color);
+        color: white;
+        /* opacity: var(--light-primary-opacity); No need to include this since it defaults to 1 */
+      }
+
+      app-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 9;
+      }
+
+      [title] {
+        @apply --paper-font-title;
+      }
+
+      paper-menu > paper-item {
+        --paper-item-selected-weight: 400 !important;
+        --paper-item-focused-before: {
+          background: var(--light-theme-secondary-color) !important;
+        };
+      }
+      paper-menu > paper-item:focus:after {
+        background: none !important;
+      }
+
+      #fab {
+        @apply --shadow-transition;
+        color: black;
+        z-index: 10;
+        --paper-fab-iron-icon: {
+          opacity: var(--dark-primary-opacity);
+        };
+        --paper-fab-keyboard-focus-background: var(--dark-accent-color);
+      }
+
+      iron-swipeable-pages {
+        position: absolute;
+        right: 0;
+        left: 0;
+      }
+
+      iron-swipeable-pages > div {
+        background-color: var(--primary-background-color);
+      }
+
+      iron-swipeable-pages  > div.iron-selected {
+        position: relative !important;
+      }
+
+      iron-pages, iron-pages > * {
+        @apply --layout-fit;
+      }
+      iron-pages[selected="main"] {
+        display: none;
+      }
+
+      iron-swipeable-pages > div > .waiter {
+        @apply --layout-fit;
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        @apply --layout-center-justified;
+        background-color: var(--primary-body-color);
+      }
+
+      iron-swipeable-pages > div > .waiter > paper-spinner {
+        --paper-spinner-stroke-width: 4px;
+        position: relative;
+        width: 44px;
+        height: 44px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .badge {
+        padding: 0.3em;
+        font-size: 0.6em;
+        color: rgba(0, 0, 0, 0.92);
+        background-color: var(--accent-color);
+        border-radius: 2px;
+        margin: 1em 1em auto 1em;
+        font-weight: 700;
+      }
+
+      .spacer {
+        @apply --layout-flex;
+      }
+
+      #sections {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+      }
+
+      #avatar-menu {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        padding: 0;
+        overflow: hidden;
+        margin-right: 16px;
+      }
+
+      yta-about-dialog, yta-feedback-dialog {
+        display: none;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+      }
+    </style>
+  </custom-style>
+
+</head>
+<body>
+  
+    <link rel="stylesheet" href="/src/css/app-theme.css">
+
+<app-header id="header" condenses fixed reveals effects="waterfall">
+  <app-toolbar>
+    <div title data-localize="shell_title">Your Timetable</div>
+    <div class="badge">βeta</div>
+    <span class="spacer"></span>
+    <paper-menu-button horizontal-align="right">
+      <paper-icon-button src="/images/portrait-placeholder.png" slot="dropdown-trigger" id="avatar-menu"></paper-icon-button>
+      <paper-listbox slot="dropdown-content" data-on-tap="_menuItemClicked">
+        <paper-item role="menuitem" key="settings" data-localize="settings_h"><!-- Settings --></paper-item>
+        <paper-item role="menuitem" key="feedback" data-localize="shell_feedback"><!-- Send feedback --></paper-item>
+        <paper-item role="menuitem" key="about" data-localize="shell_about"><!-- About --></paper-item>
+        <paper-item role="menuitem" key="signout" data-localize="shell_signout"><!-- Sign out --></paper-item>
+        <!--<paper-item role="menuitem" key="help">Help</paper-item> TODO: Think of help section -->
+      </paper-listbox>
+    </paper-menu-button>
+  </app-toolbar>
+  <app-toolbar sticky>
+    <paper-tabs data-bind-attr="selected" data-bind-value="selectedPage" attr-for-selected="key" bottom-item>
+      <paper-tab key="overview" data-tab="overview">
+        <!-- overview -->
+      </paper-tab>
+      <paper-tab key="timetable" data-tab="timetable">
+        <!-- timetable -->
+      </paper-tab>
+      <paper-tab key="search" data-tab="search">
+        <!-- search -->
+      </paper-tab>
+      <paper-tab key="calendar" data-tab="calendar">
+        <!-- calendar -->
+      </paper-tab>
+    </paper-tabs>
+  </app-toolbar>
+</app-header>
+
+<paper-fab id="fab" icon="ycons:add" data-on-tap="_openAddDialog"></paper-fab>
+
+<iron-swipeable-pages id="pages" edge-swipe-sensitivity="30" attr-for-selected="id"
+                      data-bind-attr="selected" data-bind-value="selectedPage">
+  <div id="overview">
+    <yta-overview-page></yta-overview-page>
+    <div class="waiter">
+      <paper-spinner active></paper-spinner>
+    </div>
+  </div>
+  <div id="timetable">
+    <yta-timetable-page></yta-timetable-page>
+    <div class="waiter">
+      <paper-spinner active></paper-spinner>
+    </div>
+  </div>
+  <div id="search">
+    <yta-search-page></yta-search-page>
+    <div class="waiter">
+      <paper-spinner active></paper-spinner>
+    </div>
+  </div>
+  <div id="calendar">
+    <yta-calendar-page></yta-calendar-page>
+    <div class="waiter">
+      <paper-spinner active></paper-spinner>
+    </div>
+  </div>
+</iron-swipeable-pages>
+
+<!-- TODO: Do something with this -->
+<!-- Switch between sections -->
+<iron-pages data-bind-attr="selected" data-bind-value="selectedSection" attr-for-selected="key" id="sections">
+  <yta-settings key="settings"></yta-settings>
+  <yta-onboarding key="onboarding"></yta-onboarding>
+  <yta-setup-dialog key="setup"></yta-setup-dialog>
+  <yta-add-dialog key="add"></yta-add-dialog>
+</iron-pages>
+
+<!-- Less important elements -->
+<yta-feedback-dialog id="feedbackDialog"></yta-feedback-dialog>
+<yta-about-page id="aboutDialog"></yta-about-page>
+
+</body>
+</html>

@@ -1,0 +1,115 @@
+<style>
+      
+  :host {
+    overflow-y: scroll;
+  }
+
+  @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+    /* Phone styles */
+    
+    #search, #results {
+      padding: 15px;
+      background-color: white;
+    }
+
+    #results {
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+
+    .result-card {
+      @apply --layout-flex;
+      border-bottom: 1px solid var(--divider-color);
+      min-height: 72px;
+      padding: 0;
+    }
+  }
+
+  @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+    /* Other than phone */
+
+    #search, #results {
+      margin: 15px auto;
+      max-width: 800px;
+    }
+
+    #results {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .result-card {
+      @apply --shadow-elevation-2dp;
+      margin: 4px;
+      min-width: 190px;
+      height: 100px;
+      display: inline-block;
+    }
+
+    paper-icon-item iron-icon {
+      margin: 12px 0 4px 0;
+    }
+    
+  }
+
+  #search {
+    padding-bottom: 24px;
+  }
+
+  #results {
+    display: flex;
+  }
+
+  .result-card {
+    background-color: white;
+  }
+
+  .paper-secondary-text {
+    opacity: var(--dark-secondary-opacity);
+  }
+
+  paper-icon-item iron-icon {
+    opacity: var(--dark-secondary-opacity);
+  }
+
+</style>
+
+<div id="search">
+  <paper-input placeholder="[[localize('search')]]" type="search" no-label-float
+               on-change="searchEvent"></paper-input>
+</div>
+<div id="results">
+  <template is="dom-repeat" items="[[_results]]">
+    <template is="dom-if" if="[[item.isEvent]]">
+      <paper-icon-item class="result-card">
+        <iron-icon icon="ycons:event" slot="item-icon"></iron-icon>
+        <paper-item-body>
+          <span>[[item.name]]</span>
+          <span secondary>[[_readDate(item.date)]], [[_readLesson(item)]]</span>
+        </paper-item-body>
+      </paper-icon-item>
+    </template>
+    <template is="dom-if" if="[[!item.isEvent]]">
+      <paper-item class="result-card">
+        <paper-item-body three-line>
+          <span>
+            <span class="paper-secondary-text">[[_readIndex(item.lesson)]]. </span>
+            <span>[[item.name]]</span>
+          </span>
+          <span secondary>[[_displayReadable(item.day, item.startTime, item.endTime)]]</span>
+          <span secondary>
+            <template is="dom-if" if="[[item.classroom]]">
+              [[localize('setup_in')]] [[item.classroom]] 
+            </template>
+            <template is="dom-if" if="[[item.teacher]]">
+              [[localize('setup_with')]] [[item.teacher]]
+            </template> 
+          </span>
+        </paper-item-body>
+      </paper-item>
+    </template>
+  </template>
+</div>

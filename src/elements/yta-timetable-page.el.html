@@ -1,0 +1,81 @@
+<style>
+      
+  :host, #topPlaceholder {
+    overflow-y: visible;
+    position: relative;
+  }
+  
+  #topPlaceholder {
+    @apply --layout-horizontal;
+    @apply --layout-wrap;
+  }
+  
+  .dayPlaceholder {
+    min-width: 300px;
+  }
+  
+  .lesson {
+    @apply --layout-vertical;
+    @apply --layout-center-justified;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
+    border-left-style: solid;
+    border-left-width: 3px;
+    height: 60px;
+    padding-left: 13px;
+  }
+  
+  .day-name {
+    @apply --paper-font-menu;
+    color: #fbc02d;
+    margin: 8px 0 8px 16px;
+  }
+  
+  p.secondary {
+    @apply --paper-font-body1;
+    color: var(--secondary-text-color);
+  }
+  
+  p {
+    margin: 0 2px; 
+  }
+  
+  @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+    
+    .dayPlaceholder {
+      min-width: calc(100vw - 3px);
+    }
+    
+    .lesson {
+      height: 70px;
+    }
+    
+  }
+  
+  @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+    
+    .dayPlaceholder {
+      @apply --layout-flex;
+    }
+    
+  }
+
+</style>
+
+<div id="topPlaceholder">
+  <template is="dom-repeat" items="[[_getTt(data.timetable)]]">
+    <div class="dayPlaceholder">
+      <h6 class="day-name">[[_getDayName(item)]]</h6>
+      <div class="lessonsPlaceholder">
+        <dom-repeat items="[[item]]" as="lesson">
+          <template>
+            <div class="lesson" style="border-left-color: [[_pickLessonColor(lesson.name)]];">
+              <p>[[lesson.name]]</p>
+              <p class="secondary">[[viewReadable(lesson.startTime)]] - [[viewReadable(lesson.endTime)]]</p>
+            </div>
+          </template>
+        </dom-repeat>
+      </div>
+    </div>
+  </template>
+</div>
+<div id="spacer"></div>

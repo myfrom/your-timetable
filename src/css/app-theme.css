@@ -1,0 +1,55 @@
+html {
+  /*
+   * You can use these generic variables in your elements for easy theming.
+   * For example, if all your elements use `--primary-text-color` as its main
+   * color, then switching from a light to a dark theme is just a matter of
+   * changing the value of `--primary-text-color` in your application.
+   */
+  --primary-text-color: var(--light-theme-text-color) !important;
+  --primary-background-color: var(--light-theme-background-color) !important;
+  --secondary-text-color: var(--light-theme-secondary-color) !important;
+  --disabled-text-color: var(--light-theme-disabled-color) !important;
+  --divider-color: var(--light-theme-divider-color) !important;
+  --error-color: var(--paper-deep-orange-a700) !important;
+  /*
+   * Primary and accent colors. Also see color.html for more colors.
+   */
+  --primary-color: #673ab7 !important;
+  --light-primary-color: #673AB7 !important;
+  --dark-primary-color: #4527a0 !important;
+  --accent-color: #ffff00 !important;
+  --light-accent-color: #ffff8d !important;
+  --dark-accent-color: #ffea00 !important;
+  /*
+   * Material Design Light background theme
+   */
+  --light-theme-background-color: #fafafa !important;
+  --light-theme-base-color: #000000 !important;
+  --light-theme-text-color: #212121 !important;
+  --light-theme-secondary-color: #737373 !important;
+  /* for secondary text and icons */
+  --light-theme-disabled-color: #9b9b9b !important;
+  /* disabled/hint text */
+  --light-theme-divider-color: #dbdbdb !important;
+  /*
+   * Material Design Dark background theme
+   */
+  --dark-theme-background-color: #212121 !important;
+  --dark-theme-base-color: #ffffff !important;
+  --dark-theme-text-color: #ffffff !important;
+  --dark-theme-secondary-color: #bcbcbc !important;
+  /* for secondary text and icons */
+  --dark-theme-disabled-color: #646464 !important;
+  /* disabled/hint text */
+  --dark-theme-divider-color: #3c3c3c !important;
+  /*
+   * Deprecated values because of their confusing names.
+   */
+  --text-primary-color: var(--dark-theme-text-color) !important;
+  --default-primary-color: var(--primary-color) !important;
+}
+
+/* Monkeypatch */
+vaadin-combo-box-overlay {
+  z-index: 999;
+}

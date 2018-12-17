@@ -1,0 +1,441 @@
+<style>
+      
+  @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape) {
+    /* Phone landscape styles */
+    
+    #main {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    
+    .page {
+      @apply --layout-horizontal;
+      height: 100%;
+      width: 100%;
+    }
+    
+    .page > .image {
+      @apply --layout-flex;
+    }
+    
+    .page > .text {
+      @apply --layout-flex;
+      @apply --layout-start
+    }
+    
+    #pager {
+      position: absolute;
+      bottom: calc(50% - 100px);
+      left: 50vw;
+    }
+  }
+  
+  @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+    /* Phone portirait styles */
+    
+    #main {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    
+    .page {
+      @apply --layout-vertical;
+      height: 100%;
+      width: 100%;
+    }
+    
+    .page > .image {
+      @apply --layout-flex-3;
+    }
+    
+    .page > .text {
+      @apply --layout-flex-2;
+      @apply --layout-center;
+    }
+    
+    .page > .text > p {
+      text-align: center;
+      margin: 0 50px;
+    }
+    
+    #signinBtn {
+      margin: 16px auto;
+    }
+    
+    #pager {
+      position: absolute;
+      bottom: 24px;
+      left: 50vw;
+      transform: translateX(calc(-50% - 5px));
+    }
+  }
+  
+  @media (min-width: 961px) and (max-width: 1279px) and (orientation: landscape) {
+    /* Tablet landscape styles */
+    
+    #main {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    
+    .page {
+      @apply --layout-horizontal;
+      height: 100%;
+      width: 100%;
+    }
+    
+    .page > .image {
+      @apply --layout-flex-2;
+    }
+    
+    .page > .text {
+      @apply --layout-start;
+      @apply --layout-flex;
+    }
+    
+    #pager {
+      position: absolute;
+      bottom: calc(50% - 100px);
+      left: 66vw;
+    }
+  }
+  
+  @media (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {
+    /* Tablet portirait styles */
+    
+    #main {
+      @apply --layout-fit;
+    }
+    
+    .page {
+      @apply --layout-vertical;
+      height: 100%;
+      width: 100%;
+    }
+    
+    .page > .image {
+      @apply --layout-flex-2;
+    }
+    
+    .page > .text {
+      @apply --layout-flex;
+      @apply --layout-center;
+    }
+    
+    .page > .text > p {
+      text-align: center;
+      margin: 0 70px;
+    }
+    
+    #signinBtn {
+      margin: 0 auto;
+    }
+    
+    #pager {
+      position: absolute;
+      bottom: 24px;
+      left: 50vw;
+      transform: translateX(calc(-50% - 5px));
+    }
+  }
+  
+  @media (min-width: 841px) and (orientation: portrait), (min-width: 1280px) and (orientation: landscape) {
+    /* Desktop styles */
+    
+    :host {
+      @apply --layout;
+      @apply --layout-center;
+      @apply --layout-center-justified;
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    #main {
+      width: 750px;
+      height: 750px;
+      position: relative;
+    }
+    
+    #main, .fab {
+      @apply --shadow-elevation-16dp;
+    }
+    
+    #main, .page {
+      border-radius: 25px;
+    }
+    
+    .page {
+      @apply --layout-vertical;
+      width: 750px;
+      height: 750px;
+    }
+    
+    .page > .image {
+      @apply --layout-flex-2;
+    }
+    
+    .page > .text {
+      @apply --layout-flex;
+      @apply --layout-center;
+    }
+    
+    .page > .text > p {
+      text-align: center;
+    }
+    
+    #signinBtn {
+      margin: 0 auto;
+    }
+    
+    #pager {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(calc(-50% - 5px));
+    }
+    
+    .fab {
+      display: block !important;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      --paper-fab-background: white;
+      --paper-fab-keyboard-focus-background: var(--paper-grey-200);
+      --paper-fab-disabled-background: var(--paper-grey-300);
+      --paper-fab-iron-icon: {
+        opacity: var(--secondary-opacity);
+      };
+    }
+    
+    .fab.right {
+      right: -108px;
+    }
+    
+    .fab.left {
+      left: -108px;
+    }
+  }
+  
+  :host {
+    transform: translateY(100vh);
+    z-index: 999;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  
+  :host(.open) {
+    transform: none;
+  }
+  
+  iron-swipeable-pages {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  
+  .page {
+    @apply --layout;
+    @apply --layout-center;
+  }
+  
+  .page > .text {
+    @apply --layout;
+    @apply --layout-vertical;
+  }
+  
+  .image {
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+  }
+  
+  #main {
+    background-color: white;
+  }
+  
+  #signinBtn {
+    height: 40px;
+    padding: 1px 16px 1px 1px;
+    background-color: #4285F4;
+    border-radius: 2px;
+    font-family: 'Roboto', 'Noto', sans-serif !important;
+    font-weight: 500 !important;
+    color: white;
+    font-size: 14px !important;
+    text-transform: none !important;
+    transition: background 150ms;
+  }
+  
+  #signinBtn img, #signinBtn .logo-placeholder {
+    width: 18px;
+    height: 18px;
+  }
+  
+  #signinBtn .logo-placeholder {
+    padding: 10px;
+    background: white;
+    margin-right: 14px;
+  }
+  
+  #signinBtn.waiting {
+    background: white;
+  }
+  
+  #signinBtn.failed {
+    background: #ff5722;
+  }
+  
+  #signinBtn.waiting > *, #signinBtn.failed > * {
+    opacity: 0;
+    color: rgba(0,0,0,0);
+  }
+  
+  .text > h1 {
+    @apply --paper-font-headline;
+    margin: 0 0 16px 0;
+    font-weight: 500 !important;
+  }
+  
+  .text > p {
+    @apply --paper-font-subhead;
+    height: 72px;
+    margin: 0;
+  }
+
+  .fab {
+    display: none;
+  }
+  
+  /* Page specific styles */
+  
+  .page.login {
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    background-image: url('/images/onboarding/login.png');
+    background-size: contain;
+    background-position: top;
+    background-repeat: no-repeat;
+  }
+  .page.login .text {
+    color: black;
+    align-items: center;
+    justify-content: center;
+    max-width: 400px;
+    margin: 12px;
+    overflow-y: visible;
+  }
+  .page.login h1 {
+    margin-bottom: 1em;
+  }
+  .page.login p {
+    opacity: 0.8;
+    margin-bottom: 1em;
+    height: auto;
+  }
+  .page.login paper-checkbox {
+    max-width: 300px;
+    margin-bottom: 2em;
+    color: rgba(0, 0, 0, 0.8);
+    --paper-checkbox-checked-color: #4285F4;
+    --paper-checkbox-checked-ink-color: #4285F4;
+    --paper-checkbox-unchecked-color: rgba(0, 0, 0, 0.5);
+  }
+  .page.login a {
+    color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .page[i="3"] {
+    color: #0b74a4;
+    background: #81D4FA;
+  }
+  .page[i="3"] p {
+    opacity: 0.7;
+  }
+  
+  .page[i="2"] {
+    color: #aa8106;
+    background: #FFECB3;
+  }
+  .page[i="2"] p {
+    opacity: 0.7;
+  }
+  
+  .page[i="1"] {
+    color: #7656aa;
+    background: #e1d2fa;
+  }
+  .page[i="1"] p {
+    opacity: 0.7;
+  }
+
+  @media (orientation: landscape) {
+    
+    .page.login {
+      background-size: cover;
+    }
+
+  }
+  
+</style>
+
+<div id="main">
+  <paper-fab class="fab right" icon="ycons:arrow-forward" on-tap="_nextSlide"></paper-fab>
+  <paper-fab class="fab left" disabled icon="ycons:arrow-back" on-tap="_previousSlide"></paper-fab>
+  <iron-swipeable-pages id="carousel" selected="{{selected}}" no-cycle threshold="0.2">
+    <div class="page" i="1" color="#e1d2fa">
+      <div class="image" style="background-image: url(/images/onboarding/1.png);"></div>
+      <div class="text">
+        <h1>[[localize('onboard_1h')]]</h1>
+        <p>[[localize('onboard_1p')]]</p>
+      </div>
+    </div>
+    <div class="page" i="2" color="#FFECB3">
+      <div class="image" style="background-image: url(/images/onboarding/2.png);"></div>
+      <div class="text">
+        <h1>[[localize('onboard_2h')]]</h1>
+        <p>[[localize('onboard_2p')]]</p>
+      </div>
+    </div>
+    <!--<template is="dom-if" if="[[_isSW()]]">-->
+      <div class="page" i="3" color="#81D4FA">
+        <div class="image" style="background-image: url(/images/onboarding/3.png);"></div>
+        <div class="text">
+          <h1>[[localize('onboard_3h')]]</h1>
+          <p>[[localize('onboard_3p')]]</p>
+        </div>
+      </div>
+    <!--</template>-->
+    <div class="page login" i$="[[_pagesCount()]]" color="#ffffff">
+      <div class="text">
+        <h1>[[localize('onboard_4h')]]</h1>
+        <p>[[localize('onboard_4p_beta1')]]</p>
+        <p>[[localize('onboard_4p_beta2')]]</p>
+        <paper-checkbox id="beta-checkbox">[[localize('onboard_4p_beta-checkbox')]]</paper-checkbox>
+        <p>[[localize('onboard_4p-1')]] <a href="/terms-and-conditions.html">[[localize('onboard_4p-2')]]</a> [[localize('onboard_4p-3')]] <a href="/privacy-policy.html">[[localize('onboard_4p-4')]]</a>.</p>
+        <paper-button on-tap="_signIn" id="signinBtn" raised>
+          <div class="logo-placeholder">
+            <img src="/images/google-g-logo.svg">
+          </div>
+          [[localize('onboard_sign-in')]]
+        </paper-button>
+      </div>
+    </div>
+  </iron-swipeable-pages>
+  <paper-pager id="pager" selected="{{selected}}" items-count="[[_pagesCount()]]"></paper-pager>
+</div>

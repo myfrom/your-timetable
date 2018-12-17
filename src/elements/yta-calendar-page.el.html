@@ -1,0 +1,130 @@
+<style>
+
+  :host {
+    height: 100%;
+  }
+
+  #calendar-container {
+    /* Default, phone */
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+  
+  #calendar {
+    width: 100%;
+    height: 100%;
+    color: rgba(0, 0, 0, 0.71);
+    font-weight: 400;
+    --pf-calendar-bg-color: transparent;
+    --pf-calendar-header-background: #7548c4/* var(--light-primary-color) */;
+    --pf-calendar-header-height: 58px;
+    --pf-calendar-header-arrow-color: rgba(255, 255, 255, 0.7);
+    --pf-calendar-month-title-font-size: 16px;
+    --pf-calendar-month-title-color: white;
+    --pf-calendar-month-title-line-height: 58px;
+    --pf-calendar-month-title-font-weight: 500;
+    --pf-calendar-month-title-letter-spacing: 0;
+    --pf-calendar-day-bg: transparent;
+    --pf-calendar-day-color: rgba(0, 0, 0, 0.82);
+    --pf-calendar-other-day-color: rgba(0, 0, 0, 0.3);
+    --pf-calendar-today-color: var(--primary-color);
+    --pf-calendar-day-name-color: rgba(0, 0, 0, 0.52);
+    --pf-calendar-event-detail-bg: #eee;
+    --pf-calendar-event-color: rgba(0, 0, 0, 0.82);
+    --pf-calendar-selected-date-bg: var(--accent-color);
+    --pf-calendar-selected-date-color: rgba(0, 0, 0, 0.82);
+    --pf-calendar-addbutton-disply: none;
+    --pf-calendar-addbutton-color: rgba(0, 0, 0, 0.36);
+    --pf-calendar-editbutton-color: rgba(0, 0, 0, 0.36);
+    --pf-calendar-deletebutton-color: rgba(0, 0, 0, 0.36);
+    --pf-calendar-legend-bg: transparent;
+  }
+
+  @media (min-width: 480px) and (max-width: 960px) and (orientation: landscape), (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+    /* Phone styles */
+    
+    
+
+  }
+
+  @media (min-width: 961px) and (orientation: landscape), (min-width: 601px) and (orientation: portrait) {
+    /* Other than phone */
+
+    #calendar-container {
+      position: relative;
+      margin: 0 auto;
+      padding: 32px 10vw;
+      max-width: 1200px;
+      max-height: 900px;
+      height: calc(100vh - 192px);
+    }
+
+    #calendar {
+      --pf-calendar-header-background: var(--primary-background-color);
+      --pf-calendar-header-arrow-color: rgba(0, 0, 0, 0.36);
+      --pf-calendar-month-title-color: rgba(0, 0, 0, 0.82);
+    }
+
+  }
+
+</style>
+
+<div id="calendar-container">
+  <pf-calendar-events id="calendar"></pf-calendar-events>
+</div>
+<!-- <div id="header">
+  <paper-icon-button icon="ycons:keyboard-arrow-left" on-tap="_previousMonth"></paper-icon-button>
+  <span>[[_computeMonthName(_selectedMonth)]]</span>
+  <paper-icon-button icon="ycons:event" on-tap="_today"></paper-icon-button>
+  <paper-icon-button icon="ycons:keyboard-arrow-right" on-tap="_nextMonth"></paper-icon-button>
+</div>
+<paper-calendar id="calendar" selectable on-selected="_calendarSelected"
+                swipeable swipe-direction="vertical"
+                events="[[_processEvents(data.events)]]"
+                first-day="[[data.settings.firstDayOfWeek]]"
+                selected-month="{{_selectedMonth}}"></paper-calendar> -->
+
+<paper-dialog id="dialog" with-backdrop>
+  <h2></h2>
+  <paper-dialog-scrollable>
+    <template is="dom-repeat" id="eventsRepeater">
+      <paper-item class="event" style="background-color: [[item.color]];">
+        <paper-item-body two-line>
+          <template is="dom-if" class="show-domif" if="true" restamp>
+            <div class="primary">
+              <span class="header">[[item.name]]</span>
+              <div class="actions" info$="[[item.date]][[index]]">
+                <template is="dom-if" if="[[!item.change]]">
+                  <paper-icon-button icon="ycons:edit" class="edit-button"></paper-icon-button>
+                </template>
+                <paper-icon-button icon="ycons:delete" class="delete-button"></paper-icon-button>
+              </div>
+            </div>
+            <div secondary class="secondary">[[_getLessonName(item.date, item.lesson)]]</div>
+          </template>
+          <template is="dom-if" class="edit-domif" restamp>
+            <div class="primary">
+              <paper-input no-label-float value="[[item.name]]"></paper-input>
+              <div class="actions">
+                <paper-icon-button  info$="[[item.date]][[index]]" icon="ycons:done" on-tap="_finishedEditing" style="height:42px"></paper-icon-button>
+              </div>
+            </div>
+            <div secondary>
+              <paper-input type="date" no-label-float value="[[item.date]]" on-value-changed="_showLessons"></paper-input>
+              <paper-dropdown-menu no-label-float>
+                <paper-listbox selected="[[item.lesson]]" slot="dropdown-content">
+                  <template is="dom-repeat" as="lesson">
+                    <paper-item>[[lesson]]</paper-item>
+                  </template> 
+                </paper-listbox>
+              </paper-dropdown-menu>
+            </div>
+          </template>
+        </paper-item-body>
+      </paper-item>
+    </template>
+  </paper-dialog-scrollable>
+</paper-dialog>
