@@ -1,5 +1,10 @@
 importScripts('/node_modules/dexie/dist/dexie.js');
 
+workbox.skipWaiting();
+workbox.clientsClaim();
+
+workbox.precaching.precacheAndRoute(__precacheManifest);
+
 // Set required functions
 self.onmessage = e => {
   if (!e.data.cmd) return;

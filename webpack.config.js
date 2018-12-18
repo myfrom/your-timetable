@@ -164,16 +164,28 @@ module.exports = function(env) {
           to: './src/css/app-theme.css'
         }
       ]),
-      new injectCacheManifestPlugin({
-        swSrc: resolve(__dirname, 'src/service-worker.js'),
-        swDest: './service-worker.js',
-        importWorkboxFrom: 'local'
-      }),
       new htmlPlugin({
         template: 'index.html',
         inject: 'body',
         // minify: !DEV,
         chunks: ['js/index']
+      }),
+      new injectCacheManifestPlugin({
+        swSrc: resolve(__dirname, 'src/service-worker.js'),
+        swDest: './service-worker.js',
+        importWorkboxFrom: 'local',
+        globDirectory: resolve(__dirname),
+        globPatterns: [
+          './images/**/*.*',
+          './src/locales/*.*',
+          './favicon.ico',
+          './manifest.json',
+          './privacy-policy.html',
+          './terms-and-conditions.html',
+          './node_modules/web-animations-js/web-animations-next.min.js',
+          './node_modules/dexie/dist/dexie.js',
+          './src/css/app-theme.css'
+        ]
       })
     ],
     devServer: {
