@@ -36,6 +36,20 @@
   <!--<meta name="msapplication-TileImage" content="/images/icons/icon-144x144.png">-->
   <!--<meta name="msapplication-TileColor" content="#673ab7">-->
   <!--<meta name="msapplicatidata-on-tap-highlight" content="no">-->
+
+  <!-- Load pre-caching Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      var documentLoaded = new Promise(function(r) {
+        document.readyState === 'complete' ?
+          r() :
+          window.addEventListener('load', r, { once: true });
+      });
+      documentLoaded.then(function() {
+        navigator.serviceWorker.register('./service-worker.js');
+      });
+    }
+  </script>
   
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-74403254-2"></script>
 
